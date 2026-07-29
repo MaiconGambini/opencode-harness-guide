@@ -41,8 +41,10 @@ const sidebars: SidebarsConfig = {
       items: [
         'reference/commands',
         'reference/skills',
+        'reference/agents',
         'reference/artifacts',
         'reference/repository-structure',
+        'reference/references',
       ],
     },
     {

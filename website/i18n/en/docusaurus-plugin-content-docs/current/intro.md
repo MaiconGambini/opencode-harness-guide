@@ -5,22 +5,20 @@ slug: intro
 
 # Introduction
 
-OpenCode Harness turns OpenCode from an agent that "rediscovers everything
-every session" into an agent that maintains state, enforces WIP=1, produces
-evidence, and performs clean handoffs between sessions.
+The OpenCode Harness turns OpenCode from an agent that "rediscovers everything
+each session" into an agent that keeps state, respects WIP=1, produces
+evidence, and hands off cleanly between sessions.
 
 ## What you'll find
 
-- **[Getting Started](./getting-started/installation)** — 3-step install and
-  first session.
-- **[Concepts](./concepts/why-a-harness)** — PREVC, WIP=1, evidence, and the
-  seven components.
-- **[Guides](./guides/small-task)** — full workflow for small and complex
-  tasks.
-- **[Reference](./reference/commands)** — all commands, skills, and artifacts.
-- **[Adoption](./adoption/use-cases)** — use cases, pros and cons, security,
-  and limitations.
-- **[FAQ](./troubleshooting/faq)** — common issues and solutions.
+| Section | What it covers |
+|---|---|
+| **[Getting Started](./getting-started/installation)** | 3-step installation and first session. |
+| **[Concepts](./concepts/why-a-harness)** | PREVC, WIP=1, evidence, and the seven components. |
+| **[Guides](./guides/small-task)** | End-to-end flow for small and complex tasks. |
+| **[Reference](./reference/commands)** | All commands, skills, and artifacts. |
+| **[Adoption](./adoption/use-cases)** | Use cases, pros and cons, security, and limitations. |
+| **[FAQ](./troubleshooting/faq)** | Common problems and solutions. |
 
 ## Prerequisites
 
@@ -31,10 +29,18 @@ evidence, and performs clean handoffs between sessions.
 
 ## Quick install
 
+Clone the repository into the OpenCode configuration and install the dependencies:
+
 ```powershell
 git clone https://github.com/MaiconGambini/opencode-harness-guide.git "$env:USERPROFILE\.config\opencode"
 cd "$env:USERPROFILE\.config\opencode"
 npm install
 ```
+
+What happens:
+
+- The repository is cloned straight into `~/.config/opencode`, where OpenCode reads its configuration.
+- `npm install` downloads the dependencies for the plugins and scripts.
+- The files become available to OpenCode on its next startup.
 
 [Full installation guide &rarr;](./getting-started/installation)

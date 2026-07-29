@@ -10,44 +10,49 @@ limited capabilities; none of them decides on its own that the work is done.
 ## Phases
 
 ```text
-OPERADOR FAZ UMA SOLICITACAO
+OPERATOR MAKES A REQUEST
         |
         v
 CONTEXT FEEDFORWARD
-        |-- le regras, estado, handoff e standards relevantes
-        |-- descobre risco, stack e comando de verificacao
+        |-- reads relevant rules, state, handoff, and standards
+        |-- discovers risk, stack, and the verification command
         v
 PLAN
-        |-- define objetivo, escopo, nao-escopo e AC observaveis
-        |-- divide o trabalho em unidades WIP=1 quando necessario
+        |-- defines objective, scope, non-scope, and observable AC
+        |-- splits the work into WIP=1 units when needed
         v
 OPERATOR APPROVAL
-        |-- o operador revisa e confirma o plano
+        |-- the operator reviews and confirms the plan
         v
 REVIEW -> EXECUTE -> VALIDATE -> JUDGE
-        |-- cada fase permanece no escopo aprovado
-        |-- falha, ambiguidade ou escalacao param o fluxo
+        |-- each phase stays within the approved scope
+        |-- failure, ambiguity, or escalation stops the flow
         v
 AWAITING CONFIRMATION
-        |-- o operador revisa a evidencia e recebe o handoff
+        |-- the operator reviews the evidence and receives the handoff
         v
 HANDOFF
 ```
 
-## How to use it
+## How to use
+
+Start PREVC with the task description:
 
 ```text
-/prevc Adicionar endpoint de health check
+/prevc Add a health check endpoint
 ```
 
-PREVC prepares the plan and stops at `awaiting_plan_approval`. Once you
-approve:
+- Prepares the plan (objective, scope, non-scope, and AC).
+- Stops at `awaiting_plan_approval`, waiting for your confirmation.
+
+Once you approve, run:
 
 ```text
 /prevc run
 ```
 
-It executes within the approved scope, validates, and delivers the handoff.
+- Executes within the approved scope.
+- Validates the result and delivers the handoff.
 
 ## PREVC rules
 

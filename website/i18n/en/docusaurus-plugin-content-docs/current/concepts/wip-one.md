@@ -28,8 +28,8 @@ The `feature_list.json` keeps the state of each feature:
 }
 ```
 
-Only one feature can be `in_progress`. When it finishes, it goes to
-`passing` (with evidence) or `blocked` (with an exact reason).
+- Only one feature can be `in_progress`.
+- When it finishes, it goes to `passing` (with evidence) or `blocked` (with an exact reason).
 
 ## During execution
 

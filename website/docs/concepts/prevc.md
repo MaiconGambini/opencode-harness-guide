@@ -4,56 +4,61 @@ sidebar_position: 3
 
 # PREVC
 
-PREVC e o controlador do ciclo de vida. Agents, skills e plugins fornecem
+PREVC é o controlador do ciclo de vida. Agents, skills e plugins fornecem
 capacidades limitadas; nenhum deles decide sozinho que o trabalho terminou.
 
 ## Fases
 
 ```text
-OPERADOR FAZ UMA SOLICITACAO
+OPERADOR FAZ UMA SOLICITAÇÃO
         |
         v
 CONTEXT FEEDFORWARD
-        |-- le regras, estado, handoff e standards relevantes
-        |-- descobre risco, stack e comando de verificacao
+        |-- lê regras, estado, handoff e standards relevantes
+        |-- descobre risco, stack e comando de verificação
         v
 PLAN
-        |-- define objetivo, escopo, nao-escopo e AC observaveis
-        |-- divide o trabalho em unidades WIP=1 quando necessario
+        |-- define objetivo, escopo, não-escopo e AC observáveis
+        |-- divide o trabalho em unidades WIP=1 quando necessário
         v
 OPERATOR APPROVAL
         |-- o operador revisa e confirma o plano
         v
 REVIEW -> EXECUTE -> VALIDATE -> JUDGE
         |-- cada fase permanece no escopo aprovado
-        |-- falha, ambiguidade ou escalacao param o fluxo
+        |-- falha, ambiguidade ou escalação param o fluxo
         v
 AWAITING CONFIRMATION
-        |-- o operador revisa a evidencia e recebe o handoff
+        |-- o operador revisa a evidência e recebe o handoff
         v
 HANDOFF
 ```
 
 ## Como usar
 
+Inicie o PREVC com a descrição da tarefa:
+
 ```text
 /prevc Adicionar endpoint de health check
 ```
 
-O PREVC prepara o plano e para em `awaiting_plan_approval`. Depois que voce
-aprovar:
+- Prepara o plano (objetivo, escopo, não-escopo e AC).
+- Para em `awaiting_plan_approval` aguardando sua confirmação.
+
+Depois que você aprovar, execute:
 
 ```text
 /prevc run
 ```
 
-Ele executa dentro do escopo aprovado, valida e entrega o handoff.
+- Executa dentro do escopo aprovado.
+- Valida o resultado e entrega o handoff.
 
 ## Regras do PREVC
 
 - WIP=1 sempre.
-- Conclusao exige evidencia real.
-- Nao tocar arquivos fora do escopo.
+- Conclusão exige evidência real.
+- Não tocar arquivos fora do escopo.
 - Trabalho adjacente vira `not_started`.
-- Se a verificacao falhar, a feature e marcada como `blocked`.
-- Se o Judge nao for Accept, nao confirma.
+- Se a verificação falhar, a feature é marcada como `blocked`.
+- Se o Judge não for Accept, não confirma.

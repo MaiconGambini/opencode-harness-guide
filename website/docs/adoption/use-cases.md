@@ -4,44 +4,48 @@ sidebar_position: 1
 
 # Casos de Uso
 
-Cenarios onde o Harness OpenCode traz mais beneficio.
+Cenários onde o Harness OpenCode traz mais benefício — e onde ele atrapalha
+mais do que ajuda.
 
-## Projetos multi-sessao
+## Projetos multi-sessão
 
-Se voce trabalha no mesmo projeto por varios dias, o harness evita que cada
-sessao comece do zero. O handoff registra exatamente onde parou.
+Se você trabalha no mesmo projeto por vários dias, o harness evita que cada
+sessão comece do zero. O handoff registra exatamente onde você parou, quais
+arquivos foram tocados e qual é a próxima ação.
 
-**Quando usar:** qualquer projeto com mais de uma sessao de desenvolvimento.
+**Quando usar:** qualquer projeto com mais de uma sessão de desenvolvimento.
 
 ## Trabalho em equipe
 
-Quando mais de uma pessoa trabalha no mesmo repositorio, o harness torna o
-estado visivel. `feature_list.json` mostra o que esta em andamento, e o
-handoff explica decisoes e blockers.
+Quando mais de uma pessoa trabalha no mesmo repositório, o harness torna o
+estado visível. O `feature_list.json` mostra o que está em andamento e o
+handoff explica decisões e blockers, evitando que dois desenvolvedores
+retrabalhem a mesma coisa.
 
-**Quando usar:** projetos com 2+ colaboradores usando OpenCode.
+**Quando usar:** projetos com dois ou mais colaboradores usando OpenCode.
 
-## Projetos com verificacao complexa
+## Projetos com verificação complexa
 
-Se o projeto tem testes, lint, typecheck, build e scripts de verificacao, o
-harness automatiza a execucao desses comandos como gates antes de declarar
-conclusao.
+Se o projeto tem testes, lint, typecheck, build e scripts de verificação, o
+harness automatiza a execução desses comandos como gates antes de declarar
+conclusão. Nada é marcado como `passing` sem que a bateria de verificação
+tenha rodado e o output tenha sido capturado.
 
-**Quando usar:** projetos com CI/CD ou multiplos comandos de verificacao.
+**Quando usar:** projetos com CI/CD ou múltiplos comandos de verificação.
 
-## Features ambiguas ou longas
+## Features ambíguas ou longas
 
-Para features que levam mais de 30 minutos ou tem decisões de design nao
-triviais, o harness separa planejamento, execucao e avaliacao em papeis
-distintos. Isso evita que o agente julgue o proprio trabalho sem criterios
+Para features que levam mais de 30 minutos ou têm decisões de design não
+triviais, o harness separa planejamento, execução e avaliação em papéis
+distintos. Isso evita que o agente julgue o próprio trabalho sem critérios
 objetivos.
 
-**Quando usar:** features multi-componente, refatoracoes, integracoes.
+**Quando usar:** features multi-componente, refatorações e integrações.
 
-## Quando NAO usar
+## Quando NÃO usar
 
-- Tarefas unicas de 2 minutos em um projeto novo.
-- Sessoes exploratorias onde voce esta apenas lendo codigo.
-- Projetos onde voce e o unico contribuidor e nao precisa de handoff.
-- Quando a disciplina adicional de WIP=1 e verificacao atrapalha mais do
-  que ajuda.
+- Tarefas únicas de dois minutos em um projeto novo.
+- Sessões exploratórias em que você está apenas lendo código.
+- Projetos onde você é o único contribuidor e não precisa de handoff.
+- Quando a disciplina adicional de WIP=1 e de verificação em três camadas
+  atrapalha mais do que ajuda.
