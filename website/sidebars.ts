@@ -66,3 +66,5 @@ const sidebars: SidebarsConfig = {
 };
 
 export default sidebars;
+
+// docs deploy: why/result rationale + PT accents + agents/references
