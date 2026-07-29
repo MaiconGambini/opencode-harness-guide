@@ -42,3 +42,15 @@ Every session ends with `harness-clean-handoff`. It fills in:
 
 If the work did not finish, the handoff is still produced — the feature goes to
 `blocked` with the exact cause, and the `Next Best Step` says exactly what to do.
+
+## Why this is better (with a result)
+
+The context window is finite. Near the limit, the agent rushes and the
+decisions and "whys" vanish in the next session — causing rework and silent
+drift from requirements. A persisted handoff (state + decisions + commit as a
+checkpoint) rebuilds context in minutes.
+
+**Result** (*Learn Harness Engineering* study): without persistence, session 2
+spent **15 min** rebuilding context and delivered **7 of 12** features with 43%
+hidden defects. With persistence: rebuild dropped to **3 min** (**-78%**), **12
+of 12** features complete, and only 8% defects.

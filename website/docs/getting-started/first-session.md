@@ -69,6 +69,20 @@ Ao final, sempre execute:
 - Registra o que foi feito, o que quebrou e a próxima ação.
 - A próxima sessão lê esses arquivos e sabe exatamente onde continuar.
 
+## Por que a inicialização merece sua própria fase (com resultado)
+
+Inicializar e implementar têm objetivos diferentes. Misturar os dois força o
+agente a escolher entre construir a infraestrutura e escrever código — e ele
+tende a favorecer código visível, deixando a base frágil. Dedicar a sessão 1
+só à inicialização (estrutura, testes, checklist, decomposição, commit
+inicial) paga depois.
+
+**Resultado** (estudo *Learn Harness Engineering*): com abordagem mista, a
+sessão 2 gastou **~20 min** inferindo estrutura e build; com inicialização
+dedicada, **&lt;3 min**. No projeto inteiro, a mista teve tempo total de
+reconstrução **~60% maior**, e a pesquisa da Anthropic aponta **+31%** de
+conclusão de features em cenários multi-sessão.
+
 ## Próximo passo
 
 Leia [Por que um harness?](../concepts/why-a-harness) para entender o

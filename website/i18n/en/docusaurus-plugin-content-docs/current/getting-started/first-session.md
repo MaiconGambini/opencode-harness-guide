@@ -69,6 +69,20 @@ At the end, always run:
 - Records what was done, what broke, and the next action.
 - The next session reads these files and knows exactly where to continue.
 
+## Why initialization deserves its own phase (with a result)
+
+Initializing and implementing have different goals. Mixing them forces the
+agent to choose between building infrastructure and writing code — and it tends
+to favor visible code, leaving the base fragile. Dedicating session 1 to
+initialization only (structure, tests, checklist, decomposition, initial
+commit) pays off later.
+
+**Result** (*Learn Harness Engineering* study): with a mixed approach, session 2
+spent **~20 min** inferring structure and build; with dedicated initialization,
+**&lt;3 min**. Across the whole project, the mixed approach had a total rebuild
+time **~60% higher**, and Anthropic research reports **+31%** feature completion
+in multi-session scenarios.
+
 ## Next step
 
 Read [Why a harness?](../concepts/why-a-harness) to understand the

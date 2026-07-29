@@ -42,3 +42,15 @@ Antes de qualquer mudança importante, o harness responde:
 
 O repositório é o sistema de registro. Estado que vive somente no chat
 não é estado confiável.
+
+## Por que isso é melhor (com resultado)
+
+Um único arquivo gigante de instruções (600+ linhas) consome 10-15% do
+contexto, mistura regras críticas com opcionais e sofre do efeito "perdido
+no meio" — instruções importantes enterradas na linha 300 são ignoradas.
+O harness quebra isso em instruções curtas + estado + verificação, carregando
+só o relevante.
+
+**Resultado** (estudo *Learn Harness Engineering*): ao trocar um arquivo de
+600 linhas por 80 linhas + documentos temáticos, uma equipe subiu a taxa de
+sucesso de **45% → 72%** e a conformidade de segurança de **60% → 95%**.

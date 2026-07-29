@@ -42,3 +42,15 @@ Toda sessão termina com `harness-clean-handoff`. Ele preenche:
 
 Se o trabalho não terminou, o handoff ainda é feito — a feature vai para
 `blocked` com a causa exata e o `Next Best Step` diz exatamente o que fazer.
+
+## Por que isso é melhor (com resultado)
+
+A janela de contexto é finita. Perto do limite, o agente acelera e as
+decisões e "porquês" somem na próxima sessão — gerando retrabalho e desvio
+silencioso dos requisitos. O handoff persistido (estado + decisões + commit
+como checkpoint) reconstrói o contexto em minutos.
+
+**Resultado** (estudo *Learn Harness Engineering*): sem persistência, a sessão
+2 gastava **15 min** reconstruindo contexto e entregou **7 de 12** features
+com 43% de defeitos ocultos. Com persistência: reconstrução caiu para **3 min**
+(**-78%**), **12 de 12** features completas e só 8% de defeitos.
