@@ -104,3 +104,8 @@ curl http://localhost:8000/api/health
   da tarefa ativa.
 - **Não deixe o handoff para depois.** O handoff é o que permite retomar o
   contexto em outro dia — pular é perder continuidade.
+
+## Próximo passo
+
+Quando a tarefa não couber no modo rápido, vá para
+[Feature Complexa](./complex-feature) — o pipeline completo.

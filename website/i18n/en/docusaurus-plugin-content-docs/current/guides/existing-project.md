@@ -75,3 +75,8 @@ role separation) only when a real failure mode is observed — for
 example, when a complex feature goes wrong for lack of a contract. Don't
 create bureaucracy without need: the harness should weigh less than the problem
 it solves.
+
+## Next step
+
+To move or share the harness between machines, see
+[Portability](./portability).

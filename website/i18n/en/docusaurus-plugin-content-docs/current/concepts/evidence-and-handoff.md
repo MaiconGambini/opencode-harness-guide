@@ -83,3 +83,8 @@ checkpoint) rebuilds context in minutes.
 spent **15 min** rebuilding context and delivered **7 of 12** features with 43%
 hidden defects. With persistence: rebuild dropped to **3 min** (**-78%**), **12
 of 12** features complete, and only 8% defects.
+
+## Next step
+
+See [Automation](./automation) — what the harness automates and, more
+importantly, what it deliberately does not.

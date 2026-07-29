@@ -114,3 +114,7 @@ provar.
 - Trabalho adjacente vira `not_started`.
 - Se a verificação falhar, a feature é marcada como `blocked`.
 - Se o Judge não for Accept, não confirma.
+
+## Próximo passo
+
+Veja [WIP=1](./wip-one) — a disciplina que o PREVC aplica em toda tarefa.

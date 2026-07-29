@@ -13,8 +13,8 @@ evidência e faz handoff limpo entre sessões.
 
 | Seção | O que cobre |
 |---|---|
-| **[Começando](./getting-started/installation)** | Instalação em 3 passos e primeira sessão. |
-| **[Conceitos](./concepts/why-a-harness)** | PREVC, WIP=1, evidências e os sete componentes. |
+| **[Começando](./getting-started/installation)** | Instalação passo a passo e primeira sessão. |
+| **[Conceitos](./concepts/why-a-harness)** | PREVC, WIP=1, evidências, os sete componentes e os limites de automação. |
 | **[Guias](./guides/small-task)** | Fluxo completo para tarefas pequenas e complexas. |
 | **[Referência](./reference/commands)** | Todos os comandos, skills e artefatos. |
 | **[Adoção](./adoption/use-cases)** | Casos de uso, prós e contras, segurança e limitações. |
@@ -44,3 +44,10 @@ O que acontece:
 - Os arquivos ficam disponíveis para o OpenCode na próxima inicialização.
 
 [Guia completo de instalação &rarr;](./getting-started/installation)
+
+## O princípio
+
+O Harness não tenta substituir o operador. Ele torna claro o que foi
+solicitado, o que foi aprovado, o que foi executado, o que foi verificado e
+qual é a próxima ação segura. Todo o resto desta documentação é detalhe desse
+princípio.

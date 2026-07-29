@@ -83,3 +83,8 @@ como checkpoint) reconstrói o contexto em minutos.
 2 gastava **15 min** reconstruindo contexto e entregou **7 de 12** features
 com 43% de defeitos ocultos. Com persistência: reconstrução caiu para **3 min**
 (**-78%**), **12 de 12** features completas e só 8% de defeitos.
+
+## Próximo passo
+
+Veja [Automação](./automation) — o que o harness automatiza e, mais
+importante, o que ele deliberadamente não automatiza.

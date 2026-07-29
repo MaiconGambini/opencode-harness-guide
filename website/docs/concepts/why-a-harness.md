@@ -54,3 +54,8 @@ só o relevante.
 **Resultado** (estudo *Learn Harness Engineering*): ao trocar um arquivo de
 600 linhas por 80 linhas + documentos temáticos, uma equipe subiu a taxa de
 sucesso de **45% → 72%** e a conformidade de segurança de **60% → 95%**.
+
+## Próximo passo
+
+Veja [Os sete componentes](./seven-components) — as lentes que verificam se o
+workflow está completo.

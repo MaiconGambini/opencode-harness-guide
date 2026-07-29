@@ -75,3 +75,8 @@ separação de papéis) apenas quando um failure mode real for observado — por
 exemplo, quando uma feature complexa der errado por falta de contrato. Não
 crie burocracia sem necessidade: o harness deve pesar menos do que o problema
 que ele resolve.
+
+## Próximo passo
+
+Para mover ou compartilhar o harness entre máquinas, veja
+[Portabilidade](./portability).

@@ -41,3 +41,8 @@ Se você descobrir trabalho adjacente durante uma tarefa:
 
 Não expanda o escopo silenciosamente. Se o escopo crescer, pare, atualize o
 sprint contract e peça aprovação.
+
+## Próximo passo
+
+Veja [Evidência e Handoff](./evidence-and-handoff) — como uma tarefa é provada
+e transferida para a próxima sessão.

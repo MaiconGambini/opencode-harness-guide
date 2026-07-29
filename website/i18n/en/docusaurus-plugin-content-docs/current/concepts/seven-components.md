@@ -27,3 +27,8 @@ are lenses for checking whether the workflow is complete.
 | Memory | How does the next session continue? | Retention and auditing do not prove completion |
 | Sandboxes | Is the process isolated from the OS? | No. There is no OS sandbox installed |
 | Hooks | What integrates into the lifecycle? | Hooks cannot start autonomous loops |
+
+## Next step
+
+Understand [PREVC](./prevc) — the controller that ties these components into a
+lifecycle.

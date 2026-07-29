@@ -114,3 +114,7 @@ prefers to stop at review rather than record a completion it cannot prove.
 - Adjacent work becomes `not_started`.
 - If verification fails, the feature is marked `blocked`.
 - If the Judge is not Accept, it does not confirm.
+
+## Next step
+
+See [WIP=1](./wip-one) — the discipline PREVC enforces on every task.

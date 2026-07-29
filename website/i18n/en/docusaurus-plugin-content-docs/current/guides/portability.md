@@ -62,3 +62,8 @@ npm install
 - **Back up before overwriting.** If you already have a configuration in
   `~/.config/opencode`, copy it to a safe location before cloning or
   installing over it.
+
+## Next step
+
+See the [Command reference](../reference/commands) for the full catalog of
+commands, skills, and agents.

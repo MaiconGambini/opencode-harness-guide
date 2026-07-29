@@ -53,3 +53,8 @@ this into short instructions + state + verification, loading only what matters.
 **Result** (*Learn Harness Engineering* study): replacing a 600-line file with
 80 lines + topic documents raised a team's success rate from **45% → 72%** and
 security compliance from **60% → 95%**.
+
+## Next step
+
+See [The seven components](./seven-components) — the lenses that verify the
+workflow is complete.

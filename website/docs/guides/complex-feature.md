@@ -108,3 +108,8 @@ tem quatro seções, e cada uma existe para fechar uma porta de ambiguidade:
 Trabalho adjacente descoberto durante a execução vira uma próxima tarefa
 (`not_started`), nunca uma extensão silenciosa da tarefa ativa. O sprint
 contract é o contrato que impede o escopo de crescer sem aprovação.
+
+## Próximo passo
+
+Para aplicar o harness num código que já existe, veja
+[Projeto Existente](./existing-project).

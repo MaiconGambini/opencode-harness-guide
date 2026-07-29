@@ -13,8 +13,8 @@ evidence, and hands off cleanly between sessions.
 
 | Section | What it covers |
 |---|---|
-| **[Getting Started](./getting-started/installation)** | 3-step installation and first session. |
-| **[Concepts](./concepts/why-a-harness)** | PREVC, WIP=1, evidence, and the seven components. |
+| **[Getting Started](./getting-started/installation)** | Step-by-step installation and first session. |
+| **[Concepts](./concepts/why-a-harness)** | PREVC, WIP=1, evidence, the seven components, and the limits of automation. |
 | **[Guides](./guides/small-task)** | End-to-end flow for small and complex tasks. |
 | **[Reference](./reference/commands)** | All commands, skills, and artifacts. |
 | **[Adoption](./adoption/use-cases)** | Use cases, pros and cons, security, and limitations. |
@@ -44,3 +44,10 @@ What happens:
 - The files become available to OpenCode on its next startup.
 
 [Full installation guide &rarr;](./getting-started/installation)
+
+## The principle
+
+The Harness does not try to replace the operator. It makes clear what was
+requested, what was approved, what was executed, what was verified, and what
+the next safe action is. Everything else in this documentation is a detail of
+that principle.

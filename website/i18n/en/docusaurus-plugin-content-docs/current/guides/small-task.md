@@ -104,3 +104,8 @@ curl http://localhost:8000/api/health
   of the active task.
 - **Do not leave the handoff for later.** The handoff is what lets you resume
   the context on another day — skipping it means losing continuity.
+
+## Next step
+
+When the task doesn't fit the fast path, go to
+[Complex Feature](./complex-feature) — the full pipeline.

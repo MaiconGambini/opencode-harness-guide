@@ -108,3 +108,8 @@ has four sections, and each one exists to close a door of ambiguity:
 Adjacent work discovered during execution becomes a next task
 (`not_started`), never a silent extension of the active task. The sprint
 contract is the contract that prevents the scope from growing without approval.
+
+## Next step
+
+To apply the harness to an existing codebase, see
+[Existing Project](./existing-project).

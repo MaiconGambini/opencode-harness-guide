@@ -27,3 +27,8 @@ lentes para verificar se o workflow está completo.
 | Memory | Como a próxima sessão continua? | Retenção e auditoria não provam conclusão |
 | Sandboxes | O processo está isolado do SO? | Não. Não há sandbox de SO instalada |
 | Hooks | O que integra o lifecycle? | Hooks não podem iniciar loops autônomos |
+
+## Próximo passo
+
+Entenda o [PREVC](./prevc) — o controlador que amarra esses componentes num
+ciclo de vida.
