@@ -17,6 +17,35 @@ Antes de declarar uma feature como concluída, três camadas são verificadas:
 | **Runtime** | os critérios de aceite do sprint contract são observáveis, comandos foram rodados e o output foi registrado. |
 | **System** | o comando de verificação do projeto sai com código 0, e `feature_list.json` e `STATE.md` refletem o novo estado. |
 
+Exemplos concretos por camada:
+
+- **Camada 1 (estática):** `typecheck`, `lint`, `format check`, diff sem
+  conflitos ou whitespace inválido.
+- **Camada 2 (comportamento):** teste unitário ou de integração do caso
+  alterado, request HTTP que prova o AC, fluxo de navegador para mudança de
+  UI, comando da aplicação com saída esperada.
+- **Camada 3 (sistema/regressão):** build ou startup path do projeto, suíte de
+  regressão aplicável, logs/health check, estado e handoff atualizados.
+
+Se uma camada não for executada, isso deve aparecer como **limitação de
+evidência**. Não substitua um comando não executado por uma frase otimista.
+
+## Judge
+
+O Judge compara resultado, escopo e evidência com a spec ou contrato
+aprovado. Ele pode **aprovar, pedir revisão ou bloquear** — e não deve ser
+produzido no mesmo passo que a implementação quando uma revisão independente
+for necessária.
+
+| Dimensão | Pergunta |
+|---|---|
+| **Correção** | O comportamento atende aos critérios de aceite? |
+| **Evidência** | O resultado tem prova observável? |
+| **Escopo** | Foram alterados apenas arquivos e comportamentos aprovados? |
+| **Segurança** | Surgiu uma permissão, segredo ou superfície de risco nova? |
+| **Manutenção** | A mudança segue os padrões existentes? |
+| **Handoff** | Outra sessão consegue continuar sem adivinhar? |
+
 ## Exemplo de evidência
 
 ```json

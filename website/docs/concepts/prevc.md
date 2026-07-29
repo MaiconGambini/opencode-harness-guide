@@ -54,6 +54,58 @@ Depois que você aprovar, execute:
 - Executa dentro do escopo aprovado.
 - Valida o resultado e entrega o handoff.
 
+## PREVC e `/goal`
+
+`/prevc` organiza o lifecycle. `/goal` armazena o objetivo, o plano aprovado
+e a evidência. Trabalham juntos, com responsabilidades diferentes.
+
+```text
+/prevc prepare <objetivo>
+        v
+goal: awaiting_plan_approval
+        v
+/goal confirm
+        v
+/prevc run <goal-id>
+        v
+PREVC: Review -> Execute -> Validate -> Judge
+        v
+workflow-only awaiting_confirmation
+```
+
+| Ação | Resultado |
+|---|---|
+| `/prevc prepare <objetivo>` | Descobre contexto, classifica risco e prepara o plano. |
+| `/goal confirm` | Registra aprovação explícita do plano e libera a execução. |
+| `/prevc run <goal-id>` | Executa somente o escopo aprovado, com budgets e gates. |
+| `/goal revise <motivo>` | Pede revisão; o motivo não pode ser vazio. |
+| `/goal submit-revision <resumo>` | Envia plano revisado para nova aprovação. |
+| `/goal abort <motivo>` | Aborta o objetivo com motivo durável. |
+
+## Estados persistidos do goal
+
+O armazenamento atual persiste somente:
+
+- `awaiting_plan_approval`
+- `revision_requested`
+- `active`
+- `aborted`
+
+`awaiting_confirmation` é uma etiqueta de workflow do PREVC, **não** um estado
+final persistido. Ela existe para impedir que uma revisão de Judge seja
+confundida com uma conclusão durável.
+
+## Por que não há auto-conclusão
+
+Uma mensagem do agente dizendo que rodou um comando **não** é um recibo
+confiável do runtime. Os campos de evidência guardam comando, workspace, exit
+code e verifier, mas permanecem informativos.
+
+Enquanto não houver recibos confiáveis de execução, nenhuma transição
+automática para conclusão final será habilitada. Esse limite é intencional: o
+sistema prefere parar em revisão a registrar uma conclusão que não consegue
+provar.
+
 ## Regras do PREVC
 
 - WIP=1 sempre.

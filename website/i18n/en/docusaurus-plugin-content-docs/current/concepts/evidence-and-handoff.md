@@ -17,6 +17,35 @@ Before declaring a feature complete, three layers are verified:
 | **Runtime** | the sprint contract's acceptance criteria are observable, commands were run, and the output was recorded. |
 | **System** | the project's verification command exits with code 0, and `feature_list.json` and `STATE.md` reflect the new state. |
 
+Concrete examples by layer:
+
+- **Layer 1 (static):** `typecheck`, `lint`, `format check`, a diff with no
+  conflicts or invalid whitespace.
+- **Layer 2 (behavior):** unit or integration test for the changed case, an
+  HTTP request that proves the AC, a browser flow for a UI change, an
+  application command with the expected output.
+- **Layer 3 (system/regression):** the project's build or startup path, the
+  applicable regression suite, logs/health check, updated state and handoff.
+
+If a layer is not run, that must appear as an **evidence limitation**. Do not
+replace an unexecuted command with an optimistic sentence.
+
+## Judge
+
+The Judge compares result, scope, and evidence against the approved spec or
+contract. It can **approve, request a revision, or block** — and it should not
+be produced in the same step as the implementation when an independent review
+is required.
+
+| Dimension | Question |
+|---|---|
+| **Correctness** | Does the behavior meet the acceptance criteria? |
+| **Evidence** | Does the result have observable proof? |
+| **Scope** | Were only approved files and behaviors changed? |
+| **Security** | Did a new permission, secret, or risk surface appear? |
+| **Maintenance** | Does the change follow existing patterns? |
+| **Handoff** | Can another session continue without guessing? |
+
 ## Evidence example
 
 ```json

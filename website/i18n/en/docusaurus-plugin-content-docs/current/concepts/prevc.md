@@ -5,7 +5,7 @@ sidebar_position: 3
 # PREVC
 
 PREVC is the lifecycle controller. Agents, skills, and plugins provide
-limited capabilities; none of them decides on its own that the work is done.
+bounded capabilities; none of them decides on its own that the work is done.
 
 ## Phases
 
@@ -53,6 +53,58 @@ Once you approve, run:
 
 - Executes within the approved scope.
 - Validates the result and delivers the handoff.
+
+## PREVC and `/goal`
+
+`/prevc` orchestrates the lifecycle. `/goal` stores the objective, the
+approved plan, and the evidence. They work together, with different
+responsibilities.
+
+```text
+/prevc prepare <objective>
+        v
+goal: awaiting_plan_approval
+        v
+/goal confirm
+        v
+/prevc run <goal-id>
+        v
+PREVC: Review -> Execute -> Validate -> Judge
+        v
+workflow-only awaiting_confirmation
+```
+
+| Action | Result |
+|---|---|
+| `/prevc prepare <objective>` | Discovers context, classifies risk, and prepares the plan. |
+| `/goal confirm` | Records explicit plan approval and releases execution. |
+| `/prevc run <goal-id>` | Executes only the approved scope, with budgets and gates. |
+| `/goal revise <reason>` | Requests a revision; the reason cannot be empty. |
+| `/goal submit-revision <summary>` | Submits a revised plan for new approval. |
+| `/goal abort <reason>` | Aborts the objective with a durable reason. |
+
+## Persisted goal states
+
+The current storage persists only:
+
+- `awaiting_plan_approval`
+- `revision_requested`
+- `active`
+- `aborted`
+
+`awaiting_confirmation` is a PREVC workflow label, **not** a persisted final
+state. It exists to prevent a Judge review from being mistaken for a durable
+completion.
+
+## Why there is no auto-completion
+
+An agent message saying it ran a command is **not** a reliable receipt from
+the runtime. The evidence fields store command, workspace, exit code, and
+verifier, but they remain informational.
+
+As long as there are no reliable execution receipts, no automatic transition
+to final completion will be enabled. This limit is intentional: the system
+prefers to stop at review rather than record a completion it cannot prove.
 
 ## PREVC rules
 

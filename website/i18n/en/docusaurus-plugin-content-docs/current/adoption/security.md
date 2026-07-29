@@ -19,13 +19,49 @@ security lives in the planning and approval phase, not in automatic blocks.
 - **Traceability** — each change is associated with a feature, with evidence
   and approval recorded.
 
+## Commands blocked by the security guard
+
+`harness-security-guard.ts` blocks recognized patterns of:
+
+- Recursive removal.
+- `git reset --hard` and destructive variants.
+- Forced `git clean`.
+- Remote shells.
+- Download followed by execution.
+- Access to sensitive paths.
+
+## Permission policy (asks for approval)
+
+`harness-permission-policy.ts` asks for explicit approval for:
+
+- Git push.
+- Package mutation.
+- Deploy.
+- External directory requests.
+
+The fallback rule for mutating Bash commands is **ask** — the default is to
+ask before executing.
+
+## Logs and retention
+
+`harness-tool-activity.ts` keeps **redacted** JSONL records for at most **30
+days** and **5 MiB**. Logs help with diagnosis; they do not prove that an
+objective was completed correctly.
+
+## Secrets
+
+Never include credentials, tokens, personal data, or sensitive payloads in:
+goals, evidence, session handoff, tool logs, or governance documents. When you
+need to record a sensitive fact, use a redacted description — for example:
+"integration token present and loaded by the secret store, never the value".
+
 ## What the harness does NOT protect
 
 ### There is no operating-system sandbox
 
-Permission policies control what the agent can do inside OpenCode, but they do
-not isolate the process from the operating system. An approved command run in
-the shell has full access to the system.
+Permission policies reduce risk, but they are **not** an operating-system
+security boundary. An approved command run in the shell has full access to the
+system.
 
 ### Does not replace human review
 
@@ -33,11 +69,11 @@ The Judge evaluates the work against objective criteria, but the final
 confirmation still depends on the operator. The harness reduces the risk of
 premature completion — it does not eliminate the need for review.
 
-### Does not prevent dangerous commands
+### The guard does not cover everything
 
-If you approve a plan that includes `rm -rf`, the harness will run it.
-Security is in the planning and approval phase, not in automatic command
-blocks.
+The security guard blocks *recognized* patterns, but it is not infallible.
+Real security still lives in the planning and approval phase: review every
+command in the plan before approving.
 
 ## Best practices
 

@@ -174,3 +174,35 @@ Local commands defined in the `command/` folder, focused on interface design, in
 - Creates or proposes `agent-os/specs/YYYY-MM-DD-HHMM-slug/` with `spec.md`, `plan.md`, `tasks.md`, `verification.md`, and `decisions.md` from the global templates.
 - Replaces placeholders with concrete requirements, acceptance criteria, verification commands, and decisions.
 - Asks before writing if the target repo does not yet have a harness.
+
+## Quick commands (cheat sheet)
+
+```text
+# Unknown project: audit without writing
+/harness-init
+
+# Project without harness: propose full install
+/harness-bootstrap
+
+# Start of a normal session
+/harness-session-start
+
+# Prepare significant work
+/prevc prepare <objective>
+
+# Approve the prepared plan
+/goal confirm
+
+# Run only the approved goal
+/prevc run <goal-id>
+
+# Pause or close with durable context
+/harness-clean-handoff
+
+# Global diagnostics
+/harness-status
+/harness-security-scan
+/harness-context-budget
+/harness-mcp-inventory
+/harness-worktree-lifecycle
+```

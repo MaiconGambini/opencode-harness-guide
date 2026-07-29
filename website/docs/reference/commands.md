@@ -174,3 +174,35 @@ Comandos locais definidos na pasta `command/`, focados em design de interface, i
 - Cria ou propõe `agent-os/specs/YYYY-MM-DD-HHMM-slug/` com `spec.md`, `plan.md`, `tasks.md`, `verification.md` e `decisions.md` a partir dos templates globais.
 - Substitui placeholders por requisitos concretos, critérios de aceitação, comandos de verificação e decisões.
 - Pergunta antes de escrever se o repo alvo ainda não tem harness.
+
+## Comandos rápidos (cheat-sheet)
+
+```text
+# Projeto desconhecido: auditar sem escrever
+/harness-init
+
+# Projeto sem harness: propor instalação completa
+/harness-bootstrap
+
+# Início de uma sessão normal
+/harness-session-start
+
+# Preparar trabalho significativo
+/prevc prepare <objetivo>
+
+# Aprovar o plano preparado
+/goal confirm
+
+# Executar somente o goal aprovado
+/prevc run <goal-id>
+
+# Pausar ou encerrar com contexto durável
+/harness-clean-handoff
+
+# Diagnósticos globais
+/harness-status
+/harness-security-scan
+/harness-context-budget
+/harness-mcp-inventory
+/harness-worktree-lifecycle
+```

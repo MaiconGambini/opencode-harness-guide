@@ -23,6 +23,7 @@ const sidebars: SidebarsConfig = {
         'concepts/prevc',
         'concepts/wip-one',
         'concepts/evidence-and-handoff',
+        'concepts/automation',
       ],
     },
     {

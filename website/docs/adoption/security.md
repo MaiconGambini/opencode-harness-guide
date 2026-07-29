@@ -19,13 +19,50 @@ mora na fase de planejamento e aprovação, não em bloqueios automáticos.
 - **Rastreabilidade** — cada mudança é associada a uma feature, com evidência
   e aprovação registradas.
 
+## Comandos bloqueados pelo security guard
+
+O `harness-security-guard.ts` bloqueia padrões reconhecidos de:
+
+- Remoção recursiva.
+- `git reset --hard` e variantes destrutivas.
+- `git clean` forçado.
+- Shells remotos.
+- Download seguido de execução.
+- Acesso a caminhos sensíveis.
+
+## Permission policy (pede aprovação)
+
+O `harness-permission-policy.ts` pede aprovação explícita para:
+
+- Push Git.
+- Mutação de pacotes.
+- Deploy.
+- Pedidos de diretórios externos.
+
+A regra de fallback para comandos Bash mutantes é **ask** — o padrão é
+perguntar antes de executar.
+
+## Logs e retenção
+
+O `harness-tool-activity.ts` preserva registros JSONL **redigidos** por no
+máximo **30 dias** e **5 MiB**. Logs ajudam no diagnóstico; eles não provam
+que um objetivo foi concluído corretamente.
+
+## Segredos
+
+Nunca inclua credenciais, tokens, dados pessoais ou payloads sensíveis em:
+goals, evidence, session handoff, logs de ferramentas ou documentos de
+governança. Quando precisar registrar um fato sensível, use uma descrição
+redigida — por exemplo: "token de integração presente e carregado pelo secret
+store, nunca o valor".
+
 ## O que o harness NÃO protege
 
 ### Não há sandbox de sistema operacional
 
-As políticas de permissão controlam o que o agente pode fazer dentro do
-OpenCode, mas não isolam o processo do sistema operacional. Um comando
-aprovado e executado no shell tem acesso total ao sistema.
+As políticas de permissão reduzem risco, mas **não** são uma fronteira de
+segurança do sistema operacional. Um comando aprovado e executado no shell tem
+acesso total ao sistema.
 
 ### Não substitui revisão humana
 
@@ -33,11 +70,11 @@ O Judge avalia o trabalho contra critérios objetivos, mas a confirmação final
 ainda depende do operador. O harness reduz o risco de conclusão prematura —
 não elimina a necessidade de revisão.
 
-### Não impede comandos perigosos
+### O guard não cobre tudo
 
-Se você aprovar um plano que inclui `rm -rf`, o harness o executará. A
-segurança está na fase de planejamento e aprovação, não em bloqueios
-automáticos de comandos.
+O security guard bloqueia padrões *reconhecidos*, mas não é infalível. A
+segurança real ainda mora na fase de planejamento e aprovação: revise cada
+comando do plano antes de aprovar.
 
 ## Boas práticas
 
