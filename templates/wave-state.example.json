@@ -1,0 +1,16 @@
+{
+  "$comment": "EXAMPLE ONLY. Runtime artifact written by orca-graph-run at <project>/wave-state.json (gitignored). Not committed. tasks[].status is a CACHE — GitHub (gh pr view state=MERGED) is merge authority; Orca runtime worker_done is worker authority.",
+  "schemaVersion": 1,
+  "project": "<repoId>",
+  "prBase": "main",
+  "currentWave": 1,
+  "waves": {
+    "1": { "featureIds": ["feat-001", "feat-002"], "status": "dispatched" },
+    "2": { "featureIds": ["feat-003"], "status": "pending", "blockedByWave": 1 }
+  },
+  "tasks": {
+    "feat-001": { "orcaTaskId": "t_ab12", "worktreeId": "<repoId>::<path>", "terminalHandle": "h1", "prNumber": null, "status": "dispatched" },
+    "feat-002": { "orcaTaskId": "t_cd34", "worktreeId": "<repoId>::<path>", "terminalHandle": "h2", "prNumber": 42, "status": "pr_open" }
+  },
+  "gates": { "1": "g_xyz" }
+}

@@ -1,0 +1,216 @@
+:root {
+  /* Deep blue-black background palette */
+  --ifm-color-primary: #6ee7b7;
+  --ifm-color-primary-dark: #51e2a5;
+  --ifm-color-primary-darker: #3ee09a;
+  --ifm-color-primary-darkest: #1fd483;
+  --ifm-color-primary-light: #8aecc5;
+  --ifm-color-primary-lighter: #9eefd0;
+  --ifm-color-primary-lightest: #bcf2dd;
+
+  /* Muted accents for phases, diagrams, status */
+  --color-accent-blue: #60a5fa;
+  --color-accent-violet: #c084fc;
+  --color-accent-amber: #fbbf24;
+
+  /* Background hierarchy */
+  --surface-root: #0b1020;
+  --surface-container: #11192e;
+  --surface-raised: #162033;
+  --border-color: #27324b;
+
+  /* Text */
+  --text-primary: #e8edf8;
+  --text-secondary: #93a4bd;
+  --text-muted: #5f6b7c;
+
+  /* Font stacks */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
+
+  /* Code block backgrounds */
+  --ifm-code-background: #0d1424;
+  --ifm-pre-background: #0a0f1c;
+
+  /* Override Docusaurus variables */
+  --ifm-background-color: var(--surface-root);
+  --ifm-background-surface-color: var(--surface-container);
+  --ifm-navbar-background-color: rgba(11, 16, 32, 0.85);
+  --ifm-footer-background-color: var(--surface-container);
+  --ifm-font-color-base: var(--text-primary);
+  --ifm-font-color-secondary: var(--text-secondary);
+  --ifm-heading-color: var(--text-primary);
+  --ifm-link-color: var(--ifm-color-primary);
+  --ifm-link-hover-color: var(--ifm-color-primary-light);
+  --ifm-border-color: var(--border-color);
+  --ifm-menu-color: var(--text-secondary);
+  --ifm-menu-color-active: var(--ifm-color-primary);
+  --ifm-menu-color-background-active: rgba(110, 231, 183, 0.08);
+  --ifm-menu-color-background-hover: rgba(110, 231, 183, 0.04);
+  --ifm-toc-border-color: var(--border-color);
+  --ifm-toc-link-color: var(--text-secondary);
+  --ifm-breadcrumb-color-active: var(--ifm-color-primary);
+  --ifm-breadcrumb-item-background-active: transparent;
+  --ifm-alert-background-color: var(--surface-container);
+  --ifm-table-stripe-background: rgba(255, 255, 255, 0.02);
+  --ifm-table-border-color: var(--border-color);
+  --ifm-card-background-color: var(--surface-container);
+
+  /* Typography tuning */
+  --ifm-font-family-base: var(--font-sans);
+  --ifm-font-family-monospace: var(--font-mono);
+  --ifm-font-size-base: 92.5%;
+  --ifm-line-height-base: 1.7;
+  --ifm-heading-font-weight: 600;
+
+  /* Reduced motion */
+  --ifm-transition-fast: 120ms;
+  --ifm-transition-timing-default: ease;
+
+  --ifm-global-radius: 6px;
+  --ifm-global-shadow-lw: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ifm-transition-fast: 0ms;
+  }
+}
+
+/* Navbar */
+.navbar {
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 var(--border-color);
+}
+
+.navbar__title {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ifm-color-primary);
+}
+
+/* Sidebar */
+.menu__link {
+  border-radius: var(--ifm-global-radius);
+  padding: 6px 12px;
+}
+
+.menu__link--active {
+  border-left: 2px solid var(--ifm-color-primary);
+  padding-left: 10px;
+}
+
+/* Code blocks */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--ifm-color-primary);
+  background: var(--ifm-code-background);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border-color);
+}
+
+pre {
+  border: 1px solid var(--border-color);
+  border-radius: var(--ifm-global-radius);
+}
+
+/* Cards / admonitions */
+.admonition {
+  border-left-width: 3px;
+  background: var(--surface-container);
+}
+
+.alert--info {
+  --ifm-alert-border-color: var(--color-accent-blue);
+}
+
+.alert--success {
+  --ifm-alert-border-color: var(--ifm-color-primary);
+}
+
+.alert--warning {
+  --ifm-alert-border-color: var(--color-accent-amber);
+}
+
+.alert--danger {
+  --ifm-alert-border-color: #f87171;
+}
+
+/* Tables */
+table {
+  display: table;
+  width: 100%;
+  border: 1px solid var(--border-color);
+}
+
+thead {
+  border-bottom: 2px solid var(--border-color);
+}
+
+th {
+  color: var(--ifm-color-primary);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 12px;
+}
+
+td {
+  padding: 10px 12px;
+}
+
+/* Focus states */
+*:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+/* Muted label */
+.label-muted {
+  font-family: var(--font-mono);
+  font-size: 0.7em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Terminal-style blocks */
+.terminal-block {
+  background: #060a14;
+  color: var(--ifm-color-primary);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 14px 18px;
+  border-radius: var(--ifm-global-radius);
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+}
+
+.terminal-block .prompt {
+  color: var(--color-accent-violet);
+}
+
+/* Status tags */
+.status-passing {
+  color: var(--ifm-color-primary);
+}
+
+.status-blocked {
+  color: #fbbf24;
+}
+
+.status-not-started {
+  color: var(--text-muted);
+}
+
+/* Mobile overrides */
+@media screen and (max-width: 996px) {
+  .navbar {
+    backdrop-filter: none;
+  }
+}

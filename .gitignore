@@ -1,0 +1,24 @@
+node_modules/
+.backup/
+
+# Private runtime state and generated logs.
+goal/
+state/
+*.log
+*.jsonl
+**/.opencode/state/
+.opencode/
+.superpowers/
+
+# Local credentials and machine-specific overrides.
+.env
+.env.*
+!.env.example
+*.local.json
+*.local.jsonc
+*.secret
+
+# Docusaurus documentation site (website/) build artifacts.
+website/build/
+website/.docusaurus/
+website/node_modules/

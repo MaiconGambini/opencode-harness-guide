@@ -1,0 +1,66 @@
+import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
+
+const sidebars: SidebarsConfig = {
+  tutorialSidebar: [
+    'intro',
+    {
+      type: 'category',
+      label: 'Começando',
+      link: { type: 'doc', id: 'getting-started/installation' },
+      items: [
+        'getting-started/prerequisites',
+        'getting-started/installation',
+        'getting-started/first-session',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Conceitos',
+      link: { type: 'doc', id: 'concepts/why-a-harness' },
+      items: [
+        'concepts/why-a-harness',
+        'concepts/seven-components',
+        'concepts/prevc',
+        'concepts/wip-one',
+        'concepts/evidence-and-handoff',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Guias',
+      items: [
+        'guides/small-task',
+        'guides/complex-feature',
+        'guides/existing-project',
+        'guides/portability',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Referência',
+      items: [
+        'reference/commands',
+        'reference/skills',
+        'reference/artifacts',
+        'reference/repository-structure',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Adoção',
+      items: [
+        'adoption/use-cases',
+        'adoption/pros-and-cons',
+        'adoption/security',
+        'adoption/limitations',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Solução de problemas',
+      items: ['troubleshooting/faq'],
+    },
+  ],
+};
+
+export default sidebars;

@@ -1,0 +1,128 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    [
+      "./plugins/goal/goal-plugin.ts",
+      {
+        "retention_days": 30,
+        "register_command": true,
+        "command_name": "goal"
+      }
+    ],
+    "./plugins/harness-security-guard.ts",
+    "./plugins/harness-tool-activity.ts",
+    "./plugins/harness-context-monitor.ts",
+    "./plugins/harness-permission-policy.ts",
+    [
+      "./plugins/scheduler-plugin.ts",
+      {
+        "schedules": []
+      }
+    ]
+  ],
+  "provider": {
+    "composer-local": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Cursor Composer Local",
+      "options": {
+        "baseURL": "http://127.0.0.1:8787/v1",
+        "apiKey": "local"
+      },
+      "models": {
+        "composer-2.5": {
+          "name": "Cursor Composer 2.5",
+          "limit": {
+            "context": 200000,
+            "output": 16000
+          }
+        }
+      }
+    }
+  },
+  "command": {
+    "harness-init": {
+      "description": "Harness: audits any project for Entry, Context, State, Feedback, Evaluation, and Skills layers without writing until approved.",
+      "template": "Execute the global harness-initializer skill. Detect the repo root, root instructions, progress state, feature state, startup path, Judge/evaluation layer, harness skills, security posture, hook/plugin posture, MCP/plugin hygiene, context budget, goal memory hygiene, worktrees, agent permissions, and Cursor parity. Produce a non-mutating gap report with recommended fixes. Do not create or edit files unless the user approves a specific fix. Do not assume init.ps1, feature_list.json, .specs/project/STATE.md, or zharnessengineering exist."
+    },
+    "harness-bootstrap": {
+      "description": "Harness: interactively installs the full reusable harness package into any project.",
+      "template": "Execute the global harness-bootstrap skill. Always propose the full harness package: AGENTS.md, feature_list.json, docs/harness progress/handoff/sprint-contract/security-policy/hook-policy/context-budget/eval-contract/agent-permission-matrix/status, docs/ARCHITECTURE.md, docs/PRODUCT.md, docs/RELIABILITY.md, agent-os/judges/project-judge.md, agent-os/standards, and agent-os/spec templates including evals.md. First audit the current repo, detect stack with harness-stack-router, discover startup path, show exact files to create/merge/skip, then ask for explicit confirmation before writing anything. Never assume init.ps1, feature_list.json, .specs/project/STATE.md, or current repo paths."
+    },
+    "harness-standards": {
+      "description": "Harness: detects stack and loads relevant project/global standards and skills.",
+      "template": "Execute harness-stack-router, then harness-standards-router. Detect stack from files before guessing. Load project agent-os/standards first, then global standards templates. Return risk profile, validation profile, agent permission profile, security standards, check minimums, and applicable skills for the current task. Do not implement code; produce the standards/skills routing report."
+    },
+    "harness-spec": {
+      "description": "Harness: creates or updates an Agent OS spec for meaningful work.",
+      "template": "Execute harness-agent-os-specs for the requested objective. Create or propose agent-os/specs/YYYY-MM-DD-HHMM-slug/ with spec.md, plan.md, tasks.md, verification.md, and decisions.md from global templates. Replace placeholders with concrete requirements, acceptance criteria, verification commands, and decisions. Ask before writing if the target repo has no harness yet."
+    },
+    "plan-product": {
+      "description": "Agent OS: cria documentação base do produto em agent-os/product/.",
+      "template": "Execute fielmente o comando Agent OS plan-product. Primeiro leia o arquivo $env:USERPROFILE\\\\agent-os\\\\commands\\\\agent-os\\\\plan-product.md e siga o processo descrito nele. Adapte AskUserQuestion para a ferramenta de pergunta disponível no OpenCode. Quando o comando pedir para criar ou editar arquivos, use agent-os/product/ no projeto atual. Faça uma pergunta por vez quando o fluxo exigir interação."
+    },
+    "shape-spec": {
+      "description": "Agent OS: estrutura uma spec leve para trabalho significativo.",
+      "template": "Execute fielmente o comando Agent OS shape-spec. Primeiro leia o arquivo $env:USERPROFILE\\\\agent-os\\\\commands\\\\agent-os\\\\shape-spec.md e siga o processo descrito nele. Adapte AskUserQuestion para a ferramenta de pergunta disponível no OpenCode. Como o OpenCode pode não ter o mesmo plan mode do Agent OS, trate esta execução como modo de planejamento e não implemente código até o plano ser aprovado. Use agent-os/specs/ no projeto atual para salvar a documentação quando aprovado."
+    },
+    "discover-standards": {
+      "description": "Agent OS: descobre padrões do código e cria standards em agent-os/standards/.",
+      "template": "Execute fielmente o comando Agent OS discover-standards. Primeiro leia o arquivo $env:USERPROFILE\\\\agent-os\\\\commands\\\\agent-os\\\\discover-standards.md e siga o processo descrito nele. Adapte AskUserQuestion para a ferramenta de pergunta disponível no OpenCode. Se o usuário passar uma área de foco, use essa área; se não passar, analise a estrutura do projeto e pergunte qual área documentar. Crie ou atualize arquivos em agent-os/standards/ e atualize agent-os/standards/index.yml conforme o fluxo."
+    },
+    "index-standards": {
+      "description": "Agent OS: reconstrói agent-os/standards/index.yml.",
+      "template": "Execute fielmente o comando Agent OS index-standards. Primeiro leia o arquivo $env:USERPROFILE\\\\agent-os\\\\commands\\\\agent-os\\\\index-standards.md e siga o processo descrito nele. Escaneie agent-os/standards/ no projeto atual, preserve descrições existentes quando possível, pergunte ao usuário para aprovar descrições de novos standards e gere agent-os/standards/index.yml em YAML alfabetizado."
+    },
+    "inject-standards": {
+      "description": "Agent OS: injeta standards relevantes no contexto atual.",
+      "template": "Execute fielmente o comando Agent OS inject-standards. Primeiro leia o arquivo $env:USERPROFILE\\\\agent-os\\\\commands\\\\agent-os\\\\inject-standards.md e siga o processo descrito nele. Adapte AskUserQuestion para a ferramenta de pergunta disponível no OpenCode. Se o usuário passou argumentos, trate como modo explícito; se não, leia agent-os/standards/index.yml, sugira standards relevantes e injete o conteúdo conforme o cenário: conversa, skill ou planejamento."
+    },
+    "harness-session-start": {
+      "description": "Harness: starts a session generically — discovers instructions, state, startup path, WIP, and declares active work.",
+      "template": "Execute the global harness-session-start skill now as a direct routine operation, not PREVC work. Never invoke /goal or the create_goal, get_goal, update_goal, or clear_goal tools. Read root instructions if present; locate progress state from .specs/project/STATE.md, docs/harness/progress.md, or agent-progress.md; locate feature state from feature_list.json or .specs/features/*/tasks.md; read docs/harness/session-handoff.md if present; discover the startup command with harness-startup-path; run the discovered startup command if safe; run git log --oneline -3 in git repos; enforce WIP=1 when durable state exists; finish with: Active task: [feat-id or session-only] — [title]. AC: [observable criteria]. If startup fails, record the exact error in the progress file when available and stop. Do not assume init.ps1 or current repo paths."
+    },
+    "prevc": {
+      "description": "PREVC: the sole lifecycle controller for plan, review, execute, validate, judge, confirm, and handoff.",
+      "template": "Execute the global prevc-workflow skill. PREVC owns the lifecycle for significant work but must never invoke /goal or the create_goal, get_goal, update_goal, or clear_goal tools. Keep lifecycle labels in the current conversation and existing repository harness files only. Route routine low-risk operations such as harness-session-start, status checks, explicit dependency installation, formatting, and narrow test repairs through a direct fast path with objective verification instead of PREVC ceremony. Interpret `prepare <objective>` as discovery, risk classification, and plan creation ending at conversational `awaiting_plan_approval`. Accept explicit operator approval in normal language or `/prevc run`; no goal ID or `/goal confirm` is required. A valid run may automate Review -> Execute -> Validate -> Judge within the approved scope, declared files, permissions, verification, retry, tool, and duration budgets. For low-risk work, allow one bounded repair pass for a newly exposed verification prerequisite such as a missing local test, lint, typecheck, or build development dependency; then rerun full validation. Medium+ scope changes still require approval. Preserve low, medium, high, and untrusted risk paths: medium+ requires context/security evidence or a documented skip; high/untrusted requires explicit risk acknowledgement before execution. Never commit, push, deploy, change branches, or perform remote Git operations automatically. Do not assume repository paths, stack, harness files, or project-specific commands."
+    },
+    "harness-clean-handoff": {
+      "description": "Harness: closes a session generically with evidence, progress state, handoff, discovered verification, and git status.",
+      "template": "Execute the global harness-clean-handoff skill as a PREVC handoff subroutine. Collect evidence, blockers, progress notes, a session handoff, approved verification results, and git status. PREVC alone writes lifecycle transitions after the operator outcome. When invoked directly, return a handoff report only; do not mark feature state, infer confirmation, or claim completion. Do not assume init.ps1."
+    },
+    "harness-security-scan": {
+      "description": "Harness 9+: scan OpenCode, Cursor, repo harness, MCPs, and memory for supply-chain and secret risks.",
+      "template": "Run node \"$env:USERPROFILE\\.config\\opencode\\scripts\\harness-security-scan.mjs\" from any repo. Summarize PASS/WARN/FAIL without printing secret values. If WARN/FAIL, propose remediation before editing."
+    },
+    "harness-context-budget": {
+      "description": "Harness 9+: report context/tooling budget for skills, plugins, commands, MCPs, and Cursor parity.",
+      "template": "Run node \"$env:USERPROFILE\\.config\\opencode\\scripts\\harness-context-budget.mjs\". Summarize large skills/plugins/commands/MCP surfaces and recommend lazy-loading."
+    },
+    "harness-mcp-inventory": {
+      "description": "Harness 9+: inventory OpenCode/Cursor MCP configuration and detect drift/secrets without exposing values.",
+      "template": "Run node \"$env:USERPROFILE\\.config\\opencode\\scripts\\harness-mcp-inventory.mjs\". Report server names, locations, enabled status when discoverable, and secret-bearing keys redacted."
+    },
+    "harness-status": {
+      "description": "Harness 9+: print readiness status for git, PREVC, goal, handoff, context, and security surfaces.",
+      "template": "Run node \"$env:USERPROFILE\\.config\\opencode\\scripts\\harness-status.mjs\". Use the output as readiness evidence and identify the next best action."
+    },
+    "harness-worktree-lifecycle": {
+      "description": "Harness 9+: report worktree lifecycle safety for parallel agents without deleting files.",
+      "template": "Run node \"$env:USERPROFILE\\.config\\opencode\\scripts\\harness-worktree-lifecycle.mjs\". Summarize dirty, clean, stale, and keep/salvage recommendations. Never delete worktrees without explicit approval."
+    },
+    "orca-graph-plan": {
+      "description": "Orca Graph Engineer: read-only wave plan from feature_list.json (waves, chain depth, cycles). No dispatch.",
+      "template": "Execute a skill global orca-graph-engineer no modo PLAN (read-only). Rode orca-harness-spec-reader (que usa scripts/orca-graph-dag.mjs) e imprima a wave table + maxChainDepth (avise se >4) + cycles/missingDeps + tickets sem escopo/AC/verification. NÃO crie tasks, worktrees, nem escreva estado. Não assuma caminhos do repo."
+    },
+    "orca-graph-run": {
+      "description": "Orca Graph Engineer: dispatch the current wave (needs --confirm). Creates tasks wave-by-wave, spawns Codex workers, supervises, stops at the human merge gate.",
+      "template": "Execute a skill global orca-graph-engineer no modo RUN. Confirme orca status --json e que orca orchestration task-list responde; carregue o surface via orca skills get (orca-cli e orchestration); leia feature_list.json + wave-config.json + wave-state.json. ABORTE se cycles != []. Exija --confirm; sem ele, ecoe a wave table e pare (invocar com a wave table à vista = aprovação). Aplique o re-attach guard (reconectar a tasks já dispatched/pr_open da wave). Crie tasks Orca SOMENTE da wave atual (no máx maxConcurrent, em sublotes se maior); dispare workers Codex custom via two-step (worktree create --no-parent base origin/main; terminal create --command 'codex --model <worker.codexModel> -c model_reasoning_effort=\"<worker.reasoningEffort>\"'; terminal wait --for tui-idle; dispatch --inject). Supervisione com check --wait em loop até TODA task ter PR review-ready; então gate-create e PARE. NUNCA use orchestration run, nunca push/merge, nunca auto-avance. Não assuma caminhos do repo."
+    },
+    "orca-graph-next": {
+      "description": "Orca Graph Engineer: after you merge, verify real merge and advance to the next wave. Does not dispatch workers.",
+      "template": "Execute a skill global orca-graph-engineer no modo NEXT. Resolva o gate (gate-resolve). Verifique merge REAL de CADA blocker de CADA feature da próxima wave (gh pr view --json state → exigir MERGED; ler prNumber de wave-state.tasks[]) e que .mergeCommit.oid é ancestral de origin/main (git fetch origin; git merge-base --is-ancestor). Só então currentWave++ e escreva wave-state, e PARE (imprima: rode /orca-graph-plan para a próxima wave). NÃO dispare workers, nunca mergeie. Não assuma caminhos do repo."
+    },
+    "orca-graph-status": {
+      "description": "Orca Graph Engineer: status of in-flight waves (tasks, PR/CI, drift).",
+      "template": "Execute a skill global orca-graph-engineer no modo STATUS. Mostre orca orchestration task-list --json + wave-state.json + triagem PR/CI das waves em voo. Sinalize drift: entradas do wave-state cujos terminais/worktrees não existem mais, worktrees órfãos, e idade/último-evento por task. Read-only, nenhum dispatch."
+    }
+  }
+}

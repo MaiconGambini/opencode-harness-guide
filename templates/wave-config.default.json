@@ -1,0 +1,9 @@
+{
+  "$comment": "Default Orca Graph Engineer config. Copy to <project>/wave-config.json and edit. Resolution: <project>/wave-config.json first, else this file. codexModel/reasoningEffort feed: codex --model <codexModel> -c model_reasoning_effort=\"<reasoningEffort>\". Swap worker to claude/grok by changing one line (or use worktree create --agent).",
+  "roles": {
+    "orchestrator": { "codexModel": "gpt-5.6-sol", "reasoningEffort": "medium" },
+    "worker": { "codexModel": "gpt-5.6-luna", "reasoningEffort": "xhigh" }
+  },
+  "maxConcurrent": 3,
+  "prBase": "main"
+}

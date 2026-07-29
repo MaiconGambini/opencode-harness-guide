@@ -1,0 +1,11 @@
+standards:
+  - functional-programming.md
+  - python.md
+  - typescript.md
+  - vue.md
+  - react.md
+  - database.md
+  - security.md
+  - testing.md
+  - architecture.md
+  - ui.md

@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json",
+    "test": "tsx --test tests/plugin-foundation.test.ts"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.15.13"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.0",
+    "tsx": "4.20.3",
+    "typescript": "5.9.3"
+  }
+}
