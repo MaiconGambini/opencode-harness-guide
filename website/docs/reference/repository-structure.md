@@ -2,57 +2,48 @@
 sidebar_position: 4
 ---
 
-# Estrutura do Repositório
+# Estrutura do Repositorio
 
-Organização do repositório público `opencode-harness-guide`.
+Organizacao do repositorio `opencode-harness-guide`.
 
 ```text
 opencode-harness-guide/
-|-- opencode.jsonc           Configuração global (comandos, plugins)
-|-- package.json             Dependências e scripts de verificação
-|-- tsconfig.json            Configuração TypeScript para plugins
+|-- opencode.jsonc           Configuracao global (comandos, plugins)
+|-- package.json             Dependencias e scripts de verificacao
+|-- tsconfig.json            Configuracao TypeScript para plugins
 |-- .gitignore               Regras de ignorar para Git
-|-- harnessopencode.md       Guia monolítico do harness (referência)
-|-- plugins/                 Plugins do runtime (goal, segurança, scheduler)
+|-- plugins/                 Plugins do runtime (goal, seguranca, scheduler)
 |-- skills/                  Skills carregadas pelo OpenCode
-|-- agent/                   Definições de agents (subagentes especializados)
 |-- command/                 Comandos globais adicionais
-|-- scripts/                 Utilitários PowerShell e Node
-|-- templates/               Templates reutilizáveis
+|-- scripts/                 Utilitarios PowerShell e Node
+|-- templates/               Templates reutilizaveis
 |   |-- agent-os/            Specs, standards, judges
-|   |-- docs/                Templates de documentação
+|   |-- docs/                Templates de documentacao
 |   `-- feature_list.json    Template de lista de features
-|-- catalog/ plan/ shape/    Documentos de automação proativa
-|-- tests/                   Testes dos plugins
-`-- website/                 Site de documentação (Docusaurus)
-    |-- docs/                Fonte da documentação (pt-BR)
-    |-- i18n/                Traduções (en)
-    |-- src/                 Página inicial e tema
+|-- docs/                    Documentacao interna do harness
+|   |-- governance/          Governanca e decisoes de arquitetura
+|   `-- superpowers/         Specs e planos
+`-- website/                 Site de documentacao (Docusaurus)
+    |-- docs/                Fonte da documentacao (pt-BR)
+    |-- i18n/                Traducoes (en)
+    |-- src/                 Pagina inicial e tema
     `-- static/              Imagens e favicon
 ```
 
-## O que é carregado pelo OpenCode
+## O que e carregado pelo OpenCode
 
-O OpenCode lê `opencode.jsonc` na inicialização. Ele registra:
+O OpenCode le `opencode.jsonc` na inicializacao. Ele registra:
 
 - Comandos globais em `command` (slashes como `/prevc`).
-- Skills em `skills/` (qualquer `SKILL.md` dentro de subdiretório).
+- Skills em `skills/` (qualquer `SKILL.md` dentro de subdiretorio).
 - Plugins em `plugins/` (arquivos `.ts` registrados em `opencode.jsonc`).
-- Agents em `agent/` (definições de subagentes especializados).
 
-`package.json` é usado apenas para typecheck e testes dos plugins — não
+`package.json` e usado apenas para typecheck e testes dos plugins — nao
 afeta o OpenCode diretamente.
 
-## O que NÃO é carregado
+## O que NAO e carregado
 
-- `templates/` — são copiados manualmente para projetos.
-- `scripts/` — utilitários executados manualmente.
-- `website/` — isolado com suas próprias dependências.
-- `harnessopencode.md` — guia de referência, não afeta o runtime.
-
-## Observação sobre a distribuição pública
-
-Esta distribuição pública **não inclui** material interno de governança,
-backups, estado de runtime nem skills ofensivas de segurança (recon,
-redteam, exploração). Esses artefatos permanecem apenas no repositório
-privado do autor.
+- `templates/` — sao copiados manualmente para projetos.
+- `docs/` — documentacao interna, nao afeta o runtime.
+- `scripts/` — utilitarios executados manualmente.
+- `website/` — isolado com suas proprias dependencias.

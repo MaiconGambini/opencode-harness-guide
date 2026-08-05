@@ -20,6 +20,7 @@
    9.1 [Feature Pequena — Quick Mode](#91-feature-pequena--adiciona-endpoint-get-apihealth)
    9.2 [Feature Grande — Pipeline Completo](#92-feature-grande--sistema-de-busca-com-filtros-e-ordenação)
    9.3 [Tabela Comparativa](#93-tabela-comparativa-pequena-vs-grande)
+   9.4 [Dispatch Paralelo — spec-lead Scheduler](#94-dispatch-paralelo--spec-lead-como-scheduler)
 10. [Matriz de Completude](#10-matriz-de-completude)
 11. [Harness Global Productizado](#11-harness-global-productizado)
 
@@ -943,6 +944,187 @@ harness-clean-handoff       → fecha após 6 features concluídas
 | **Arquivos tocados** | 1 código + 3 state | 12 código + 3 state |
 | **Tempo** | 2-5 min | 30-45 min |
 | **Gate de entrada** | Prompt ≤1 sentença, ≤3 arquivos | Prompt multi-componente, ambiguidade |
+
+---
+
+### 9.4 Dispatch Paralelo — spec-lead como Scheduler
+
+**Quando usar:** feature com **lanes independentes** (arquivos disjuntos, sem dependência sequencial). O spec-lead vira o scheduler da fase Execute do PREVC (opção B) e despacha as lanes em paralelo, cada uma num subagent com model próprio. Sem lanes independentes, use o fluxo normal (§9.1 / §9.2) — paralelismo não ajuda.
+
+**Setup (uma vez por sessão):**
+```powershell
+& "$env:USERPROFILE\.config\opencode\scripts\start-parallel.ps1"
+# seta OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true + PARALLEL=true
+# abre: opencode --port 4096 --agent spec-lead
+```
+> Sem os env flags, o dispatch é **serial** — o script garante os dois.
+
+**Auto mode (padrão para executar um plano nomeado):**
+```
+1. start-parallel.ps1                        → abre no spec-lead
+2. "Execute all tasks in plan <path> ..."    → a instrução AUTORIZA o run inteiro
+   → planeja as lane tables, executa tudo até o fim, para UMA vez no final
+3. (no fim) awaiting_confirmation             → tu revisa e confirma
+```
+> **Sem `/prevc run`, sem approval no meio.** Uma instrução pra executar um plano
+> nomeado de ponta a ponta é ela mesma a autorização do run autônomo. Roda do prompt
+> até o fim sozinho e para **uma vez só**, no `awaiting_confirmation` do spec inteiro.
+> Para no meio só por bloqueio real (task que exige operador/live, scope change,
+> push/deploy, ou falha de validação irrecuperável).
+
+**Modo manual (trabalho ad-hoc, não um plano nomeado):**
+```
+1. start-parallel.ps1   → abre no spec-lead
+2. pede o trabalho      → propõe o plano, para em awaiting_plan_approval
+3. "aprovado"           → sinaliza
+4. /prevc run           → autoriza o Execute
+```
+> `/prevc run` continua sendo o autorizador quando tu **não** deu uma instrução de
+> executar um plano inteiro. Pra plano nomeado (auto mode), não precisa.
+
+#### Receita pronta (copiar e colar)
+
+**1. Abrir a sessão** (no diretório do projeto):
+```powershell
+& "$env:USERPROFILE\.config\opencode\scripts\start-parallel.ps1"
+# segundo projeto ao mesmo tempo: adicione -Port 4097 -Dir "C:\outro\projeto"
+```
+
+**2. Passar o plano** — template reutilizável, troca só o caminho. A instrução já
+autoriza o run inteiro; ele roda até o fim e para uma vez no `awaiting_confirmation`:
+```text
+Execute all tasks in plan agent-os/specs/<PASTA-DO-PLANO> end to end under PREVC —
+this authorizes a full autonomous run.
+Propose a lane table per phase; parallelize independent lanes,
+serialize lanes sharing a file. Use recommended subagents.
+When all tasks land, run @code-reviewer and @architecture-reviewer in parallel
+over the diff; both must score 9+ with zero critical/blocking issues.
+Stop only at the final awaiting_confirmation for the whole spec.
+```
+
+**3. Confirmar no fim** — quando todo o plano terminou, ele para em
+`awaiting_confirmation` com os arquivos mudados e a evidência. Tu revisa e confirma.
+
+> **Plano com gates de operador/live** (máquina física, credencial, tráfego real):
+> o run autônomo **para sozinho** ao bater no primeiro gate de operador e reporta
+> `blocked`. Pra ser explícito, troca a 1ª linha por `Execute only the
+> agent-implementable tasks... and STOP at <Task N>`. Ex: OEM para na Task 5.
+> Plano sem gates (ex: Area Bindings) roda inteiro sem parar.
+>
+> Reviewer segundo o plano: usa o par que o `plan.md` do teu spec manda na task de
+> review final. Se o plano não diz, `code-reviewer` + `architecture-reviewer`.
+
+**Prompt do usuário:** `Adiciona página de comparação de props: card de UI, endpoint de agregação no backend, e testes dos dois.`
+
+**Classificação:** MEDIUM, 3 lanes disjuntas → **dispatch paralelo.**
+
+#### O que o usuário vê (por fora)
+
+```
+Usuário: Adiciona página de comparação de props: card de UI,
+         endpoint de agregação no backend, e testes dos dois.
+
+spec-lead (gpt-5.6-sol/high):
+  [PREPARE — role de planning]
+  Antes de despachar, mapeio ownership de arquivo por lane.
+  Despacho @explorer (read-only) pra confirmar convenções e call sites.
+
+  → @explorer (deepseek-flash/low): retorna file:line dos readers de
+    frontend_*.json e a convenção de erro em src/providers/
+
+  LANE TABLE (instrução de executar o plano = run autorizado):
+  ┌──────┬─────────────────────────┬──────────────────────────────┬──────────┬──────────────────────┐
+  │ Lane │ Objetivo                │ Ownership (arquivos)         │ Dep      │ Capability           │
+  ├──────┼─────────────────────────┼──────────────────────────────┼──────────┼──────────────────────┤
+  │ L1   │ Card de comparação      │ frontend-next/.../Compare.tsx│ —        │ vue-engineer/fixer   │
+  │ L2   │ Endpoint de agregação   │ src/analysis/compare.py      │ —        │ fixer                │
+  │ L3   │ Testes L1+L2            │ tests/test_compare.py        │ L1, L2   │ test-automation-eng  │
+  └──────┴─────────────────────────┴──────────────────────────────┴──────────┴──────────────────────┘
+  Risco: MEDIUM. Ownership disjunto entre L1 e L2 → paralelizam.
+  L3 depende de L1+L2 → roda depois. Verificação: npm run build; pytest.
+
+  [EXECUTE — role de scheduler, sem parar pra aprovação]
+  Despacho L1 e L2 em paralelo (task background: true), registro task IDs.
+
+  → task(fixer, L2)      → id=t_a1  [running]
+  → task(fixer, L1)      → id=t_b2  [running]
+
+  [poll task_status: t_a1 running, t_b2 running...]
+  [t_a1 → completed]  L2: compare.py criado, pytest do módulo passou
+  [t_b2 → completed]  L1: Compare.tsx criado, npm run build OK
+
+  L1+L2 terminais → despacho L3 (dep satisfeita).
+  → task(test-automation-engineer, L3)  → id=t_c3  [running]
+  [t_c3 → completed]  L3: test_compare.py, 8 passed 0 failed
+
+  RECONCILE + verificação cross-lane:
+  [npm run build → OK]  [pytest → 31 passed]  [.\init.ps1 → sai 0]
+
+  Devolvo o resultado reconciliado ao PREVC Validate.
+
+PREVC: Validate → Judge → awaiting_confirmation
+  Muda: 3 arquivos código. Evidência: build OK, pytest 31/0, init.ps1=0.
+
+Usuário: confirmo
+  → feature_list.json: feat-XXX → passing
+  → [harness-clean-handoff]
+```
+
+#### Regras que o scheduler obedece
+
+- **Um arquivo, uma lane write-capable por vez.** Lanes com ownership que se cruza **não** são independentes — serializa ou funde numa lane. (Ownership não é lock — é regra de prompt. Colisão = sobrescrita silenciosa.)
+- **Task ID registrado na hora.** Lane sem task ID = trabalho fora do radar, não existe.
+- **`task_status` é grosso:** só `running | completed | cancelled`, sem output parcial. Pra assistir um worker ao vivo, noutro pane: `opencode attach http://127.0.0.1:4096 --session <childId>`.
+- **Sem `ask` em background.** Subagents rodam com `permission` só `allow`/`deny` (config em `opencode.jsonc`); um `ask` penduraria a lane esperando aprovação que ninguém vê. Permission por agente **ganha** do global do plugin.
+- **Scope change volta pro PREVC.** O scheduler nunca absorve mudança de escopo no dispatch — para como `blocked`/`needs_input` e devolve pro operador.
+- **Nada de commit/push/deploy automático**, em nenhum nível de risco.
+
+#### Agentes disponíveis (roteados pelo spec-lead)
+
+Modelo e permissão de cada um são fixados em `opencode.jsonc`. Implementadores
+editam; reviewers e advisors são read-only.
+
+| Agente | Papel | Modelo / variant | edita? |
+|---|---|---|---|
+| `spec-lead` | Scheduler + planejamento | sol / high (primary) | não |
+| `explorer` | Recon read-only | deepseek-v4-flash / low | não |
+| `fixer` | Lane escopada genérica | deepseek-v4-flash / high | sim |
+| `python-engineer` | FastAPI, SQLAlchemy, async, pytest | luna / high | sim |
+| `vue-engineer` | Vue 3, TS, Pinia, Vite/Nuxt | luna / xhigh | sim |
+| `postgres-engineer` | Schema, migrations, locking, concorrência | sol / medium | sim |
+| `kotlin-engineer` | Android, KMP, Compose | luna / high | sim |
+| `backend-infra-engineer` | Docker, CI, config, preflight, deploy | luna / medium | sim |
+| `web-platform-engineer` | Cross-browser, build, Core Web Vitals | luna / medium | sim |
+| `test-automation-engineer` | Testes + diagnóstico | deepseek-v4-flash / high | sim |
+| `code-reviewer` | Gate final: linha, segurança, qualidade | sol / medium | não |
+| `architecture-reviewer` | Gate final: estrutura, coupling, seams | sol / medium | não |
+| `system-design-advisor` | Design de sistema (APIs, filas, escala) | sol / high | não |
+| `architecture-advisor` / `design-*` / `plan-architect` / `requirements-interrogator` | Advisory de planejamento | sol/luna | não |
+
+**Gate final duplo:** ao terminar as tasks, o scheduler despacha `code-reviewer`
+e `architecture-reviewer` **em paralelo** sobre o diff. Ambos emitem nota `/10`.
+Ambos ≥9 com zero crítico/blocking → recomenda aprovação ao PREVC; **o operador
+confirma**. Os agentes **pontuam**, não aprovam — o carimbo final é teu. Para
+mudança system-level (serviço/fila/API novos), usa `system-design-advisor` como
+segundo gate no lugar do architecture-reviewer.
+
+#### Quando NÃO usar
+
+- Lanes que tocam o mesmo arquivo → serial (§9.2).
+- Feature de 1 arquivo → quick mode (§9.1). Overhead de scheduler não compensa.
+- Ctrl+C no spec-lead **não** mata os filhos em background — cancela via `cancel_task`/`task_status` ou fecha o pane do worker.
+
+#### Troubleshooting
+
+| Sintoma | Causa | Fix |
+|---|---|---|
+| spec-lead parou esperando aprovação | trabalho ad-hoc, não instrução de plano nomeado | `/prevc run`, ou reformula como "Execute all tasks in plan `<path>` end to end" |
+| 2º opencode não sobe | port 4096 ocupado | `-Port 4097` no script |
+| workers em série, não paralelo | abriu opencode cru, sem env flag | usa o `start-parallel.ps1` |
+| lane volta `blocked: file outside ownership` | scope change | volta pro plano, re-aprova |
+| tudo lento / erro de quota | lanes demais ou 2 schedulers | menos paralelo / 1 projeto por vez |
+| worker esperando pra sempre | permission `ask` num agente de background | troca pra `allow`/`deny` no jsonc |
+| Ctrl+C não parou os workers | filhos sobrevivem ao pai | `cancel_task` ou fecha o pane |
 
 ---
 

@@ -32,8 +32,14 @@ Stop at `awaiting_plan_approval`. Do not edit before explicit operator approval.
 - `high` and `untrusted`: full gates, explicit risk acknowledgement, constrained
   permissions, and rollback considerations before execution.
 
-Use `spec-lead` only for planning/specification input. PREVC retains the plan,
-approval, and lifecycle decisions.
+Use `spec-lead` for planning/specification input, and — after approval — as the
+Execute-phase scheduler. PREVC retains the plan, approval, and lifecycle decisions.
+
+When a plan proposes parallel execution, it must declare a lane table: lane ID,
+objective, exact file ownership set, dependencies, verification command, and owning
+capability. One write-capable lane owns a file at a time; lanes with intersecting
+ownership sets are not independent. The lane table is reviewed before approval, not
+decided at dispatch time.
 
 ## Run
 
@@ -47,13 +53,34 @@ A run may automate:
 Review -> Execute -> Validate -> Judge
 ```
 
+During Execute of an approved plan that declared a lane table, `spec-lead` acts as the
+scheduler: it dispatches independent lanes in parallel via `task(background: true)`,
+polls `task_status`, and reconciles results within the approved scope, files,
+permissions, and budgets. It does not transition lifecycle state; PREVC resumes at
+Validate with the reconciled result.
+
 Stop immediately as `blocked` or `needs_input` on failed validation, missing
 evidence, ambiguity, scope change, permission escalation, or exhausted budget. Do
 not start an open-ended repair loop.
 
-After Judge, always transition to `awaiting_confirmation`, including low-risk PREVC
-work. Present changed files, a diff summary, validation evidence, Judge verdict,
-residual risks, and rollback information for operator review.
+## Autonomous Plan Run
+
+An operator instruction to execute a named plan or spec end to end is itself the run
+authorization — no separate `/prevc run`, no per-task approval. In this mode PREVC
+automates every task's Review -> Execute -> Validate -> Judge to the end of the plan
+and transitions to `awaiting_confirmation` **once**, for the whole spec, rather than
+per task.
+
+The autonomy is bounded — halt mid-run only for a real blocker: a task needing
+operator/live action, a scope change beyond the plan, `push`/deploy/branch/worktree/
+remote Git, or an unrecoverable validation failure after one bounded repair. Medium+
+scope changes and high/untrusted risk acknowledgement still apply and still stop the
+run when triggered.
+
+After Judge, always transition to `awaiting_confirmation` at the end of the run (per
+task for ad-hoc work; once for a full autonomous plan run). Present changed files, a
+diff summary, validation evidence, Judge verdict, residual risks, and rollback
+information for operator review.
 
 ## Confirm And Handoff
 
@@ -62,9 +89,12 @@ Only the operator may confirm, request revision, or abort from
 `harness-clean-handoff`. Revision returns to planning or review as appropriate.
 Abort records the reason and performs no further work.
 
-Commits, pushes, deployments, branch changes, remote Git operations, and permission
-elevation are never automatic. Low-risk non-PREVC operational checks may auto-complete
-only through their separate, objective evidence policy.
+Local commits of reconciled, validated work are allowed once a run is authorized —
+the scheduler may commit the approved changes with a clear message. Pushes,
+deployments, branch changes, worktree creation, remote Git operations, and permission
+elevation are never automatic; the operator performs or explicitly authorizes each.
+Low-risk non-PREVC operational checks may auto-complete only through their separate,
+objective evidence policy.
 
 ## Current Implementation Boundary
 

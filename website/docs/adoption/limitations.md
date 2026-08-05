@@ -2,44 +2,41 @@
 sidebar_position: 4
 ---
 
-# Limitações
+# Limitacoes
 
-O que o Harness OpenCode não faz na versão atual. Conhecer os limites evita
-frustração e ajuda a decidir se o harness é a ferramenta certa para o seu
-caso.
+O que o Harness OpenCode nao faz na versao atual.
 
-## Não é um produto SaaS
+## Nao e um produto SaaS
 
-O harness é um conjunto de arquivos de configuração e scripts. Não há
-servidor, API, autenticação ou dashboard.
+O harness e um conjunto de arquivos de configuracao e scripts. Nao ha
+servidor, API, autenticacao ou dashboard.
 
-## Não faz merge em configuração existente
+## Nao faz merge em configuracao existente
 
-A versão 1 suporta apenas instalação limpa — clonar em uma pasta vazia ou
-instalar após backup. Não há script de merge que preserve a sua configuração
-atual enquanto adiciona o harness.
+A versao 1 suporta apenas instalacao limpa (clonar em uma pasta vazia ou
+apos backup). Nao ha script de merge que preserve sua configuracao atual
+enquanto adiciona o harness.
 
-## Não é um gerenciador de pacotes
+## Nao e um gerenciador de pacotes
 
-Não há CLI de instalação, atualização automática ou versionamento semântico.
-As atualizações são feitas via `git pull`.
+Nao ha CLI de instalacao, atualizacao automatica ou versionamento
+semantico. Atualizacoes sao feitas via `git pull`.
 
-## Não documenta todas as skills
+## Nao documenta todas as skills
 
 O site documenta o workflow do harness. Skills especializadas (frontend,
-backend, segurança ofensiva) que coexistem no repositório não têm capítulos
-próprios na documentação.
+backend, seguranca ofensiva) que coexistem no repositorio nao tem capitulos
+proprios na documentacao.
 
-## Não é multiplataforma completo
+## Nao e multiplataforma completo
 
-O harness foi projetado e testado no Windows com PowerShell 5.1+. Os scripts
-de export e instalação são específicos para PowerShell. O runtime Node é
-portável, mas não são fornecidos scripts shell equivalentes para Linux ou
-macOS.
+O harness foi projetado e testado no Windows com PowerShell 5.1+.
+Scripts de export e instalacao sao especificos para PowerShell. O runtime
+Node e portavel, mas scripts shell nao sao fornecidos.
 
-## Dependências
+## Dependencias
 
 - OpenCode instalado e funcionando.
-- Node.js 20+ para os plugins.
-- PowerShell 5.1+ para os scripts de instalação.
-- Git para clonagem e controle de versão.
+- Node.js 20+ para plugins.
+- PowerShell 5.1+ para scripts de instalacao.
+- Git para clonagem e controle de versao.

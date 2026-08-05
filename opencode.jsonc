@@ -39,6 +39,146 @@
       }
     }
   },
+  // Parallel dispatch (PREVC option B): spec-lead is the Execute-phase scheduler.
+  // Requires OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true at launch.
+  // Launch with: opencode --port 4096 --agent spec-lead
+  "experimental": {
+    "batch_tool": true
+  },
+  "agent": {
+    // --- Scheduler (primary) ---
+    "spec-lead": {
+      "mode": "primary",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "high",
+      "permission": {
+        "task": "allow",
+        "edit": "deny",
+        "bash": "allow",
+        "webfetch": "allow",
+        "external_directory": "allow"
+      }
+    },
+
+    // --- Quality gate ---
+    "code-reviewer": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "medium",
+      "permission": { "edit": "deny", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "architecture-reviewer": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "medium",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "read": "allow", "grep": "allow", "glob": "allow", "list": "allow", "skill": "allow", "external_directory": "allow" }
+    },
+
+    // --- Planning / advisory: read-only, no nested dispatch ---
+    "plan-architect": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "high",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "external_directory": "allow" }
+    },
+    "architecture-advisor": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "high",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "external_directory": "allow" }
+    },
+    "system-design-advisor": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "high",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "external_directory": "allow" }
+    },
+    "requirements-interrogator": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "variant": "high",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "external_directory": "allow" }
+    },
+    "design-patterns-advisor": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "variant": "high",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "external_directory": "allow" }
+    },
+    "design-director": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "variant": "xhigh",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "external_directory": "allow" }
+    },
+
+    // --- Implementers: own declared files, may run bash ---
+    "web-platform-engineer": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "variant": "medium",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "kotlin-engineer": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "variant": "high",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "python-engineer": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "variant": "high",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "vue-engineer": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "variant": "xhigh",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "postgres-engineer": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "medium",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "backend-infra-engineer": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-luna",
+      "variant": "medium",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "test-automation-engineer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "high",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "fixer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "high",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+
+    // --- Recon: read-only, cheapest tier ---
+    "explorer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "low",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny",
+        "read": "allow",
+        "grep": "allow",
+        "glob": "allow",
+        "list": "allow",
+        "external_directory": "allow"
+      }
+    }
+  },
   "command": {
     "harness-init": {
       "description": "Harness: audits any project for Entry, Context, State, Feedback, Evaluation, and Skills layers without writing until approved.",
@@ -82,7 +222,7 @@
     },
     "prevc": {
       "description": "PREVC: the sole lifecycle controller for plan, review, execute, validate, judge, confirm, and handoff.",
-      "template": "Execute the global prevc-workflow skill. PREVC owns the lifecycle for significant work but must never invoke /goal or the create_goal, get_goal, update_goal, or clear_goal tools. Keep lifecycle labels in the current conversation and existing repository harness files only. Route routine low-risk operations such as harness-session-start, status checks, explicit dependency installation, formatting, and narrow test repairs through a direct fast path with objective verification instead of PREVC ceremony. Interpret `prepare <objective>` as discovery, risk classification, and plan creation ending at conversational `awaiting_plan_approval`. Accept explicit operator approval in normal language or `/prevc run`; no goal ID or `/goal confirm` is required. A valid run may automate Review -> Execute -> Validate -> Judge within the approved scope, declared files, permissions, verification, retry, tool, and duration budgets. For low-risk work, allow one bounded repair pass for a newly exposed verification prerequisite such as a missing local test, lint, typecheck, or build development dependency; then rerun full validation. Medium+ scope changes still require approval. Preserve low, medium, high, and untrusted risk paths: medium+ requires context/security evidence or a documented skip; high/untrusted requires explicit risk acknowledgement before execution. Never commit, push, deploy, change branches, or perform remote Git operations automatically. Do not assume repository paths, stack, harness files, or project-specific commands."
+      "template": "Execute the global prevc-workflow skill. PREVC owns the lifecycle for significant work but must never invoke /goal or the create_goal, get_goal, update_goal, or clear_goal tools. Keep lifecycle labels in the current conversation and existing repository harness files only. Route routine low-risk operations such as harness-session-start, status checks, explicit dependency installation, formatting, and narrow test repairs through a direct fast path with objective verification instead of PREVC ceremony. Interpret `prepare <objective>` as discovery, risk classification, and plan creation ending at conversational `awaiting_plan_approval`. Accept explicit operator approval in normal language or `/prevc run`; no goal ID or `/goal confirm` is required. An instruction to execute a named plan or spec end to end is itself the authorization for an autonomous run: automate every task's Review -> Execute -> Validate -> Judge to the end of the plan with no per-task approval, and stop once at `awaiting_confirmation` for the whole spec. Halt mid-run only for a real blocker: a task needing operator/live action, a scope change beyond the plan, push/deploy/branch/worktree/remote Git, or an unrecoverable validation failure after one bounded repair. A valid run may automate Review -> Execute -> Validate -> Judge within the approved scope, declared files, permissions, verification, retry, tool, and duration budgets. For low-risk work, allow one bounded repair pass for a newly exposed verification prerequisite such as a missing local test, lint, typecheck, or build development dependency; then rerun full validation. Medium+ scope changes still require approval. Preserve low, medium, high, and untrusted risk paths: medium+ requires context/security evidence or a documented skip; high/untrusted requires explicit risk acknowledgement before execution. Local commits of reconciled, validated work are allowed once a run is authorized. Never push, deploy, change or create branches, create worktrees, or perform remote Git operations automatically; the operator performs or explicitly authorizes each. Do not assume repository paths, stack, harness files, or project-specific commands."
     },
     "harness-clean-handoff": {
       "description": "Harness: closes a session generically with evidence, progress state, handoff, discovered verification, and git status.",

@@ -23,7 +23,6 @@ const sidebars: SidebarsConfig = {
         'concepts/prevc',
         'concepts/wip-one',
         'concepts/evidence-and-handoff',
-        'concepts/automation',
       ],
     },
     {
@@ -32,6 +31,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'guides/small-task',
         'guides/complex-feature',
+        'guides/parallel-dispatch',
         'guides/existing-project',
         'guides/portability',
       ],
@@ -42,10 +42,8 @@ const sidebars: SidebarsConfig = {
       items: [
         'reference/commands',
         'reference/skills',
-        'reference/agents',
         'reference/artifacts',
         'reference/repository-structure',
-        'reference/references',
       ],
     },
     {
@@ -67,5 +65,3 @@ const sidebars: SidebarsConfig = {
 };
 
 export default sidebars;
-
-// docs deploy: why/result rationale + PT accents + agents/references

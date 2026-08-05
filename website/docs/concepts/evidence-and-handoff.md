@@ -2,51 +2,22 @@
 sidebar_position: 5
 ---
 
-# Evidência e Handoff
+# Evidencia e Handoff
 
-O harness exige que toda conclusão tenha evidência — não basta "funcionou na
-minha máquina".
+O harness exige que toda conclusao tenha evidencia — nao basta "funcionou na
+minha maquina".
 
-## Camadas de verificação
+## Camadas de verificacao
 
-Antes de declarar uma feature como concluída, três camadas são verificadas:
+Antes de declarar uma feature como concluida, tres camadas sao verificadas:
 
-| Camada | O que verifica |
-|---|---|
-| **Static** | typecheck e lint passam. |
-| **Runtime** | os critérios de aceite do sprint contract são observáveis, comandos foram rodados e o output foi registrado. |
-| **System** | o comando de verificação do projeto sai com código 0, e `feature_list.json` e `STATE.md` refletem o novo estado. |
+1. **Static** — typecheck e lint passam.
+2. **Runtime** — os criterios de aceite do sprint contract sao observaveis,
+   comandos foram rodados e o output foi registrado.
+3. **System** — o comando de verificacao do projeto sai com codigo 0, e
+   `feature_list.json` e `STATE.md` refletem o novo estado.
 
-Exemplos concretos por camada:
-
-- **Camada 1 (estática):** `typecheck`, `lint`, `format check`, diff sem
-  conflitos ou whitespace inválido.
-- **Camada 2 (comportamento):** teste unitário ou de integração do caso
-  alterado, request HTTP que prova o AC, fluxo de navegador para mudança de
-  UI, comando da aplicação com saída esperada.
-- **Camada 3 (sistema/regressão):** build ou startup path do projeto, suíte de
-  regressão aplicável, logs/health check, estado e handoff atualizados.
-
-Se uma camada não for executada, isso deve aparecer como **limitação de
-evidência**. Não substitua um comando não executado por uma frase otimista.
-
-## Judge
-
-O Judge compara resultado, escopo e evidência com a spec ou contrato
-aprovado. Ele pode **aprovar, pedir revisão ou bloquear** — e não deve ser
-produzido no mesmo passo que a implementação quando uma revisão independente
-for necessária.
-
-| Dimensão | Pergunta |
-|---|---|
-| **Correção** | O comportamento atende aos critérios de aceite? |
-| **Evidência** | O resultado tem prova observável? |
-| **Escopo** | Foram alterados apenas arquivos e comportamentos aprovados? |
-| **Segurança** | Surgiu uma permissão, segredo ou superfície de risco nova? |
-| **Manutenção** | A mudança segue os padrões existentes? |
-| **Handoff** | Outra sessão consegue continuar sem adivinhar? |
-
-## Exemplo de evidência
+## Exemplo de evidencia
 
 ```json
 {
@@ -56,35 +27,16 @@ for necessária.
 }
 ```
 
-A evidência contém output real, não uma descrição do que deveria acontecer.
+A evidencia contem output real, nao uma descricao do que deveria acontecer.
 
 ## Handoff
 
-Toda sessão termina com `harness-clean-handoff`. Ele preenche:
+Toda sessao termina com `harness-clean-handoff`. Ele preenche:
 
-| Campo | Conteúdo |
-|---|---|
-| **Verified Now** | o que foi concluído nesta sessão. |
-| **Changed** | arquivos modificados. |
-| **Broken** | o que quebrou (se algo quebrou). |
-| **Next Best Step** | a única próxima ação. |
+- **Verified Now** — o que foi concluido nesta sessao.
+- **Changed** — arquivos modificados.
+- **Broken** — o que quebrou (se algo quebrou).
+- **Next Best Step** — a unica proxima acao.
 
-Se o trabalho não terminou, o handoff ainda é feito — a feature vai para
+Se o trabalho nao terminou, o handoff ainda e feito — a feature vai para
 `blocked` com a causa exata e o `Next Best Step` diz exatamente o que fazer.
-
-## Por que isso é melhor (com resultado)
-
-A janela de contexto é finita. Perto do limite, o agente acelera e as
-decisões e "porquês" somem na próxima sessão — gerando retrabalho e desvio
-silencioso dos requisitos. O handoff persistido (estado + decisões + commit
-como checkpoint) reconstrói o contexto em minutos.
-
-**Resultado** (estudo *Learn Harness Engineering*): sem persistência, a sessão
-2 gastava **15 min** reconstruindo contexto e entregou **7 de 12** features
-com 43% de defeitos ocultos. Com persistência: reconstrução caiu para **3 min**
-(**-78%**), **12 de 12** features completas e só 8% de defeitos.
-
-## Próximo passo
-
-Veja [Automação](./automation) — o que o harness automatiza e, mais
-importante, o que ele deliberadamente não automatiza.
