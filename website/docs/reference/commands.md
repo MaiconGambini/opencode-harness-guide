@@ -25,7 +25,7 @@ Comandos globais disponiveis no OpenCode apos a instalacao do harness.
 | Comando | Quando usar | O que faz |
 |---|---|---|
 | `/prevc` | Qualquer trabalho significativo | Controla lifecycle: plan, review, execute, validate, judge, confirm, handoff |
-| `/prevc run` | Após aprovar o plano | Autoriza a fase Execute — passo obrigatório no [dispatch paralelo](../guides/parallel-dispatch) |
+| `/prevc run` | Trabalho ad-hoc, após aprovar | Autoriza a fase Execute. No [auto mode](../guides/parallel-dispatch) (executar um plano nomeado) não precisa — a instrução já autoriza |
 | `/harness-standards` | Antes de planejar | Detecta stack e lista standards e skills relevantes |
 | `/harness-spec` | Feature media/grande | Cria spec Agent OS em `agent-os/specs/` |
 

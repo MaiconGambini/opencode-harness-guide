@@ -32,6 +32,7 @@ const sidebars: SidebarsConfig = {
         'guides/small-task',
         'guides/complex-feature',
         'guides/parallel-dispatch',
+        'guides/parallel-dispatch-example',
         'guides/existing-project',
         'guides/portability',
       ],
