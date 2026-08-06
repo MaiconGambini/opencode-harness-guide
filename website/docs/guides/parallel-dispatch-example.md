@@ -104,7 +104,7 @@ O auto mode é limitado — interrompe só por bloqueio real:
 - Task que exige operador/live (máquina física, credencial, tráfego real).
 - Mudança de escopo além do plano.
 - `push`/deploy/branch/worktree.
-- Falha de validação irrecuperável após um reparo.
+- Falha de válidação irrecuperável após um reparo.
 
 Um plano com gate de operador (ex: rollout de produção) roda até bater no gate e
 para; um plano só de código (como este) vai do prompt ao fim sozinho.

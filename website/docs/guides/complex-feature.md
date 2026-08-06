@@ -29,13 +29,13 @@ no backend (FastAPI) e frontend (Vue).`
 3. `/harness-role-separation`
    - Planner define scope, AC e verification plan no sprint contract.
    - Generator itera sobre as 6 subtasks.
-   - Evaluator aplica rubrica de 6 dimensoes.
+   - Evaluator aplica rubrica de 6 dimensões.
 
 4. PREVC itera: Review -> Execute -> Validate -> Judge.
 
 5. Confirm depois que todas as subtasks passam.
 
-6. Handoff registra 6 features `passing` com evidencia, 12 arquivos tocados.
+6. Handoff registra 6 features `passing` com evidência, 12 arquivos tocados.
 
 **Tempo:** ~30-45 minutos. **Skills usados:** 7 (+ role-separation,
 evaluator-rubric, continuity).
@@ -44,10 +44,10 @@ evaluator-rubric, continuity).
 
 Para features complexas, o sprint contract e preenchido ANTES do Execute:
 
-- **Scope In** — o que sera feito.
-- **Scope Out** — o que NAO sera feito (ex: ElasticSearch, autocomplete).
-- **AC** — criterios de aceite observaveis.
-- **Verification Plan** — comandos e condicoes de sucesso para cada check.
+- **Scope In** — o que será feito.
+- **Scope Out** — o que NÃO será feito (ex: ElasticSearch, autocomplete).
+- **AC** — critérios de aceite observáveis.
+- **Verification Plan** — comandos e condições de sucesso para cada check.
 
-Trabalho adjacente descoberto durante a execucao vira uma proxima tarefa,
-nao uma extensao silenciosa da tarefa ativa.
+Trabalho adjacente descoberto durante a execução vira uma próxima tarefa,
+não uma extensão silenciosa da tarefa ativa.

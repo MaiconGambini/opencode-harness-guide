@@ -2,41 +2,41 @@
 sidebar_position: 4
 ---
 
-# Limitacoes
+# Limitações
 
-O que o Harness OpenCode nao faz na versao atual.
+O que o Harness OpenCode não faz na versão atual.
 
-## Nao e um produto SaaS
+## Não é um produto SaaS
 
-O harness e um conjunto de arquivos de configuracao e scripts. Nao ha
-servidor, API, autenticacao ou dashboard.
+O harness é um conjunto de arquivos de configuração e scripts. Não há
+servidor, API, autenticação ou dashboard.
 
-## Nao faz merge em configuracao existente
+## Não faz merge em configuração existente
 
-A versao 1 suporta apenas instalacao limpa (clonar em uma pasta vazia ou
-apos backup). Nao ha script de merge que preserve sua configuracao atual
+A versão 1 suporta apenas instalação limpa (clonar em uma pasta vazia ou
+após backup). Não há script de merge que preserve sua configuração atual
 enquanto adiciona o harness.
 
-## Nao e um gerenciador de pacotes
+## Não é um gerenciador de pacotes
 
-Nao ha CLI de instalacao, atualizacao automatica ou versionamento
-semantico. Atualizacoes sao feitas via `git pull`.
+Não há CLI de instalação, atualização automática ou versionamento
+semântico. Atualizações são feitas via `git pull`.
 
-## Nao documenta todas as skills
+## Não documenta todas as skills
 
 O site documenta o workflow do harness. Skills especializadas (frontend,
-backend, seguranca ofensiva) que coexistem no repositorio nao tem capitulos
-proprios na documentacao.
+backend, segurança ofensiva) que coexistem no repositório não tem capítulos
+próprios na documentação.
 
-## Nao e multiplataforma completo
+## Não é multiplataforma completo
 
 O harness foi projetado e testado no Windows com PowerShell 5.1+.
-Scripts de export e instalacao sao especificos para PowerShell. O runtime
-Node e portavel, mas scripts shell nao sao fornecidos.
+Scripts de export e instalação são específicos para PowerShell. O runtime
+Node é portável, mas scripts shell não são fornecidos.
 
-## Dependencias
+## Dependências
 
 - OpenCode instalado e funcionando.
 - Node.js 20+ para plugins.
-- PowerShell 5.1+ para scripts de instalacao.
-- Git para clonagem e controle de versao.
+- PowerShell 5.1+ para scripts de instalação.
+- Git para clonagem e controle de versão.

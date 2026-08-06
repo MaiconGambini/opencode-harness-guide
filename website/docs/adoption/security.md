@@ -2,49 +2,49 @@
 sidebar_position: 3
 ---
 
-# Seguranca
+# Segurança
 
-Limites de seguranca do Harness OpenCode.
+Limites de segurança do Harness OpenCode.
 
 ## O que o harness protege
 
-- **Estado duravel** — blockers, decisoes e handoffs sao registrados em
-  arquivos. Nenhuma informacao de estado vive apenas na memoria do chat.
-- **Permissoes declarativas** — `opencode.jsonc` define regras de edicao,
-  execucao de comandos e acesso a diretorios externos.
-- **Verificacao em tres camadas** — todo resultado e validado antes de
-  ser marcado como concluido.
-- **Rastreabilidade** — cada mudanca e associada a uma feature, com
-  evidencia e aprovacao registradas.
+- **Estado durável** — blockers, decisões e handoffs são registrados em
+  arquivos. Nenhuma informação de estado vive apenas na memória do chat.
+- **Permissões declarativas** — `opencode.jsonc` define regras de edição,
+  execução de comandos e acesso a diretórios externos.
+- **Verificação em três camadas** — todo resultado é validado antes de
+  ser marcado como concluído.
+- **Rastreabilidade** — cada mudança é associada a uma feature, com
+  evidência e aprovação registradas.
 
-## O que o harness NAO protege
+## O que o harness NÃO protege
 
-### Nao ha sandbox de sistema operacional
+### Não há sandbox de sistema operacional
 
-As politicas de permissao controlam o que o agente pode fazer dentro do
-OpenCode, mas nao isolam o processo do sistema operacional. Um comando
+As políticas de permissão controlam o que o agente pode fazer dentro do
+OpenCode, mas não isolam o processo do sistema operacional. Um comando
 aprovado e executado no shell tem acesso total ao sistema.
 
-### Nao substitui revisao humana
+### Não substitui revisão humana
 
-O Judge avalia o trabalho contra criterios objetivos, mas a confirmacao
-final ainda depende do operador. O harness reduz o risco de conclusao
-prematura — nao elimina a necessidade de revisao.
+O Judge avalia o trabalho contra critérios objetivos, mas a confirmação
+final ainda depende do operador. O harness reduz o risco de conclusão
+prematura — não elimina a necessidade de revisão.
 
-### Nao impede comandos perigosos
+### Não impede comandos perigosos
 
-Se voce aprovar um plano que inclui `rm -rf`, o harness executara. A
-seguranca esta na fase de planejamento e aprovacao, nao em bloqueios
-automaticos de comandos.
+Se você aprovar um plano que inclui `rm -rf`, o harness executará. A
+segurança está na fase de planejamento e aprovação, não em bloqueios
+automáticos de comandos.
 
-## Boas praticas
+## Boas práticas
 
-1. Revise o plano antes de aprovar. Todo comando listado no plano sera
+1. Revise o plano antes de aprovar. Todo comando listado no plano será
    executado.
-2. Mantenha `opencode.jsonc` sob controle de versao e revise permissoes
+2. Mantenha `opencode.jsonc` sob controle de versão e revise permissões
    antes de compartilhar.
-3. Nao armazene tokens ou credenciais em arquivos de configuracao. Use
-   variaveis de ambiente.
+3. Não armazene tokens ou credenciais em arquivos de configuração. Use
+   variáveis de ambiente.
 4. Execute `/harness-security-scan` periodicamente para detectar secrets
-   e permissoes excessivas.
-5. O repositorio e publico — nao comite nada que nao deveria ser visivel.
+   e permissões excessivas.
+5. O repositório é público — não comite nada que não deveria ser visível.

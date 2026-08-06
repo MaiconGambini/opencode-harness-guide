@@ -21,6 +21,18 @@ solves a specific class of problem in the workflow.
 | `harness-wip-control` | Before a multi-step prompt | Decomposes into WIP=1, defines AC, records non-goals |
 | `harness-initializer` | First time in the project | Non-mutating audit of the 5 layers |
 
+### Planning pipeline (v1.1)
+
+The default path for creating plans uses these skills, orchestrated by `/plan`. See
+[how plans are made](../guides/planning-pipeline).
+
+| Skill | When to use | What it does |
+|---|---|---|
+| `wayfinder` | Large/foggy work | Map of decision-tickets; resolves decisions before decomposing |
+| `grill-with-docs` | Sharpen the plan | Interview + domain-modeling. AUTO mode: decides on its own, labels assumptions, writes ADRs |
+| `to-tickets` | Decompose the plan | Breaks into tracer-bullet vertical slices with blocking edges = the lane table |
+| `implement` | Execute a lane | TDD, typecheck, tests, code review. A dispatched specialist **does not commit** |
+
 ## Verification skills
 
 | Skill | When to use | What it does |

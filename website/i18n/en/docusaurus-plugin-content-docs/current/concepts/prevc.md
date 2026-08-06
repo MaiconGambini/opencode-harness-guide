@@ -17,9 +17,9 @@ CONTEXT FEEDFORWARD
         |-- le regras, estado, handoff e standards relevantes
         |-- descobre risco, stack e comando de verificacao
         v
-PLAN
+PLAN  (v1.1: pipeline size-gate wayfinder -> grill-auto -> to-tickets)
         |-- define objetivo, escopo, nao-escopo e AC observaveis
-        |-- divide o trabalho em unidades WIP=1 quando necessario
+        |-- afia o plano em modo AUTO e decompoe em tickets = lane table
         v
 OPERATOR APPROVAL
         |-- o operador revisa e confirma o plano
@@ -40,8 +40,10 @@ HANDOFF
 /prevc Adicionar endpoint de health check
 ```
 
-PREVC prepares the plan and stops at `awaiting_plan_approval`. Once you
-approve:
+In v1.1 PREVC prepares the plan through the `/plan` pipeline (size-gated
+`wayfinder`, `grill-with-docs` in AUTO, `to-tickets` = lane table) and stops at
+`awaiting_plan_approval`. See [how plans are made](../guides/planning-pipeline).
+Once you approve:
 
 ```text
 /prevc run

@@ -29,6 +29,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Guias',
       items: [
+        'guides/planning-pipeline',
         'guides/small-task',
         'guides/complex-feature',
         'guides/parallel-dispatch',
@@ -39,7 +40,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Referência',
+      label: 'Recursos',
       items: [
         'reference/commands',
         'reference/skills',
@@ -62,6 +63,7 @@ const sidebars: SidebarsConfig = {
       label: 'Solução de problemas',
       items: ['troubleshooting/faq'],
     },
+    'references',
   ],
 };
 

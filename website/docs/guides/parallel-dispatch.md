@@ -76,7 +76,7 @@ O run autônomo executa todas as tasks sem parar para aprovação e para **uma v
 só**, no `awaiting_confirmation` do spec inteiro. Ele interrompe no meio apenas
 por um bloqueio real: uma task que exige operador/live (máquina física,
 credencial, tráfego real), uma mudança de escopo, `push`/deploy, ou uma falha de
-validação irrecuperável.
+válidação irrecuperável.
 :::
 
 ## Modo manual (trabalho ad-hoc)
@@ -148,7 +148,7 @@ arquivo — **uma lane write-capable por arquivo de cada vez**.
 │ Lane │ Objetivo                │ Ownership (arquivos)     │ Dep  │ Capability   │
 ├──────┼─────────────────────────┼──────────────────────────┼──────┼──────────────┤
 │ L1   │ Camada de autorização   │ authorization/, routes/  │ —    │ fixer        │
-│ L2   │ Camada de persistência  │ area_bindings/sql_*.py   │ —    │ fixer        │
+│ L2   │ Camada de persistência  │ área_bindings/sql_*.py   │ —    │ fixer        │
 │ L3   │ Testes L1+L2            │ tests/...                │ L1,2 │ test-eng     │
 └──────┴─────────────────────────┴──────────────────────────┴──────┴──────────────┘
 ```

@@ -11,14 +11,14 @@ E a disciplina central do harness.
 
 | Com WIP=1 | Sem WIP=1 |
 |---|---|
-| Uma feature e concluida por vez | Varias features sao iniciadas e nenhuma termina |
-| Bloqueios sao registrados com causa exata | Bloqueios se acumulam sem registro |
-| O escopo de cada sessao e claro | A sessao pula entre tarefas |
-| Handoff descreve exatamente uma proxima acao | Handoff lista varias coisas "em andamento" |
+| Uma feature é concluída por vez | Várias features são iniciadas e nenhuma termina |
+| Bloqueios são registrados com causa exata | Bloqueios se acumulam sem registro |
+| O escopo de cada sessão é claro | A sessão pula entre tarefas |
+| Handoff descreve exatamente uma próxima ação | Handoff lista várias coisas "em andamento" |
 
 ## Como funciona
 
-O `feature_list.json` mantem o estado de cada feature:
+O `feature_list.json` mantém o estado de cada feature:
 
 ```json
 {
@@ -29,15 +29,15 @@ O `feature_list.json` mantem o estado de cada feature:
 ```
 
 Apenas uma feature pode estar `in_progress`. Quando termina, vai para
-`passing` (com evidencia) ou `blocked` (com razao exata).
+`passing` (com evidência) ou `blocked` (com razao exata).
 
-## Durante a execucao
+## Durante a execução
 
-Se voce descobrir trabalho adjacente durante uma tarefa:
+Se você descobrir trabalho adjacente durante uma tarefa:
 
 1. Adicione a nova tarefa como `not_started` no `feature_list.json`.
 2. Continue trabalhando apenas na tarefa ativa.
-3. A nova tarefa sera puxada na proxima sessao.
+3. A nova tarefa será puxada na próxima sessão.
 
-Nao expanda o escopo silenciosamente. Se o escopo crescer, pare, atualize o
-sprint contract e peca aprovacao.
+Não expanda o escopo silenciosamente. Se o escopo crescer, pare, atualize o
+sprint contract e peça aprovação.

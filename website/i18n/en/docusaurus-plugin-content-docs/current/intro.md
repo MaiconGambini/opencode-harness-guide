@@ -16,7 +16,7 @@ evidence, and performs clean handoffs between sessions.
 - **[Concepts](./concepts/why-a-harness)** — PREVC, WIP=1, evidence, and the
   seven components.
 - **[Guides](./guides/small-task)** — full workflow for small and complex
-  tasks.
+  tasks, and [how plans are made](./guides/planning-pipeline) (v1.1).
 - **[Reference](./reference/commands)** — all commands, skills, and artifacts.
 - **[Adoption](./adoption/use-cases)** — use cases, pros and cons, security,
   and limitations.

@@ -2,22 +2,22 @@
 sidebar_position: 5
 ---
 
-# Evidencia e Handoff
+# Evidência e Handoff
 
-O harness exige que toda conclusao tenha evidencia — nao basta "funcionou na
+O harness exige que toda conclusão tenha evidência — não basta "funcionou na
 minha maquina".
 
-## Camadas de verificacao
+## Camadas de verificação
 
-Antes de declarar uma feature como concluida, tres camadas sao verificadas:
+Antes de declarar uma feature como concluída, três camadas são verificadas:
 
 1. **Static** — typecheck e lint passam.
-2. **Runtime** — os criterios de aceite do sprint contract sao observaveis,
+2. **Runtime** — os critérios de aceite do sprint contract são observáveis,
    comandos foram rodados e o output foi registrado.
-3. **System** — o comando de verificacao do projeto sai com codigo 0, e
+3. **System** — o comando de verificação do projeto sai com código 0, e
    `feature_list.json` e `STATE.md` refletem o novo estado.
 
-## Exemplo de evidencia
+## Exemplo de evidência
 
 ```json
 {
@@ -27,16 +27,16 @@ Antes de declarar uma feature como concluida, tres camadas sao verificadas:
 }
 ```
 
-A evidencia contem output real, nao uma descricao do que deveria acontecer.
+A evidência contém output real, não uma descrição do que deveria acontecer.
 
 ## Handoff
 
-Toda sessao termina com `harness-clean-handoff`. Ele preenche:
+Toda sessão termina com `harness-clean-handoff`. Ele preenche:
 
-- **Verified Now** — o que foi concluido nesta sessao.
+- **Verified Now** — o que foi concluído nesta sessão.
 - **Changed** — arquivos modificados.
 - **Broken** — o que quebrou (se algo quebrou).
-- **Next Best Step** — a unica proxima acao.
+- **Next Best Step** — a única próxima ação.
 
-Se o trabalho nao terminou, o handoff ainda e feito — a feature vai para
+Se o trabalho não terminou, o handoff ainda é feito — a feature vai para
 `blocked` com a causa exata e o `Next Best Step` diz exatamente o que fazer.

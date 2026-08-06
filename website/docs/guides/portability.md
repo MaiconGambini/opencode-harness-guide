@@ -13,7 +13,7 @@ desenvolvedores.
 & "$env:USERPROFILE\.config\opencode\scripts\export-opencode-harness.ps1"
 ```
 
-Isso gera `opencode-harness-export.zip` na area de trabalho. O arquivo
+Isso gera `opencode-harness-export.zip` na área de trabalho. O arquivo
 inclui `opencode.jsonc`, skills, plugins, templates, scripts e `package.json`
 — sem `node_modules`.
 
@@ -25,13 +25,13 @@ Set-Location "$env:USERPROFILE\.config\opencode"
 npm install
 ```
 
-O script instala as dependencias Node na maquina de destino. Binarios de
+O script instala as dependências Node na maquina de destino. Binários de
 plataforma (tsx) exigem `npm install` local; copiar `node_modules` entre
-sistemas diferentes nao funciona.
+sistemas diferentes não funciona.
 
 ## Via Git (recomendado)
 
-A forma mais simples e confiavel e clonar o repositorio publico:
+A forma mais simples e confiável e clonar o repositório público:
 
 ```powershell
 git clone https://github.com/MaiconGambini/opencode-harness-guide.git "$env:USERPROFILE\.config\opencode"
@@ -39,13 +39,13 @@ cd "$env:USERPROFILE\.config\opencode"
 npm install
 ```
 
-Isso garante que voce sempre tenha a versao mais recente e que as
-dependencias sejam instaladas corretamente para sua plataforma.
+Isso garante que você sempre tenha a versão mais recente e que as
+dependências sejam instaladas corretamente para sua plataforma.
 
 ## Cuidados
 
-- Nao copie `node_modules` entre maquinas.
-- Revise `opencode.jsonc` apos a instalacao. Caminhos usam
-  `$env:USERPROFILE` e `os.homedir()`, entao nenhuma edicao manual de
-  caminho e necessaria em um perfil Windows padrao.
-- Se voce tem uma configuracao existente, faca backup antes de sobrescrever.
+- Não copie `node_modules` entre maquinas.
+- Revise `opencode.jsonc` após a instalação. Caminhos usam
+  `$env:USERPROFILE` e `os.homedir()`, então nenhuma edição manual de
+  caminho é necessária em um perfil Windows padrão.
+- Se você tem uma configuração existente, faca backup antes de sobrescrever.

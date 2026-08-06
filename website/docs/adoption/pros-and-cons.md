@@ -2,38 +2,38 @@
 sidebar_position: 2
 ---
 
-# Pros e Contras
+# Prós e Contras
 
-Uma avaliacao honesta do que o harness entrega e do que ele custa.
+Uma avaliação honesta do que o harness entrega e do que ele custa.
 
-## Pros
+## Prós
 
-### Continuidade entre sessoes
+### Continuidade entre sessões
 
-Voce abre o OpenCode amanha e ele sabe exatamente o que estava fazendo.
-Nao precisa reexplicar o contexto, reler arquivos ou adivinhar o que
+Você abre o OpenCode amanhã e ele sabe exatamente o que estava fazendo.
+Não precisa reexplicar o contexto, reler arquivos ou adivinhar o que
 ficou pendente.
 
-### WIP=1 forcado
+### WIP=1 forçado
 
 A disciplina de uma tarefa por vez reduz trabalho paralelo abandonado.
-Cada feature vai ate o fim ou e registrada como bloqueada com causa exata.
+Cada feature vai até o fim ou é registrada como bloqueada com causa exata.
 
-### Evidencia objetiva
+### Evidência objetiva
 
-"Funcionou" nao e suficiente. O harness exige comandos rodados, output
-capturado e verificacao em tres camadas antes de marcar uma feature como
-concluida.
+"Funcionou" não é suficiente. O harness exige comandos rodados, output
+capturado e verificação em três camadas antes de marcar uma feature como
+concluída.
 
-### Auditoria e recuperacao
+### Auditoria e recuperação
 
-Decisoes, blockers e handoffs ficam registrados em arquivos. Se algo
-quebrar, voce sabe quando, por que e qual era o estado anterior.
+Decisões, blockers e handoffs ficam registrados em arquivos. Se algo
+quebrar, você sabe quando, por que e qual era o estado anterior.
 
-### Planejamento separado da execucao
+### Planejamento separado da execução
 
-Para tarefas complexas, o harness separa os papeis de planner, generator e
-evaluator. Isso reduz o vies de auto-avaliacao.
+Para tarefas complexas, o harness separa os papéis de planner, generator e
+evaluator. Isso reduz o viés de auto-avaliação.
 
 ## Contras
 
@@ -45,21 +45,21 @@ burocracia.
 
 ### Disciplina constante
 
-WIP=1, verificacao em tres camadas e handoff obrigatorio exigem disciplina
-em toda sessao. Pular etapas reduz o valor do harness.
+WIP=1, verificação em três camadas e handoff obrigatório exigem disciplina
+em toda sessão. Pular etapas reduz o valor do harness.
 
-### Custo de manutencao
+### Custo de manutenção
 
 Os arquivos de estado precisam ser mantidos atualizados. Se o `STATE.md`
-ficar desatualizado, a proxima sessao comeca com informacao errada.
+ficar desatualizado, a próxima sessão começa com informação errada.
 
-### Nao substitui boa engenharia
+### Não substitui boa engenharia
 
-O harness garante rastreabilidade, nao qualidade de codigo. Um codigo ruim
-com evidencias bonitas continua sendo codigo ruim.
+O harness garante rastreabilidade, não qualidade de código. Um código ruim
+com evidências bonitas continua sendo código ruim.
 
 ### Curva inicial
 
-A primeira sessao com harness requer aprender comandos, conceitos e o
+A primeira sessão com harness requer aprender comandos, conceitos e o
 fluxo PREVC. O investimento se paga em projetos longos, mas pode ser
-excessivo para tarefas unicas.
+excessivo para tarefas únicas.
