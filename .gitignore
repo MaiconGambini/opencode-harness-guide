@@ -2,8 +2,11 @@ node_modules/
 .backup/
 
 # Private runtime state and generated logs.
-goal/
-state/
+# Anchored to repo root: a bare `goal/`/`state/` also matches plugins/goal/ and
+# any nested */state/ source dir, which silently dropped plugins/goal/*.ts from the
+# publish and broke the Validate Harness typecheck. Keep these root-only.
+/goal/
+/state/
 *.log
 *.jsonl
 **/.opencode/state/
