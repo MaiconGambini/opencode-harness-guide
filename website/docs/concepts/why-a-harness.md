@@ -26,36 +26,19 @@ Antes de qualquer mudança importante, o harness responde:
 
 1. Onde estou e quais regras este repositório tem?
 2. O que já foi feito e o que está bloqueado?
-3. Qual é a única unidade de trabalho ativa?
+3. Qual e a única unidade de trabalho ativa?
 4. Como vou provar que a alteração funcionou?
 5. Quem decide se o resultado pode ser aceito?
 6. O que uma próxima sessão precisa ler para continuar?
 
 ## O que o harness NÃO faz
 
-- Não torna o agente autônomo.
+- Não torna o agente autonomo.
 - Não substitui revisão humana.
 - Não fornece sandbox de sistema operacional.
 - Não garante qualidade de código — garante rastreabilidade.
 
-## Princípio fundamental
+## Principio fundamental
 
 O repositório é o sistema de registro. Estado que vive somente no chat
 não é estado confiável.
-
-## Por que isso é melhor (com resultado)
-
-Um único arquivo gigante de instruções (600+ linhas) consome 10-15% do
-contexto, mistura regras críticas com opcionais e sofre do efeito "perdido
-no meio" — instruções importantes enterradas na linha 300 são ignoradas.
-O harness quebra isso em instruções curtas + estado + verificação, carregando
-só o relevante.
-
-**Resultado** (estudo *Learn Harness Engineering*): ao trocar um arquivo de
-600 linhas por 80 linhas + documentos temáticos, uma equipe subiu a taxa de
-sucesso de **45% → 72%** e a conformidade de segurança de **60% → 95%**.
-
-## Próximo passo
-
-Veja [Os sete componentes](./seven-components) — as lentes que verificam se o
-workflow está completo.

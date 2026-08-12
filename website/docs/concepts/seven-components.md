@@ -14,7 +14,7 @@ lentes para verificar se o workflow está completo.
 4. **Verification** — Comandos e evidências que verificam o resultado.
 5. **Memory** — Goals, handoffs e artefatos duráveis, com retenção.
 6. **Sandboxes** — Não há sandbox de SO. Policy não substitui isolamento.
-7. **Hooks** — Integrações permitidas; não criam execução autônoma.
+7. **Hooks** — Integrações permitidas; não criam execução autonoma.
 
 ## O que cada componente protege
 
@@ -26,9 +26,4 @@ lentes para verificar se o workflow está completo.
 | Verification | Que fato prova o resultado? | Evidência declarada pelo modelo não é recibo confiável |
 | Memory | Como a próxima sessão continua? | Retenção e auditoria não provam conclusão |
 | Sandboxes | O processo está isolado do SO? | Não. Não há sandbox de SO instalada |
-| Hooks | O que integra o lifecycle? | Hooks não podem iniciar loops autônomos |
-
-## Próximo passo
-
-Entenda o [PREVC](./prevc) — o controlador que amarra esses componentes num
-ciclo de vida.
+| Hooks | O que integra o lifecycle? | Hooks não podem iniciar loops autonomos |

@@ -4,16 +4,16 @@ sidebar_position: 3
 
 # Artifacts
 
-Files the harness reads and writes during the lifecycle.
+Files that the harness reads and writes during the lifecycle.
 
 ## State
 
 | File | Path | Purpose |
 |---|---|---|
 | `AGENTS.md` | root | Project rules, entry points |
-| `feature_list.json` | root | Source of truth for WIP=1 |
+| `feature_list.json` | root | WIP=1 source of truth |
 | `STATE.md` | `.specs/project/` | Durable progress, blockers, decisions |
-| `session-handoff.md` | `docs/harness/` | Handoff between sessions |
+| `session-handoff.md` | `docs/harness/` | Transfer between sessions |
 | `sprint-contract.md` | `docs/harness/` | Scope, AC, verification plan |
 | `quality-thresholds.json` | `agent-os/` | Metrics, risk routing, and governing keys |
 | `learned-rules.json` | `agent-os/` | Project-local ledger of active, conflicting, and retired rules |
@@ -32,7 +32,7 @@ Each feature in `feature_list.json` uses the fields below:
 | `title` | Short name |
 | `user_visible_behavior` | What the user/agent sees when it works |
 | `dependencies` | IDs of features that must be completed first |
-| `status` | `not_started`, `in_progress`, `passing`, or `blocked` |
+| `status` | `not_started`, `in_progress`, `passing` or `blocked` |
 | `verification` | Command that proves it works |
 | `evidence` | Real output captured after verification |
 | `notes` | Additional information |

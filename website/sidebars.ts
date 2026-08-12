@@ -24,29 +24,29 @@ const sidebars: SidebarsConfig = {
         'concepts/continual-harness-v1-3',
         'concepts/wip-one',
         'concepts/evidence-and-handoff',
-        'concepts/automation',
       ],
     },
     {
       type: 'category',
       label: 'Guias',
       items: [
+        'guides/planning-pipeline',
         'guides/small-task',
         'guides/complex-feature',
+        'guides/parallel-dispatch',
+        'guides/parallel-dispatch-example',
         'guides/existing-project',
         'guides/portability',
       ],
     },
     {
       type: 'category',
-      label: 'Referência',
+      label: 'Recursos',
       items: [
         'reference/commands',
         'reference/skills',
-        'reference/agents',
         'reference/artifacts',
         'reference/repository-structure',
-        'reference/references',
       ],
     },
     {
@@ -65,9 +65,8 @@ const sidebars: SidebarsConfig = {
       label: 'Solução de problemas',
       items: ['troubleshooting/faq'],
     },
+    'references',
   ],
 };
 
 export default sidebars;
-
-// docs deploy: why/result rationale + PT accents + agents/references

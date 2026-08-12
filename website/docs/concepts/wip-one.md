@@ -5,7 +5,7 @@ sidebar_position: 4
 # WIP=1
 
 WIP=1 significa que apenas uma unidade de trabalho pode estar ativa por vez.
-É a disciplina central do harness.
+E a disciplina central do harness.
 
 ## Por que WIP=1?
 
@@ -28,8 +28,8 @@ O `feature_list.json` mantém o estado de cada feature:
 }
 ```
 
-- Apenas uma feature pode estar `in_progress`.
-- Quando termina, vai para `passing` (com evidência) ou `blocked` (com razão exata).
+Apenas uma feature pode estar `in_progress`. Quando termina, vai para
+`passing` (com evidência) ou `blocked` (com razao exata).
 
 ## Durante a execução
 
@@ -41,8 +41,3 @@ Se você descobrir trabalho adjacente durante uma tarefa:
 
 Não expanda o escopo silenciosamente. Se o escopo crescer, pare, atualize o
 sprint contract e peça aprovação.
-
-## Próximo passo
-
-Veja [Evidência e Handoff](./evidence-and-handoff) — como uma tarefa é provada
-e transferida para a próxima sessão.

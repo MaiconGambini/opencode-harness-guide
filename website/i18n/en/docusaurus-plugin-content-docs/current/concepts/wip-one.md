@@ -28,8 +28,8 @@ The `feature_list.json` keeps the state of each feature:
 }
 ```
 
-- Only one feature can be `in_progress`.
-- When it finishes, it goes to `passing` (with evidence) or `blocked` (with an exact reason).
+Only one feature can be `in_progress`. When it finishes, it goes to
+`passing` (with evidence) or `blocked` (with an exact reason).
 
 ## During execution
 
@@ -41,8 +41,3 @@ If you discover adjacent work during a task:
 
 Do not expand the scope silently. If the scope grows, stop, update the
 sprint contract, and ask for approval.
-
-## Next step
-
-See [Evidence and Handoff](./evidence-and-handoff) — how a task is proven and
-carried over to the next session.
