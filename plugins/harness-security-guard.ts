@@ -55,6 +55,23 @@ const sensitiveFilePatterns = [
   /id_dsa/i,
   /\.(pem|p12|pfx|key)$/i,
   /mcp\.json$/i,
+  // SEC-R4 (security M5): package-manager credential stores — per-project `.npmrc`,
+  // per-user `~/.npmrc`, the Windows `_npmrc` variant, and the global `npmrc`.
+  // Anchored so `foo.npmrc.bak` or a repo file merely named like one is not matched.
+  /^\.npmrc$/i,
+  /^_npmrc$/i,
+  /^npmrc$/i,
+  // Git credential helper store: `~/.git-credentials`.
+  /^\.git-credentials$/i,
+]
+// Full-path shapes that would be too broad as bare segments — `.config` is a common
+// repo directory (this harness lives under `.config/opencode`) and `.docker` can be a
+// build directory — so they are anchored to the exact credential file instead.
+const sensitivePathPatterns = [
+  // GitHub CLI auth: `.config/gh/hosts.yml`.
+  /\.config\/gh\/hosts\.ya?ml$/i,
+  // Docker registry auth: `.docker/config.json`.
+  /\.docker\/config\.json$/i,
 ]
 const secretValuePatterns = [
   /bearer\s+[a-z0-9._-]{20,}/gi,
@@ -87,7 +104,7 @@ function hasSensitiveSegment(normalized: string): boolean {
 function isSensitivePath(rawPath: string): boolean {
   // Normalize Windows backslashes so `C:\Users\me\.ssh` matches the same rules.
   const normalized = rawPath.replaceAll("\\", "/").toLowerCase()
-  return hasSensitiveSegment(normalized) || sensitiveFilePatterns.some((pattern) => pattern.test(path.basename(normalized)))
+  return hasSensitiveSegment(normalized) || sensitiveFilePatterns.some((pattern) => pattern.test(path.basename(normalized))) || sensitivePathPatterns.some((pattern) => pattern.test(normalized))
 }
 
 function redactedPreview(value: string): string {

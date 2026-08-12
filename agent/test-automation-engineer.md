@@ -60,7 +60,12 @@ When delegated a testing task, you will:
 
 2. **Design Test Strategy**
    - Prioritize test pyramid balance: unit for logic, integration for interactions
-   - Target 100% code coverage as default; justify any exclusions
+   - **Coverage is a floor; mutation is the target.** Coverage proves the line executed. Only the
+     mutation kill ratio proves the test asserts behaviour — a suite at full line coverage can
+     still pass after someone deletes a `.save`. Report both; when they disagree, the kill ratio
+     is the real number, and the gap between them is your work list: covered-but-unkilled lines
+     are exactly where the assertions are missing. Thresholds live in
+     `agent-os/quality-thresholds.json`, never here.
    - Identify boundary values, equivalence partitions, state transitions
    - Plan for concurrency, timing, resource exhaustion when relevant
 
@@ -75,8 +80,15 @@ When delegated a testing task, you will:
 4. **Execute and Verify**
    - Run complete test suite via appropriate commands
    - Capture full output including coverage reports
+   - **Run the mutation adapter over the files you touched** (`--mode full` scope, or the tool's
+     own changed-files flag: `mutant --since`, Stryker `--mutate`). The surviving-mutant list —
+     not the uncovered-line list — is what you act on.
    - If tests fail, analyze root causes — distinguish test defects from code defects
    - Re-run after fixes to confirm resolution
+   - **Verify the measurement before trusting it.** A mis-set environment silently inflated a
+     real project's kill ratio by 7 points; the number looked fine and was wrong. Check that the
+     mutation run bootstrapped in the test environment (`NODE_ENV`/`RAILS_ENV`/`PYTHONPATH`) and
+     that its pass count matches the plain suite run. A number nobody cross-checked is a rumour.
 
 5. **Report Results Ruthlessly**
    - State clearly: PASS or FAIL
@@ -87,6 +99,24 @@ When delegated a testing task, you will:
    - Code defects found: report with fix suggestions, do not silently patch
    - Test defects found: correct and re-run immediately
    - Continue until all tests pass and coverage targets are met
+
+## Regression Suite — the fourth test type
+
+Coverage, mutation, **regression**, e2e. The first two measure the tests you have; regression is
+the one that grows from defects, and it needs a rule with teeth.
+
+- The project declares its regression suite in `agent-os/quality-thresholds.json`
+  (`suites.regression.command` and `suites.regression.paths`). No layout is imposed — a tag, a
+  directory, or a marker all work.
+- **Every bug fix adds a test that fails before the fix and passes after.** Not a suggestion: a
+  bug-fix diff with no new regression test is a **gate failure**. The test name or annotation
+  references the defect.
+- The suite must stay green, and `regression_suite` counts failing **plus quarantined** tests —
+  so a skipped regression test is a red metric, not a TODO. That is the difference between a
+  suite and a graveyard.
+- When a defect escaped the gate entirely, the regression test lands *and* an entry goes into
+  `docs/review.md`'s escaped-defect log. The test catches that bug again; the checklist catches
+  its whole class.
 
 ## User Acceptance Testing (UAT)
 
@@ -123,10 +153,18 @@ For user-facing features, conduct interactive UAT:
 - Tests Run: [N]
 - Passed: [N]
 - Failed: [N]
-- Coverage: [X%] ([covered]/[total] lines)
+- Coverage: [X%] line / [Y%] branch  (floor)
+- **Mutation kill ratio: [Z%]**  (the real number; baseline [B%])
+- Regression suite: [green | N failing | N quarantined]
+- Environment checked: [NODE_ENV/RAILS_ENV/PYTHONPATH values the run used]
+
+## Surviving Mutants
+[The list to act on. Each one is a missing assertion: file:line, what was mutated, and the
+assertion that would have caught it. If empty, say so — that is the strong result.]
 
 ## Coverage Analysis
-[Highlight uncovered code with justification or plan]
+[Covered-but-unkilled lines first — those are tests that execute without asserting. Plain
+uncovered lines second.]
 
 ## Failures Detected
 [For each: reproduction, analysis, fix suggestion]

@@ -98,8 +98,10 @@ You do not need to know Vue internals deeply, but you should understand how Vite
 
 ## Code Quality
 
-- Functions: 4-20 lines
-- Files: under 500 lines
+- Function and file size limits: `agent-os/quality-thresholds.json` (`cyclomatic_max`,
+  `module_lines_max`). Never restate the numbers here — this file used to carry its own pair and
+  they disagreed with the gate.
+- Run the quality gate at `--mode local` before returning; include its metric table in your result.
 - Early returns over nested ifs (max 2 levels indentation)
 - Configuration changes must include verification commands
 

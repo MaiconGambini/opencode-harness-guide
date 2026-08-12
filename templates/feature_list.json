@@ -1,3 +1,17 @@
 {
-  "features": []
+  "$comment": "One feature per entry. Exactly ONE may be in_progress (WIP=1). Replace the example below. Schema is enforced by harness-feature-state.",
+  "features": [
+    {
+      "id": "feat-001",
+      "priority": 1,
+      "area": "example",
+      "title": "Replace this example with a real feature",
+      "user_visible_behavior": "What a user can do after this lands, in one sentence.",
+      "dependencies": [],
+      "status": "not_started",
+      "verification": "The command that proves it works, plus the quality gate at --mode local.",
+      "evidence": "",
+      "notes": "status: not_started | in_progress | passing | blocked. `passing` requires evidence that includes the gate report path and the metric line. `blocked` requires the failing metric with its value and threshold."
+    }
+  ]
 }

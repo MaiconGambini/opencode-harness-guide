@@ -39,6 +39,186 @@
       }
     }
   },
+  "mcp": {
+    "obsidian": {
+      "type": "remote",
+      "url": "http://127.0.0.1:27123/mcp/",
+      "headers": {
+        "Authorization": "Bearer {env:OBSIDIAN_API_KEY}"
+      }
+    }
+  },
+  // Parallel dispatch (PREVC option B): spec-lead is the Execute-phase scheduler.
+  // Requires OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true at launch.
+  // Launch with: opencode --port 4096 --agent spec-lead
+  "experimental": {
+    "batch_tool": true
+  },
+  "agent": {
+    // --- Scheduler (primary) ---
+    "spec-lead": {
+      "mode": "primary",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "medium",
+      "permission": {
+        "task": "allow",
+        "edit": "allow",
+        "bash": "allow",
+        "webfetch": "allow",
+        "external_directory": "allow"
+      }
+    },
+
+    // --- Quality gate ---
+    "code-reviewer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "webfetch": "deny", "external_directory": "deny" }
+    },
+    "architecture-reviewer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "read": "allow", "grep": "allow", "glob": "allow", "list": "allow", "skill": { "improve-codebase-architecture": "allow", "*": "deny" }, "webfetch": "deny", "external_directory": "deny" }
+    },
+
+    // --- Continual harness (v1.3) ---
+    "refiner": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "medium",
+      "permission": {
+        "edit": "deny", "bash": "deny", "task": "deny",
+        "external_directory": "deny", "webfetch": "deny",
+        "read": "allow", "grep": "allow", "glob": "allow", "list": "allow",
+        "skill": { "harness-refine": "allow", "*": "deny" }
+      }
+    },
+    "rule-verifier": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.6-sol",
+      "variant": "medium",
+      "permission": {
+        "edit": "deny", "bash": "deny", "task": "deny",
+        "external_directory": "deny", "webfetch": "deny",
+        "read": "allow", "grep": "allow", "glob": "allow", "list": "allow",
+        "skill": { "harness-refine": "allow", "*": "deny" }
+      }
+    },
+
+    // --- Planning / advisory: read-only, no nested dispatch ---
+    "plan-architect": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "webfetch": "deny", "external_directory": "deny" }
+    },
+    "architecture-advisor": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "webfetch": "deny", "external_directory": "deny" }
+    },
+    "system-design-advisor": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "webfetch": "deny", "external_directory": "deny" }
+    },
+    "requirements-interrogator": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "webfetch": "deny", "external_directory": "deny" }
+    },
+    "design-patterns-advisor": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "webfetch": "deny", "external_directory": "deny" }
+    },
+    "design-director": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "webfetch": "deny", "external_directory": "deny" }
+    },
+
+    // --- Implementers: own declared files, may run bash ---
+    "web-platform-engineer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "kotlin-engineer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "python-engineer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "vue-engineer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "postgres-engineer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "backend-infra-engineer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "security-analyst": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "deny", "bash": "deny", "task": "deny", "read": "allow", "grep": "allow", "glob": "allow", "list": "allow", "webfetch": "deny", "external_directory": "deny" }
+    },
+    "test-automation-engineer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+    "fixer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": { "edit": "allow", "bash": "allow", "task": "deny", "external_directory": "allow" }
+    },
+
+    // --- Recon: read-only, cheapest tier ---
+    "explorer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "max",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny",
+        "read": "allow",
+        "grep": "allow",
+        "glob": "allow",
+        "list": "allow",
+        "webfetch": "deny",
+        "external_directory": "deny"
+      }
+    }
+  },
   "command": {
     "harness-init": {
       "description": "Harness: audits any project for Entry, Context, State, Feedback, Evaluation, and Skills layers without writing until approved.",
@@ -60,8 +240,13 @@
       "description": "Agent OS: cria documentação base do produto em agent-os/product/.",
       "template": "Execute fielmente o comando Agent OS plan-product. Primeiro leia o arquivo $env:USERPROFILE\\\\agent-os\\\\commands\\\\agent-os\\\\plan-product.md e siga o processo descrito nele. Adapte AskUserQuestion para a ferramenta de pergunta disponível no OpenCode. Quando o comando pedir para criar ou editar arquivos, use agent-os/product/ no projeto atual. Faça uma pergunta por vez quando o fluxo exigir interação."
     },
+    "plan": {
+      "description": "Planning pipeline (spec-lead): size-gated wayfinder, AUTO grill-with-docs, to-tickets. Ends at awaiting_plan_approval. Replaces the slow shape-spec path.",
+      "agent": "spec-lead",
+      "template": "Run the spec-lead Planning pipeline for this objective: $ARGUMENTS\n\nIf the objective above is empty, ask the operator for it and stop. Consult docs/harness/matt-pocock-tracker.md for the local-markdown tracker convention — tickets live in agent-os/specs/<YYYY-MM-DD-HHMM-slug>/tickets/. Steps: (1) Size-gate — only if the effort is larger than one agent session, foggy, or cross-subsystem, run /wayfinder to chart it as a decision-ticket map (tickets/00-map.md); otherwise skip. (2) /grill-with-docs in AUTO mode — self-drive grilling and domain-modeling, take your own recommended answer per branch resolved from code/ADRs/CONTEXT.md/requirements, label assumptions, write ADRs/glossary; do NOT pause the operator, escalate only on a genuine blocker (unsettleable ambiguity, a hard-to-reverse decision with no defensible default, or a scope change). (3) /to-tickets — decompose into tracer-bullet vertical slices under tickets/, each declaring blocking edges; each ticket IS a lane (one owner, file-ownership set, dependencies, verification command). Fold to-tickets' 'Quiz the user' step into the single PREVC awaiting_plan_approval gate — do not pause inline. Produce the reviewable proposal (objective/scope, non-goals + assumptions, acceptance criteria, ownership/risks, risk class + validation + rollback, the lane table = ticket set with blocking edges, unresolved questions). Do NOT edit implementation or dispatch write-capable specialists before explicit operator approval or an autonomous-run authorization. Read-only recon is always allowed. Do not assume repository paths or stack."
+    },
     "shape-spec": {
-      "description": "Agent OS: estrutura uma spec leve para trabalho significativo.",
+      "description": "Agent OS (manual escape hatch): heavy spec flow. Prefer /plan for the default pipeline.",
       "template": "Execute fielmente o comando Agent OS shape-spec. Primeiro leia o arquivo $env:USERPROFILE\\\\agent-os\\\\commands\\\\agent-os\\\\shape-spec.md e siga o processo descrito nele. Adapte AskUserQuestion para a ferramenta de pergunta disponível no OpenCode. Como o OpenCode pode não ter o mesmo plan mode do Agent OS, trate esta execução como modo de planejamento e não implemente código até o plano ser aprovado. Use agent-os/specs/ no projeto atual para salvar a documentação quando aprovado."
     },
     "discover-standards": {
@@ -78,15 +263,19 @@
     },
     "harness-session-start": {
       "description": "Harness: starts a session generically — discovers instructions, state, startup path, WIP, and declares active work.",
-      "template": "Execute the global harness-session-start skill now as a direct routine operation, not PREVC work. Never invoke /goal or the create_goal, get_goal, update_goal, or clear_goal tools. Read root instructions if present; locate progress state from .specs/project/STATE.md, docs/harness/progress.md, or agent-progress.md; locate feature state from feature_list.json or .specs/features/*/tasks.md; read docs/harness/session-handoff.md if present; discover the startup command with harness-startup-path; run the discovered startup command if safe; run git log --oneline -3 in git repos; enforce WIP=1 when durable state exists; finish with: Active task: [feat-id or session-only] — [title]. AC: [observable criteria]. If startup fails, record the exact error in the progress file when available and stop. Do not assume init.ps1 or current repo paths."
+      "template": "Execute the global harness-session-start skill now as a direct routine operation, not PREVC work. Never invoke /goal or the create_goal, get_goal, update_goal, or clear_goal tools. Read root instructions if present; locate progress state from .specs/project/STATE.md, docs/harness/progress.md, or agent-progress.md; locate feature state and active plans from feature_list.json, agent-os/specs/*/ (the newest spec's tasks.md and tickets/ — the v1.1 pipeline stores tracer-bullet tickets = lanes there, read the active spec so the session sees the plan), or .specs/features/*/tasks.md; read docs/harness/session-handoff.md if present; discover the startup command with harness-startup-path; run the discovered startup command if safe; run git log --oneline -3 in git repos; enforce WIP=1 when durable state exists; finish with: Active task: [feat-id or session-only] — [title]. AC: [observable criteria]. If startup fails, record the exact error in the progress file when available and stop. Do not assume init.ps1 or current repo paths."
     },
     "prevc": {
       "description": "PREVC: the sole lifecycle controller for plan, review, execute, validate, judge, confirm, and handoff.",
-      "template": "Execute the global prevc-workflow skill. PREVC owns the lifecycle for significant work but must never invoke /goal or the create_goal, get_goal, update_goal, or clear_goal tools. Keep lifecycle labels in the current conversation and existing repository harness files only. Route routine low-risk operations such as harness-session-start, status checks, explicit dependency installation, formatting, and narrow test repairs through a direct fast path with objective verification instead of PREVC ceremony. Interpret `prepare <objective>` as discovery, risk classification, and plan creation ending at conversational `awaiting_plan_approval`. Accept explicit operator approval in normal language or `/prevc run`; no goal ID or `/goal confirm` is required. A valid run may automate Review -> Execute -> Validate -> Judge within the approved scope, declared files, permissions, verification, retry, tool, and duration budgets. For low-risk work, allow one bounded repair pass for a newly exposed verification prerequisite such as a missing local test, lint, typecheck, or build development dependency; then rerun full validation. Medium+ scope changes still require approval. Preserve low, medium, high, and untrusted risk paths: medium+ requires context/security evidence or a documented skip; high/untrusted requires explicit risk acknowledgement before execution. Never commit, push, deploy, change branches, or perform remote Git operations automatically. Do not assume repository paths, stack, harness files, or project-specific commands."
+      "template": "Execute the global prevc-workflow skill. PREVC owns the lifecycle for significant work but must never invoke /goal or the create_goal, get_goal, update_goal, or clear_goal tools. Keep lifecycle labels in the current conversation and existing repository harness files only. Route routine low-risk operations such as harness-session-start, status checks, explicit dependency installation, formatting, and narrow test repairs through a direct fast path with objective verification instead of PREVC ceremony. Interpret `prepare <objective>` as discovery, risk classification, and plan creation ending at conversational `awaiting_plan_approval`. Accept explicit operator approval in normal language or `/prevc run`; no goal ID or `/goal confirm` is required. An instruction to execute a named plan or spec end to end is itself the authorization for an autonomous run: automate every task's Review -> Execute -> Validate -> Judge to the end of the plan with no per-task approval, and stop once at `awaiting_confirmation` for the whole spec. Halt mid-run only for a real blocker: a task needing operator/live action, a scope change beyond the plan, push/deploy/branch/worktree/remote Git, or an unrecoverable validation failure after one bounded repair. A valid run may automate Review -> Execute -> Validate -> Judge within the approved scope, declared files, permissions, verification, retry, tool, and duration budgets. For low-risk work, allow one bounded repair pass for a newly exposed verification prerequisite such as a missing local test, lint, typecheck, or build development dependency; then rerun full validation. Medium+ scope changes still require approval. Preserve low, medium, high, and untrusted risk paths: medium+ requires context/security evidence or a documented skip; high/untrusted requires explicit risk acknowledgement before execution. Local commits of reconciled, validated work are allowed once a run is authorized. Never push, deploy, change or create branches, create worktrees, or perform remote Git operations automatically; the operator performs or explicitly authorizes each. Do not assume repository paths, stack, harness files, or project-specific commands."
     },
     "harness-clean-handoff": {
       "description": "Harness: closes a session generically with evidence, progress state, handoff, discovered verification, and git status.",
       "template": "Execute the global harness-clean-handoff skill as a PREVC handoff subroutine. Collect evidence, blockers, progress notes, a session handoff, approved verification results, and git status. PREVC alone writes lifecycle transitions after the operator outcome. When invoked directly, return a handoff report only; do not mark feature state, infer confirmation, or claim completion. Do not assume init.ps1."
+    },
+    "refine": {
+      "description": "Harness v1.3: run the Refine phase — dispatch the read-only refiner over the trajectory window and route proposals by blast radius — or record an operator note with --note.",
+      "template": "Execute the global harness-refine skill. With --note \"<what I fixed by hand>\": record the operator note as a findings record of class operator_note (weighted operator_note_weight from agent-os/quality-thresholds.json#learned_rules) through the scheduler's write-once findings path, then stop — one operator note clears the propose bar alone. Without --note: run the Refine phase after Judge — the scheduler supplies the findings window, the newest gate report, agent-os/learned-rules.json, the parsed Adherence: history, and the counts from harness-findings.mjs --json; dispatch the refiner subagent with that material; return at most one proposal per component and write nothing. Never propose an edit to ~/.config/opencode/**, opencode.jsonc, scripts/harness-*.mjs, or a rule targeting anything outside targets_allowed."
     },
     "harness-security-scan": {
       "description": "Harness 9+: scan OpenCode, Cursor, repo harness, MCPs, and memory for supply-chain and secret risks.",
@@ -99,6 +288,10 @@
     "harness-mcp-inventory": {
       "description": "Harness 9+: inventory OpenCode/Cursor MCP configuration and detect drift/secrets without exposing values.",
       "template": "Run node \"$env:USERPROFILE\\.config\\opencode\\scripts\\harness-mcp-inventory.mjs\". Report server names, locations, enabled status when discoverable, and secret-bearing keys redacted."
+    },
+    "quality": {
+      "description": "Harness v1.2: run the measured quality gate and the risk router, then state the review depth this change earns.",
+      "template": "Run node \"$env:USERPROFILE\\.config\\opencode\\scripts\\harness-quality-gate.mjs\" --mode $ARGUMENTS (default --mode local; use --mode full before a commit), then node \"$env:USERPROFILE\\.config\\opencode\\scripts\\harness-risk-router.mjs\". Print both: the metric table and the tier with its reason. Follow the harness-quality-gate skill for how to react — exit 1 means fix the metric, never relax the threshold; exit 2 is a harness blocker, not a code failure. Name every unavailable metric as a gap: a green exit code over a handful of measured rows is not evidence. A missing, stale, or unconfigured report is not a pass and routes to tier full."
     },
     "harness-status": {
       "description": "Harness 9+: print readiness status for git, PREVC, goal, handoff, context, and security surfaces.",

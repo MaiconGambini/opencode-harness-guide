@@ -1,16 +1,19 @@
 ---
 name: grill-with-docs
-description: Clarify a meaningful codebase change through a one-question-at-a-time interview while maintaining domain terminology and ADRs.
+description: A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go. Runs interactive (HITL) by default, or autonomous (AFK) when driven by a scheduler.
 ---
 
-# Grill With Docs
+Run a `/grilling` session, using the `/domain-modeling` skill.
 
-Use the existing `grill-me` discipline: investigate facts in the repository, ask only decisions, provide a recommendation, and wait for each answer.
+## Modes
 
-For each decision that settles:
+**HITL (default)** — interview the operator live, one question at a time. Use when a human is driving and reachable.
 
-1. Invoke `domain-modeling` when terminology needs clarification or a durable decision qualifies for an ADR.
-2. Keep `CONTEXT.md` and `docs/adr/` concise and current when those artifacts exist or are warranted.
-3. Once shared understanding is confirmed, route meaningful work to `/prevc` or a focused Agent OS spec.
+**AUTO (AFK)** — self-driven, no live operator. Use when a scheduler (e.g. `spec-lead` inside an authorized run) needs the plan sharpened without pausing. In this mode:
 
-Do not edit application code until the user confirms the design is understood.
+- Do **not** pause to ask the operator. Walk each branch of the decision tree and, for every question, **take your own recommended answer** — resolving it from the codebase, existing ADRs, `CONTEXT.md`, and stated requirements.
+- Record every resolved question as a decision, and label the ones you answered on assumption as **assumptions**, so the plan review can see them.
+- Write ADRs and glossary entries via `/domain-modeling` exactly as in HITL — the docs are the same, only the questioner changed.
+- Escalate to the operator **only** on a genuine blocker: an ambiguity no source can settle, a decision that is hard to reverse *and* has no defensible default, or a scope change. Everything else resolves autonomously. (Same halt bar as an autonomous run.)
+
+The mode is chosen by the caller; absent an explicit AUTO instruction, run HITL.

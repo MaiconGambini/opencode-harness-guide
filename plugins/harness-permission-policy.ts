@@ -22,7 +22,32 @@ import type { Plugin } from "@opencode-ai/plugin"
 // Rule model, applied ON TOP of the global defaults from the config hook:
 // review/advisory agents are read-only (write/deploy-style bash denied). All other
 // active capabilities fall through to the global default unchanged.
-const readOnlyAgents = new Set(["reviewer", "advisor", "code-reviewer", "plan", "planner"])
+//
+// FINAL-R1 (objective 6): this roster is the runtime backstop for the read-only blocks in
+// opencode.jsonc — config is not live until an OpenCode restart, the plugin is. Every agent
+// whose config block denies `edit` must appear here, or a restart gap lets it run
+// write/deploy bash with no denial. The generic legacy names ("reviewer", "advisor", "plan",
+// "planner") stay because other projects' configs use them.
+export const READ_ONLY_AGENTS = new Set([
+  // legacy generic names
+  "reviewer",
+  "advisor",
+  "plan",
+  "planner",
+  // opencode.jsonc read-only blocks (parity is asserted in tests/plugin-foundation.test.ts)
+  "code-reviewer",
+  "architecture-reviewer",
+  "security-analyst",
+  "plan-architect",
+  "architecture-advisor",
+  "system-design-advisor",
+  "requirements-interrogator",
+  "design-patterns-advisor",
+  "design-director",
+  "explorer",
+  "refiner",
+  "rule-verifier",
+])
 
 // Bash command shapes that mutate state / deploy — denied for read-only agents.
 const writeOrDeployBash = [
@@ -70,7 +95,7 @@ export default (async () => {
     ) => {
       const agent = sessionAgents.get(input.sessionID)
       if (!agent) return
-      if (readOnlyAgents.has(agent) && isWriteOrDeployBash(input)) {
+      if (READ_ONLY_AGENTS.has(agent) && isWriteOrDeployBash(input)) {
         output.status = "deny"
         return
       }

@@ -12,6 +12,10 @@ Run before saying "done", "complete", or setting any durable status to `passing`
 - [ ] Static checks from sprint contract or discovered stack pass.
 - [ ] Lint/typecheck commands are either run or explicitly not applicable.
 - [ ] No new warnings vs baseline.
+- [ ] `harness-quality-gate` ran at the mode this position requires and exited 0 — or every breach
+      is in `observe` mode and named in the evidence. A missing, stale or `unconfigured` report is
+      **not** a pass; record it as unverified.
+- [ ] Every `unavailable` metric is listed as a gap, not treated as green.
 
 ## Layer 2 — Runtime Behavior
 
@@ -29,7 +33,8 @@ Run before saying "done", "complete", or setting any durable status to `passing`
 
 If any layer fails:
 
-1. Record exact failure: command, exit code, and output.
+1. Record exact failure: command, exit code, and output. For a metric, record **the metric name,
+   its value, and its threshold** — a description is not evidence, a number is.
 2. Set task to `blocked` in the available feature state with reason.
 3. Document in the available progress file Blockers.
 4. Do not claim done. Do not write completed handoff.

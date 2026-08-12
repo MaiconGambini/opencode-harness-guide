@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "doc": "~/.config/opencode/docs/harness/continual-harness.md",
+  "config_lives_in": "agent-os/quality-thresholds.json#learned_rules",
+  "stage": 1,
+  "enforcement_levels": ["prose", "lint", "test", "gate_metric"],
+  "components": ["rule", "skill", "metric", "blind_spot"],
+  "targets_allowed": ["agent-os/standards/"],
+  "rules": [],
+  "conflicts": [],
+  "retired": []
+}

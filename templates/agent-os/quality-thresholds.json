@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "phase": "A",
+  "metrics": {
+    "line_coverage": {
+      "threshold": 80,
+      "direction": "min",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "branch_coverage": {
+      "threshold": 70,
+      "direction": "min",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "cyclomatic_max": {
+      "threshold": 10,
+      "direction": "max",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "module_lines_max": {
+      "threshold": 300,
+      "direction": "max",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "security_findings": {
+      "threshold": 0,
+      "direction": "max",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "boundary_violations": {
+      "threshold": 0,
+      "direction": "max",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "regression_suite": {
+      "threshold": 0,
+      "direction": "max",
+      "mode": "blocking",
+      "speed": "local",
+      "baseline": null
+    },
+    "mutation_kill_ratio": {
+      "threshold": 0,
+      "direction": "min",
+      "mode": "observe",
+      "speed": "full",
+      "baseline": null,
+      "ratchet": true
+    },
+    "e2e_suite": {
+      "threshold": 0,
+      "direction": "max",
+      "mode": "observe",
+      "speed": "full",
+      "baseline": null
+    },
+    "citation_competence": {
+      "threshold": null,
+      "direction": "min",
+      "mode": "observe",
+      "speed": "full",
+      "baseline": null
+    },
+    "reviewer_recall_estimate": {
+      "threshold": null,
+      "direction": "min",
+      "mode": "observe",
+      "speed": "full",
+      "baseline": null
+    },
+    "rule_violations_enforced": {
+      "threshold": null,
+      "direction": "max",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "rule_violations_prose": {
+      "threshold": null,
+      "direction": "max",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "adherence_per_changed_lines": {
+      "threshold": null,
+      "direction": "max",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "unciteable_findings_ratio": {
+      "threshold": null,
+      "direction": "max",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "enforced_fraction": {
+      "threshold": null,
+      "direction": "min",
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null,
+      "ratchet": true
+    },
+    "rules_active": {
+      "threshold": null,
+      "direction": null,
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    },
+    "rules_retired": {
+      "threshold": null,
+      "direction": null,
+      "mode": "observe",
+      "speed": "local",
+      "baseline": null
+    }
+  },
+  "suites": {
+    "regression": {
+      "command": null,
+      "paths": []
+    },
+    "e2e": {
+      "command": null
+    }
+  },
+  "commands": {
+    "coverage_artifact": null,
+    "complexity": null,
+    "module_size": null,
+    "security": null,
+    "boundaries": null,
+    "mutation": null
+  },
+  "high_risk_paths": [
+    "**/auth/**",
+    "**/session*",
+    "**/*password*",
+    "**/*credential*",
+    "**/*secret*",
+    "**/payment*/**",
+    "**/billing/**",
+    "**/*checkout*",
+    "**/migrations/**",
+    "**/migrate/**",
+    "**/*.sql",
+    "**/*.tf",
+    "**/k8s/**",
+    "**/helm/**",
+    "**/docker-compose*.yml",
+    "**/docker-compose*.yaml",
+    "**/.github/workflows/**",
+    "**/permission*/**",
+    "**/*role*",
+    "**/*rbac*",
+    "**/*crypto*",
+    "**/*jwt*",
+    "**/quality-thresholds.json",
+    "**/quality-decisions.md",
+    "**/learned-rules.json",
+    "**/standards/**"
+  ],
+  "sensitive_paths": [],
+  "complexity_signals": {
+    "files_touched": {
+      "op": "gt",
+      "value": 8
+    },
+    "net_lines": {
+      "op": "gt",
+      "value": 300
+    },
+    "new_dependencies": {
+      "op": "gte",
+      "value": 1
+    },
+    "schema_change": {
+      "op": "present"
+    },
+    "complexity_breach": {
+      "op": "present"
+    }
+  },
+  "learned_rules": {
+    "min_findings_to_propose": 3,
+    "min_sessions_to_propose": 2,
+    "operator_note_weight": 3,
+    "reviewer_finding_weight": 1,
+    "defect_weight": 3,
+    "max_active_rules_per_target": 12,
+    "max_proposals_per_run_per_component": 1,
+    "retire_after_days_without_citation": 60,
+    "rewrite_after_violations_after": 3,
+    "recall_sample_every_n_runs": 10,
+    "stage1_window_runs": 30,
+    "citation_competence_min_samples": 3,
+    "citation_competence_floor": null,
+    "reviewer_recall_floor": null,
+    "rule_text_max_chars": 200,
+    "standards_file_lines_max": 200,
+    "enforced_fraction_min_runs": 3,
+    "auto_activate_prose_observe": false
+  }
+}
