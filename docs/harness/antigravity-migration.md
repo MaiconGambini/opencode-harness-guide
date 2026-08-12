@@ -37,7 +37,7 @@ and `/plan` did nothing: the workflows were in `config/workflows/` instead of
    PREVC gates, one-writer-per-file, never auto push/deploy/branch, verify before done, WIP=1).
    Confirmed loading (shows in the Rules tab).
 2. **Workflows** — one per OpenCode command in `config/global_workflows/` (`/plan`, `/prevc`,
-   `/harness-*`, `/orca-graph-*`, …). Bodies are **self-contained prompts** — the IDE does not
+   `/harness-*`, …). Bodies are **self-contained prompts** — the IDE does not
    load skills, so a workflow can't delegate to a skill; it must carry its own instructions. The
    OpenCode command templates already do.
 

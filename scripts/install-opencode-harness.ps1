@@ -5,6 +5,13 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# ---- Shared manifest (single source of what travels) ----
+$manifestPath = Join-Path $PSScriptRoot "harness-manifest.json"
+if (-not (Test-Path -LiteralPath $manifestPath)) {
+    throw "Manifest not found next to this script: $manifestPath. Install the scripts/ tree that carries harness-manifest.json (it travels inside the exported zip)."
+}
+$manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+
 if (-not (Test-Path -LiteralPath $SourceRoot)) {
     throw "SourceRoot not found: $SourceRoot"
 }
@@ -13,8 +20,7 @@ if (-not (Test-Path -LiteralPath $TargetRoot)) {
     New-Item -ItemType Directory -Path $TargetRoot | Out-Null
 }
 
-$include = @("opencode.jsonc", "agent", "command", "catalog", "docs", "skills", "plugins", "templates", "scripts", "tests", "package.json", "package-lock.json", "tsconfig.json")
-foreach ($item in $include) {
+foreach ($item in $manifest.include) {
     $source = Join-Path $SourceRoot $item
     if (Test-Path -LiteralPath $source) {
         Copy-Item -LiteralPath $source -Destination $TargetRoot -Recurse -Force
@@ -37,6 +43,23 @@ if (Test-Path -LiteralPath $nodeModules) {
         Pop-Location
     }
 }
+
+# ---- Post-install assertions (v1.4): the same contract the export staged, asserted on the
+# target. Content, not presence - a silent partial install is exactly the failure class this
+# spec exists to catch. If you install an older export zip, this fails loudly with the reason. ----
+foreach ($a in $manifest.assertions.presence) {
+    $p = Join-Path $TargetRoot ($a.path -replace '/', '\')
+    if (-not (Test-Path -LiteralPath $p)) {
+        throw "Install aborted: $($a.path) missing on target - $($a.reason). Re-export with the matching harness version and retry."
+    }
+}
+foreach ($a in $manifest.assertions.contains) {
+    $p = Join-Path $TargetRoot ($a.path -replace '/', '\')
+    if (-not (Select-String -LiteralPath $p -Pattern $a.pattern -Quiet)) {
+        throw "Install aborted: $($a.path) on target lacks '$($a.pattern)' - $($a.reason)."
+    }
+}
+"Post-install assertion passed: agent/code-reviewer.md carries the typed-findings contract; tests/ and docs/harness/ present."
 
 "Verify the harness: cd `"$TargetRoot`"; npm run typecheck; npm test"
 "Review opencode.jsonc; runtime paths resolve from `$env:USERPROFILE and os.homedir(), so no manual path edits are needed on a standard Windows profile."

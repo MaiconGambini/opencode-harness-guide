@@ -28,6 +28,10 @@ REVIEW -> EXECUTE -> VALIDATE -> JUDGE
         |-- cada fase permanece no escopo aprovado
         |-- falha, ambiguidade ou escalação param o fluxo
         v
+REFINE
+        |-- lê findings tipados e pode propor uma melhoria
+        |-- não escreve e não participa do veredito do Judge
+        v
 AWAITING CONFIRMATION
         |-- o operador revisa a evidência e recebe o handoff
         v
@@ -114,7 +118,9 @@ provar.
 - Trabalho adjacente vira `not_started`.
 - Se a verificação falhar, a feature é marcada como `blocked`.
 - Se o Judge não for Accept, não confirma.
+- Refine não altera o resultado do Judge nem aprova regras.
 
 ## Próximo passo
 
-Veja [WIP=1](./wip-one) — a disciplina que o PREVC aplica em toda tarefa.
+Veja [Continual Harness v1.3](./continual-harness-v1-3) para entender findings,
+Refine e injeção de regras, ou [WIP=1](./wip-one) para a disciplina de execução.

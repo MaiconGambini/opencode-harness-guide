@@ -1,0 +1,209 @@
+name: Validate Harness
+
+on:
+  pull_request:
+    paths:
+      - 'agent/**'
+      - 'skills/**'
+      - 'plugins/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'command/**'
+      - 'templates/**'
+      - 'catalog/**'
+      - 'docs/**'
+      - 'website/**'
+      - 'harnessopencode.md'
+      - 'opencode.jsonc'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - '.github/workflows/validate-harness.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'agent/**'
+      - 'skills/**'
+      - 'plugins/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'command/**'
+      - 'templates/**'
+      - 'catalog/**'
+      - 'docs/**'
+      - 'website/**'
+      - 'harnessopencode.md'
+      - 'opencode.jsonc'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - '.github/workflows/validate-harness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Typecheck plugins
+        run: npm run typecheck
+
+      - name: Run plugin and harness tests
+        run: npm test
+
+      # Public-subset machine check: reads the same scripts/harness-manifest.json the
+      # export/install scripts use, so the guide repo cannot drift from the policy.
+      # (Target-only automation plugins stay inert: this workflow never invokes them.)
+      - name: Public-subset machine check
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $manifest = Get-Content -LiteralPath "scripts/harness-manifest.json" -Raw | ConvertFrom-Json
+          if (-not $manifest.include -or -not $manifest.exclude -or -not $manifest.routingCheck) {
+            throw "scripts/harness-manifest.json is missing required keys (include/exclude/routingCheck)"
+          }
+          $violations = @()
+
+          # 1. Offensive skill families never ship in the public mirror.
+          $excluded = @($manifest.exclude.skillFamilies) + @($manifest.exclude.skillExact)
+          foreach ($dir in Get-ChildItem -LiteralPath "skills" -Directory) {
+            foreach ($family in $excluded) {
+              if ($dir.Name -like "$family*") {
+                $violations += "skills/$($dir.Name) matches excluded family '$family'"
+              }
+            }
+          }
+
+          # 2. Local runtime evidence / docs never ship in the public mirror.
+          foreach ($rel in $manifest.exclude.paths) {
+            if (Test-Path -LiteralPath $rel) {
+              $violations += "excluded runtime-evidence path present: $rel"
+            }
+          }
+
+          # 3. Routing files must not reference excluded skill families or exact skill names.
+          #    Deterministic traversal supports one-level patterns (agent/*.md) and nested
+          #    skill patterns (skills/*/SKILL.md); unsupported shapes fail loudly rather than
+          #    silently skipping the check.
+          function Get-RoutingFiles([string]$root, [string]$glob) {
+            $segments = @($glob -split '/')
+            if ($segments.Count -lt 2) { throw "Unsupported routingCheck.files pattern: $glob (expected '<dir>/<leaf>' or '<dir>/*/<leaf>')." }
+            $base = Join-Path $root $segments[0]
+            if (-not (Test-Path -LiteralPath $base)) { return @() }
+            $leaf = $segments[-1]
+            if ($segments.Count -eq 2) { return @(Get-ChildItem -LiteralPath $base -Filter $leaf -File) }
+            if ($segments.Count -eq 3 -and $segments[1] -eq '*') {
+              $files = @()
+              foreach ($subDir in Get-ChildItem -LiteralPath $base -Directory) {
+                $files += @(Get-ChildItem -LiteralPath $subDir.FullName -Filter $leaf -File)
+              }
+              return $files
+            }
+            throw "Unsupported routingCheck.files pattern: $glob (expected '<dir>/<leaf>' or '<dir>/*/<leaf>')."
+          }
+          foreach ($glob in $manifest.routingCheck.files) {
+            foreach ($routingFile in Get-RoutingFiles (Get-Location).Path $glob) {
+              #    Case-insensitive match, mirroring the export script's OrdinalIgnoreCase
+              #    routing check (IndexOf with [System.StringComparison]::OrdinalIgnoreCase).
+              foreach ($pattern in $manifest.routingCheck.patterns) {
+                $hits = Select-String -LiteralPath $routingFile.FullName -Pattern ([regex]::Escape($pattern)) -CaseSensitive:$false
+                foreach ($hit in $hits) {
+                  $rel = $routingFile.FullName.Substring((Get-Location).Path.Length + 1)
+                  $violations += "$rel references excluded family '$pattern'"
+                }
+              }
+            }
+          }
+
+          if ($violations.Count -gt 0) {
+            $msg = "Public-subset policy violation:" + ($violations | ForEach-Object { "`n  - $_" })
+            Write-Error $msg
+            exit 1
+          }
+          Write-Host "Public-subset machine check passed (no excluded skills, runtime evidence, or agent routing)."
+
+      # Command templates must only invoke skills that actually ship: every
+      # `skill global <name>` and `Execute the global <name> skill` in
+      # opencode.jsonc command templates must resolve to a directory
+      # skills/<name>/ with a SKILL.md. A command pointing at a missing skill
+      # is a silent hop at runtime (orca-graph-* were removed for exactly
+      # this, 2026-08-12 FINAL-U). Both wording forms are collected and
+      # deduplicated, and the check fails if no skill reference is found at
+      # all, so a broken regex can never produce a vacuous green.
+      - name: Command skill references resolve to shipped skills
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $config = Get-Content -LiteralPath "opencode.jsonc" -Raw
+          $found = @{}
+          foreach ($match in [regex]::Matches($config, 'skill\s+global\s+([a-zA-Z0-9_-]+)', 'IgnoreCase')) {
+            $found[$match.Groups[1].Value] = $true
+          }
+          foreach ($match in [regex]::Matches($config, 'Execute the global ([a-zA-Z0-9_-]+) skill', 'IgnoreCase')) {
+            $found[$match.Groups[1].Value] = $true
+          }
+          $skills = @($found.Keys | Sort-Object)
+          if ($skills.Count -eq 0) {
+            Write-Error "No command skill references found in opencode.jsonc (neither 'skill global <name>' nor 'Execute the global <name> skill'). Refusing a vacuous green check; update the regex if the command wording changed."
+            exit 1
+          }
+          $missing = @()
+          foreach ($skill in $skills) {
+            if (-not (Test-Path -LiteralPath "skills/$skill/SKILL.md")) {
+              $missing += "opencode.jsonc references skill '$skill' but skills/$skill/SKILL.md does not exist"
+            }
+          }
+          if ($missing.Count -gt 0) {
+            $msg = "Unresolved command skill references ($($skills.Count) distinct referenced):" + ($missing | ForEach-Object { "`n  - $_" })
+            Write-Error $msg
+            exit 1
+          }
+          Write-Host "Command skill references resolve to shipped skills ($($skills.Count) distinct: $($skills -join ', '))."
+
+      # The public website must not route to excluded skill families either: the
+      # docs (pt-BR default + en mirror) are the most public surface. Same
+      # patterns as the agent routing check above. Known benign exception: the
+      # bibliography line linking the private inspiration repo (uphiago/recon-skills)
+      # in website/docs/reference/references.md + its en mirror, which is a
+      # credit, not a routing statement.
+      - name: Website docs excluded-family routing check
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $manifest = Get-Content -LiteralPath "scripts/harness-manifest.json" -Raw | ConvertFrom-Json
+          $violations = @()
+          $benignLine = [regex]::Escape("uphiago/recon-skills")
+          $roots = @("website/docs", "website/i18n/en/docusaurus-plugin-content-docs/current")
+          foreach ($root in $roots) {
+            if (-not (Test-Path -LiteralPath $root)) { continue }
+            foreach ($file in Get-ChildItem -LiteralPath $root -Recurse -Filter "*.md" -File) {
+              foreach ($pattern in $manifest.routingCheck.patterns) {
+                $hits = Select-String -LiteralPath $file.FullName -Pattern ([regex]::Escape($pattern))
+                foreach ($hit in $hits) {
+                  if ($hit.Line -match $benignLine) { continue }
+                  $rel = $file.FullName.Substring((Get-Location).Path.Length + 1)
+                  $violations += "${rel}:$($hit.LineNumber) references excluded family '$pattern'"
+                }
+              }
+            }
+          }
+          if ($violations.Count -gt 0) {
+            $msg = "Website docs routing violation:" + ($violations | ForEach-Object { "`n  - $_" })
+            Write-Error $msg
+            exit 1
+          }
+          Write-Host "Website docs excluded-family routing check passed."

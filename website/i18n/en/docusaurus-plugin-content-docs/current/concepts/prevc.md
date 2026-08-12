@@ -28,6 +28,10 @@ REVIEW -> EXECUTE -> VALIDATE -> JUDGE
         |-- each phase stays within the approved scope
         |-- failure, ambiguity, or escalation stops the flow
         v
+REFINE
+        |-- reads typed findings and may propose an improvement
+        |-- does not write or participate in the Judge verdict
+        v
 AWAITING CONFIRMATION
         |-- the operator reviews the evidence and receives the handoff
         v
@@ -114,7 +118,9 @@ prefers to stop at review rather than record a completion it cannot prove.
 - Adjacent work becomes `not_started`.
 - If verification fails, the feature is marked `blocked`.
 - If the Judge is not Accept, it does not confirm.
+- Refine does not alter the Judge result or approve rules.
 
 ## Next step
 
-See [WIP=1](./wip-one) — the discipline PREVC enforces on every task.
+See [Continual Harness v1.3](./continual-harness-v1-3) for findings, Refine, and
+rule injection, or [WIP=1](./wip-one) for execution discipline.

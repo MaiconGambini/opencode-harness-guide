@@ -10,7 +10,7 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
 
-The issue tracker should have been provided to you — run `/setup-matt-pocock-skills` if `docs/agents/issue-tracker.md` is missing.
+The issue tracker is documented in `docs/harness/matt-pocock-tracker.md` — consult it and default to the local Markdown tracker when no tracker is configured. (Issue-fetch mechanics follow `docs/agents/issue-tracker.md` where that convention is in use.)
 
 ## Process
 

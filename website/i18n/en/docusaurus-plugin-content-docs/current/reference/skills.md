@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Skills
 
-Skills are `SKILL.md` files that OpenCode loads when needed. Each skill solves a specific class of problem in the workflow. In total the repository ships 106 skills, organized below by area.
+Skills are `SKILL.md` files that OpenCode loads when needed. Each skill solves a specific class of problem in the workflow. The repository's skills are organized below by area; the list tracks the repository and has no fixed count (it derives from the actual directories under `skills/`).
 
 OpenCode loads a skill lazily (lazy-loading), only when the task matches its description.
 
@@ -26,6 +26,7 @@ OpenCode loads a skill lazily (lazy-loading), only when the task matches its des
 | `harness-runtime-feedback` | Capture runtime feedback during the work |
 | `harness-readable-workspace` | Session that does not orient itself: fresh-session test and gap mapping |
 | `harness-context-layer` | Inconsistent decisions: audits ARCHITECTURE, PRODUCT, RELIABILITY |
+| `harness-refine` | The Refine phase after Judge: dispatches the read-only refiner over the trajectory window, routes proposals by blast radius, and records operator notes |
 
 ## Harness — setup, portability, and stack
 
@@ -57,6 +58,9 @@ OpenCode loads a skill lazily (lazy-loading), only when the task matches its des
 | `harness-context-budget` | Audit context load and recommend lazy-loading |
 | `harness-status` | Report readiness of git, PREVC, goal, handoff, context, and security |
 | `harness-worktree-lifecycle` | Worktree lifecycle safety for parallel agents |
+| `harness-quality-gate` | Runs the measured quality gate and the risk router; exit 1 = fix the metric (never relax the threshold), exit 2 = harness blocker; an unavailable metric or a missing/stale report is a named gap, never a pass |
+| `harness-project-calibration` | Derive the project's own quality thresholds and high-risk paths from its measurements and history |
+| `harness-rule-enforce` | Promote an operator-approved prose rule to an enforced rule (lint \| test \| gate_metric) as a normal dispatchable lane |
 
 ## Planning and specs
 
@@ -68,11 +72,13 @@ OpenCode loads a skill lazily (lazy-loading), only when the task matches its des
 | `research` | Investigate a topic or domain before deciding |
 | `grill-me` | Be relentlessly questioned about a plan or design until there is shared understanding |
 | `grill-with-docs` | Grilling backed by the existing documentation |
+| `grilling` | Relentlessly grill the operator about a plan, decision, or idea until the thinking is stress-tested |
 | `wayfinder` | Get oriented in an unfamiliar codebase or domain |
 | `domain-modeling` | Model the domain before designing the solution |
 | `codebase-design` | Design the codebase structure |
 | `improve-codebase-architecture` | Improve the architecture of an existing codebase |
 | `prototype` | Build a quick prototype to validate an idea |
+| `implement` | Implement a piece of work based on a spec or a set of tickets |
 
 ## Frontend and UI
 
@@ -135,10 +141,12 @@ OpenCode loads a skill lazily (lazy-loading), only when the task matches its des
 
 | Skill | When to use |
 |---|---|
+| `tdd` | Test-driven development: red-green-refactor and integration tests |
 | `test-driven-development` | Write tests before the code, in TDD discipline |
 | `systematic-debugging` | Facing any bug, test failure, or unexpected behavior, before proposing fixes |
 | `verification-before-completion` | Before declaring work complete |
 | `reviewing-code` | Review PRs, commits, or diffs against standards |
+| `code-review` | Review the changes since a fixed point (commit, branch, tag, or merge-base) along the Standards and Spec axes, in parallel subagents |
 | `requesting-code-review` | Prepare and request a code review |
 | `receiving-code-review` | Receive review feedback with technical rigor, without performative agreement |
 

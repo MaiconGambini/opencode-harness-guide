@@ -179,9 +179,9 @@ prose, because prose thresholds drift into contradiction — `code-reviewer.md` 
 sane threshold.
 
 Scope is deliberately narrow: `agent/`, `templates/`, `docs/harness/`, and `skills/harness-*`.
-It does **not** scan `skills/writing-skills/` or `skills/recon-playbook/`, where line counts are
-ordinary prose about document length. A check with permanent false positives gets disabled,
-which is worse than no check.
+It does **not** scan `skills/writing-skills/` or any other skill outside the `harness-*`
+namespace, where line counts are ordinary prose about document length. A check with permanent
+false positives gets disabled, which is worse than no check.
 
 For a genuinely illustrative number — an example row in an output format, or a sentence
 explaining why a metric misleads — annotate the line with `prose-threshold-ok` and a reason.

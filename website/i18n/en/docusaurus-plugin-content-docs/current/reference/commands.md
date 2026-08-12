@@ -31,6 +31,7 @@ Names start with `/` when invoked in the OpenCode chat (for example, `/prevc`).
 | Command | When to use | What it does |
 |---|---|---|
 | `/prevc` | Any significant work | Controls the full lifecycle: Plan, Review, Execute, Validate, Judge, Confirm, and Handoff |
+| `/plan` | Plan significant work (the spec-lead default pipeline) | Size-gated pipeline: `/wayfinder` for large efforts, `/grill-with-docs` in AUTO, and `/to-tickets` to decompose into tickets; ends at `awaiting_plan_approval`; replaces the slow `/shape-spec` path |
 | `/goal` | Track a long-term objective | Command registered by the goal plugin (30-day retention); objective memory separate from PREVC |
 
 ### Agent OS
@@ -38,7 +39,7 @@ Names start with `/` when invoked in the OpenCode chat (for example, `/prevc`).
 | Command | When to use | What it does |
 |---|---|---|
 | `/plan-product` | Start product documentation | Creates the base product documentation in `agent-os/product/` |
-| `/shape-spec` | Shape a lightweight spec | Models a lean spec in planning mode; does not implement until approved |
+| `/shape-spec` | Manual escape hatch for heavy specs (the default pipeline is `/plan`) | Models a lean spec in planning mode; does not implement until approved |
 | `/discover-standards` | Document code patterns | Discovers existing patterns and creates standards in `agent-os/standards/` |
 | `/index-standards` | Rebuild the standards index | Scans `agent-os/standards/` and regenerates the alphabetized `index.yml` |
 | `/inject-standards` | Bring standards into context | Reads `index.yml`, suggests relevant standards, and injects the content into the conversation, skill, or planning |
@@ -53,14 +54,12 @@ Names start with `/` when invoked in the OpenCode chat (for example, `/prevc`).
 | `/harness-status` | Check readiness | Prints git, PREVC, goal, handoff, context, and security status; points to the next best action |
 | `/harness-worktree-lifecycle` | Parallel agents with worktrees | Reports worktree lifecycle safety (dirty, clean, stale) without deleting files |
 
-### Orca Graph Engineer
+### Quality and Refine
 
 | Command | When to use | What it does |
 |---|---|---|
-| `/orca-graph-plan` | Plan waves | Read-only wave plan from `feature_list.json` (waves, chain depth, cycles); triggers nothing |
-| `/orca-graph-run` | Launch the current wave | Creates tasks wave by wave, brings up Codex workers, supervises, and stops at the human merge gate (requires `--confirm`) |
-| `/orca-graph-next` | After you merge | Verifies the actual merge of each blocker and advances to the next wave; launches no workers |
-| `/orca-graph-status` | Track waves in flight | Shows the task list, `wave-state.json`, and PR/CI triage; flags drift; read-only |
+| `/quality` | Before a commit (or any time) | Runs `harness-quality-gate.mjs --mode $ARGUMENTS` (default `local`; use `--mode full` before a commit) and `harness-risk-router.mjs`; prints the metric table and the tier with its reason. Exit 1 = fix the metric, never relax the threshold; exit 2 = harness blocker, not a code failure. An unavailable metric or a missing/stale report is a named gap, never a pass — it routes to tier `full` |
+| `/refine` | After Judge, or to record an operator note with `--note "<what I fixed by hand>"` | Runs the global `harness-refine` skill: dispatches the read-only refiner over the trajectory window, routes each proposal by blast radius, and writes nothing; with `--note`, records an `operator_note` findings record that alone clears the propose bar |
 
 ### Interface and investigation commands
 
@@ -95,6 +94,7 @@ Local commands defined in the `command/` folder, focused on interface design, in
 ```
 
 - Accepts explicit operator approval in plain language or `/prevc run`; requires no goal ID or `/goal confirm`.
+- An operator instruction to execute a **named** plan or spec end to end is itself the authorization for an autonomous run: no separate `/prevc run`, no per-task approval; the run stops once at `awaiting_confirmation` for the whole spec.
 - Automates Review → Execute → Validate → Judge within the approved scope and the declared budgets (files, permissions, verification, retry, tools, duration).
 - On low-risk work, allows a limited repair pass for a newly exposed verification prerequisite (a missing test, lint, typecheck, or dev-dependency build) and then runs full validation again.
 - Preserves the low, medium, high, and untrusted risk paths: medium+ requires context/security evidence or a documented skip; high/untrusted requires explicit risk acknowledgment before executing.
@@ -190,14 +190,19 @@ Local commands defined in the `command/` folder, focused on interface design, in
 # Prepare significant work
 /prevc prepare <objective>
 
-# Approve the prepared plan
-/goal confirm
+# Approve the prepared plan (approved ad-hoc plan): explicit approval in plain
+# language; to run the approved plan, use
+/prevc run
 
-# Run only the approved goal
-/prevc run <goal-id>
+# Autonomous run: an instruction to execute a named plan/spec end to end is
+# itself the authorization — no separate /prevc run, no per-task approval
 
 # Pause or close with durable context
 /harness-clean-handoff
+
+# Quality and refine
+/quality              # measured quality gate + risk router (--mode full before a commit)
+/refine               # Refine phase after Judge (or --note "<what I fixed by hand>")
 
 # Global diagnostics
 /harness-status

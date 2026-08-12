@@ -1,0 +1,62 @@
+{
+  "homepage.eyebrow": {
+    "message": "Controlled Agent Workflow",
+    "description": "The eyebrow label above the homepage title"
+  },
+  "homepage.title": {
+    "message": "Agent work you can resume, verify, and audit.",
+    "description": "The main homepage headline"
+  },
+  "homepage.subtitle": {
+    "message": "Durable state, WIP=1, objective evidence, and handoff between sessions for OpenCode projects.",
+    "description": "The homepage subtitle"
+  },
+  "homepage.cta.start": {
+    "message": "Get started",
+    "description": "Primary call-to-action button on the homepage"
+  },
+  "homepage.cta.prevc": {
+    "message": "Understand PREVC",
+    "description": "Secondary call-to-action button on the homepage"
+  },
+  "homepage.card1.step": {
+    "message": "01 / DURABLE STATE",
+    "description": "Step label of the first benefit card"
+  },
+  "homepage.card1.title": {
+    "message": "Every session knows where it stopped",
+    "description": "Title of the first benefit card"
+  },
+  "homepage.card1.description": {
+    "message": "Progress files, handoff, and feature state ensure the next session continues without rediscovering the project from scratch.",
+    "description": "Description of the first benefit card"
+  },
+  "homepage.card2.step": {
+    "message": "02 / EVIDENCE",
+    "description": "Step label of the second benefit card"
+  },
+  "homepage.card2.title": {
+    "message": "Completion requires proof, not trust",
+    "description": "Title of the second benefit card"
+  },
+  "homepage.card2.description": {
+    "message": "Three verification layers (static, runtime, system) before any task is marked complete.",
+    "description": "Description of the second benefit card"
+  },
+  "homepage.card3.step": {
+    "message": "03 / HANDOFF",
+    "description": "Step label of the third benefit card"
+  },
+  "homepage.card3.title": {
+    "message": "Wrap up without losing context",
+    "description": "Title of the third benefit card"
+  },
+  "homepage.card3.description": {
+    "message": "Every session produces a clean handoff with what was done, what broke, and the single next action.",
+    "description": "Description of the third benefit card"
+  },
+  "homepage.meta.description": {
+    "message": "Documentation of the Harness OpenCode workflow: plan, execute, and verify agent work with OpenCode across sessions.",
+    "description": "Meta description of the homepage"
+  }
+}

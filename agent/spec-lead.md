@@ -341,8 +341,10 @@ untracked work and must not exist.
 
   Why this changed: before v1.2 that `≥9` was two numbers a model produced with no measured
   input, and it was the harness's only approval bar. Do not restore the unmeasured form.
-- Authorized security testing / defensive review (routes wstg-*, redteam-*, recon-*
-  skills; read-only) → `security-analyst`.
+- Authorized security testing / defensive review (routes the shipped security skills only —
+  `wstg-*`, `*-security-coder`, `harness-security-scan`; read-only. Skill families outside the
+  public distribution are rejected with an installation note, never routed to) →
+  `security-analyst`.
 - Architecture, pattern, system-design, or aesthetic direction → the corresponding
   advisory capability. These are read-only and will not implement.
 

@@ -1,0 +1,30 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Começando": {
+    "message": "Getting Started",
+    "description": "The label for category 'Começando' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Conceitos": {
+    "message": "Concepts",
+    "description": "The label for category 'Conceitos' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Guias": {
+    "message": "Guides",
+    "description": "The label for category 'Guias' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Referência": {
+    "message": "Reference",
+    "description": "The label for category 'Referência' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Adoção": {
+    "message": "Adoption",
+    "description": "The label for category 'Adoção' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Solução de problemas": {
+    "message": "Troubleshooting",
+    "description": "The label for category 'Solução de problemas' in sidebar 'tutorialSidebar'"
+  }
+}

@@ -24,7 +24,7 @@
     "description": "The label of footer link with label=GitHub"
   },
   "copyright": {
-    "message": "© {year} OpenCode Harness. Built with Docusaurus.",
+    "message": "© 2026 Harness OpenCode. Built with Docusaurus.",
     "description": "The footer copyright"
   }
 }

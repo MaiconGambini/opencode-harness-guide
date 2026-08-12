@@ -29,6 +29,8 @@ evidence, and hands off cleanly between sessions.
 
 ## Quick install
 
+> **Clean install:** if `~/.config/opencode` already exists with your own files, rename the folder to `opencode-backup` **before** cloning — there is no automatic merge. Step 1 of the [full installation guide](./getting-started/installation) shows the exact command.
+
 Clone the repository into the OpenCode configuration and install the dependencies:
 
 ```powershell

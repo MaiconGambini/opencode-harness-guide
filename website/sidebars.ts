@@ -21,6 +21,7 @@ const sidebars: SidebarsConfig = {
         'concepts/why-a-harness',
         'concepts/seven-components',
         'concepts/prevc',
+        'concepts/continual-harness-v1-3',
         'concepts/wip-one',
         'concepts/evidence-and-handoff',
         'concepts/automation',
@@ -51,6 +52,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Adoção',
+      link: { type: 'doc', id: 'adoption/use-cases' },
       items: [
         'adoption/use-cases',
         'adoption/pros-and-cons',

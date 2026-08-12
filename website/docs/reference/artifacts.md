@@ -15,10 +15,14 @@ Arquivos que o harness lê e escreve durante o ciclo de vida.
 | `STATE.md` | `.specs/project/` | Progresso durável, blockers, decisões |
 | `session-handoff.md` | `docs/harness/` | Transferência entre sessões |
 | `sprint-contract.md` | `docs/harness/` | Escopo, AC, plano de verificação |
+| `quality-thresholds.json` | `agent-os/` | Métricas, risk routing e chaves governantes |
+| `learned-rules.json` | `agent-os/` | Ledger local de regras ativas, conflitos e aposentadorias |
+| `<run>.json` | `docs/harness/findings/` | Janela append-only de findings tipados ligada ao gate |
+| `refine-log.md` | `docs/harness/` | Propostas, rejeições e decisões do ciclo Refine |
 
 ## Feature list
 
-Cada feature no `feature_list.json` tem 9 campos:
+Cada feature no `feature_list.json` usa os campos abaixo:
 
 | Campo | Descrição |
 |---|---|
@@ -39,3 +43,12 @@ Cada feature no `feature_list.json` tem 9 campos:
 - `passing` exige `evidence` preenchida com output real.
 - `blocked` exige a causa exata no campo `evidence`.
 - Nenhuma feature `in_progress` com dependências não resolvidas.
+
+## Ownership dos artefatos v1.3
+
+- Reviewers retornam records; o scheduler valida e grava cada arquivo de
+  findings uma única vez.
+- Refine lê findings e ledger, mas não escreve nenhum dos dois.
+- Regras aprovadas entram depois do código, em mudança separada, porque o
+  rulebook permanece dentro do hash de fonte do gate.
+- Números governantes vivem em `quality-thresholds.json`, nunca na prosa.

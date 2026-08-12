@@ -29,6 +29,8 @@ evidência e faz handoff limpo entre sessões.
 
 ## Instalação rápida
 
+> **Instalação limpa:** se `~/.config/opencode` já existe com arquivos seus, renomeie a pasta para `opencode-backup` **antes** de clonar — não há merge automático. O Passo 1 do [guia completo de instalação](./getting-started/installation) mostra o comando exato.
+
 Clone o repositório na configuração do OpenCode e instale as dependências:
 
 ```powershell

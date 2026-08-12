@@ -17,12 +17,12 @@ opencode-harness-guide/
 |-- skills/                  Skills carregadas pelo OpenCode
 |-- agent/                   Definições de agents (subagentes especializados)
 |-- command/                 Comandos globais adicionais
-|-- scripts/                 Utilitários PowerShell e Node
+|-- scripts/                 Utilitários PowerShell e Node (+ harness-manifest.json compartilhado)
 |-- templates/               Templates reutilizáveis
-|   |-- agent-os/            Specs, standards, judges
-|   |-- docs/                Templates de documentação
+|   |-- agent-os/            Gates, ledger, specs e standards
+|   |-- docs/                Findings, Refine, handoff e outros templates
 |   `-- feature_list.json    Template de lista de features
-|-- catalog/ plan/ shape/    Documentos de automação proativa
+|-- catalog/                 Documentos de automação proativa (canônico)
 |-- tests/                   Testes dos plugins
 `-- website/                 Site de documentação (Docusaurus)
     |-- docs/                Fonte da documentação (pt-BR)
@@ -50,9 +50,20 @@ afeta o OpenCode diretamente.
 - `website/` — isolado com suas próprias dependências.
 - `harnessopencode.md` — guia de referência, não afeta o runtime.
 
+Ao instalar os templates em um projeto, os artefatos v1.3 vivem no próprio
+repositório: `agent-os/quality-thresholds.json`,
+`agent-os/learned-rules.json`, `agent-os/standards/` e
+`docs/harness/findings/`. O ledger não promove regras entre projetos
+automaticamente.
+
 ## Observação sobre a distribuição pública
 
-Esta distribuição pública **não inclui** material interno de governança,
-backups, estado de runtime nem skills ofensivas de segurança (recon,
-redteam, exploração). Esses artefatos permanecem apenas no repositório
-privado do autor.
+Esta distribuição pública **não inclui** skills ofensivas de segurança (famílias
+recon, redteam, hiagosh, chains e ataques avulsos), nem evidência de runtime
+local (relatórios de gate em `docs/harness/quality/`, notas de revisão em
+`docs/harness/review/`). As exclusões são declaradas em
+`scripts/harness-manifest.json` e verificadas por máquina: o script de export
+recusa pacotes que as violem e o workflow `.github/workflows/validate-harness.yml`
+bloqueia a mirror pública que as contenha. As skills de segurança curadas e
+legítimas (`skills/wstg-*` e as defensivas `*-security-coder`) permanecem.
+Esses artefatos excluídos existem apenas no repositório privado do autor.

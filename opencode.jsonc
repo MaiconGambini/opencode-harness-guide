@@ -39,6 +39,9 @@
       }
     }
   },
+  // Optional localhost integration — may be removed when unused: the Obsidian Local REST API
+  // MCP server. Requires OBSIDIAN_API_KEY set in the environment and a local Obsidian REST API
+  // server (127.0.0.1:27123) running; the config is inert without both.
   "mcp": {
     "obsidian": {
       "type": "remote",
@@ -300,22 +303,12 @@
     "harness-worktree-lifecycle": {
       "description": "Harness 9+: report worktree lifecycle safety for parallel agents without deleting files.",
       "template": "Run node \"$env:USERPROFILE\\.config\\opencode\\scripts\\harness-worktree-lifecycle.mjs\". Summarize dirty, clean, stale, and keep/salvage recommendations. Never delete worktrees without explicit approval."
-    },
-    "orca-graph-plan": {
-      "description": "Orca Graph Engineer: read-only wave plan from feature_list.json (waves, chain depth, cycles). No dispatch.",
-      "template": "Execute a skill global orca-graph-engineer no modo PLAN (read-only). Rode orca-harness-spec-reader (que usa scripts/orca-graph-dag.mjs) e imprima a wave table + maxChainDepth (avise se >4) + cycles/missingDeps + tickets sem escopo/AC/verification. NÃO crie tasks, worktrees, nem escreva estado. Não assuma caminhos do repo."
-    },
-    "orca-graph-run": {
-      "description": "Orca Graph Engineer: dispatch the current wave (needs --confirm). Creates tasks wave-by-wave, spawns Codex workers, supervises, stops at the human merge gate.",
-      "template": "Execute a skill global orca-graph-engineer no modo RUN. Confirme orca status --json e que orca orchestration task-list responde; carregue o surface via orca skills get (orca-cli e orchestration); leia feature_list.json + wave-config.json + wave-state.json. ABORTE se cycles != []. Exija --confirm; sem ele, ecoe a wave table e pare (invocar com a wave table à vista = aprovação). Aplique o re-attach guard (reconectar a tasks já dispatched/pr_open da wave). Crie tasks Orca SOMENTE da wave atual (no máx maxConcurrent, em sublotes se maior); dispare workers Codex custom via two-step (worktree create --no-parent base origin/main; terminal create --command 'codex --model <worker.codexModel> -c model_reasoning_effort=\"<worker.reasoningEffort>\"'; terminal wait --for tui-idle; dispatch --inject). Supervisione com check --wait em loop até TODA task ter PR review-ready; então gate-create e PARE. NUNCA use orchestration run, nunca push/merge, nunca auto-avance. Não assuma caminhos do repo."
-    },
-    "orca-graph-next": {
-      "description": "Orca Graph Engineer: after you merge, verify real merge and advance to the next wave. Does not dispatch workers.",
-      "template": "Execute a skill global orca-graph-engineer no modo NEXT. Resolva o gate (gate-resolve). Verifique merge REAL de CADA blocker de CADA feature da próxima wave (gh pr view --json state → exigir MERGED; ler prNumber de wave-state.tasks[]) e que .mergeCommit.oid é ancestral de origin/main (git fetch origin; git merge-base --is-ancestor). Só então currentWave++ e escreva wave-state, e PARE (imprima: rode /orca-graph-plan para a próxima wave). NÃO dispare workers, nunca mergeie. Não assuma caminhos do repo."
-    },
-    "orca-graph-status": {
-      "description": "Orca Graph Engineer: status of in-flight waves (tasks, PR/CI, drift).",
-      "template": "Execute a skill global orca-graph-engineer no modo STATUS. Mostre orca orchestration task-list --json + wave-state.json + triagem PR/CI das waves em voo. Sinalize drift: entradas do wave-state cujos terminais/worktrees não existem mais, worktrees órfãos, e idade/último-evento por task. Read-only, nenhum dispatch."
     }
+    // Removed 2026-08-12 (FINAL-U): the four orca-graph-* commands referenced skills
+    // (orca-graph-engineer, orca-harness-spec-reader) that do not exist in the canonical
+    // source (~/.config/opencode/skills/) nor in this mirror. CI now fails on any
+    // `skill global <name>` in a command template that does not resolve to skills/<name>.
+    // See docs/governance/orcagraphengineer.md. scripts/orca-graph-dag.mjs remains as a
+    // standalone read-only utility; the orchestration flow is parked until the skills exist.
   }
 }

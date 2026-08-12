@@ -31,6 +31,7 @@ Os nomes começam com `/` quando invocados no chat do OpenCode (por exemplo, `/p
 | Comando | Quando usar | O que faz |
 |---|---|---|
 | `/prevc` | Qualquer trabalho significativo | Controla o ciclo de vida completo: Plan, Review, Execute, Validate, Judge, Confirm e Handoff |
+| `/plan` | Planejar trabalho significativo (pipeline padrão do spec-lead) | Pipeline size-gated: `/wayfinder` para esforços grandes, `/grill-with-docs` em AUTO e `/to-tickets` para decompor em tickets; termina em `awaiting_plan_approval`; substitui o caminho lento do `/shape-spec` |
 | `/goal` | Rastrear objetivo de longo prazo | Comando registrado pelo plugin de goal (retenção de 30 dias); memória de objetivo separada do PREVC |
 
 ### Agent OS
@@ -38,7 +39,7 @@ Os nomes começam com `/` quando invocados no chat do OpenCode (por exemplo, `/p
 | Comando | Quando usar | O que faz |
 |---|---|---|
 | `/plan-product` | Iniciar documentação de produto | Cria a documentação base do produto em `agent-os/product/` |
-| `/shape-spec` | Estruturar uma spec leve | Modela uma spec enxuta em modo de planejamento; não implementa até aprovação |
+| `/shape-spec` | Escape hatch manual para spec pesada (o pipeline padrão é `/plan`) | Modela uma spec enxuta em modo de planejamento; não implementa até aprovação |
 | `/discover-standards` | Documentar padrões do código | Descobre padrões existentes e cria standards em `agent-os/standards/` |
 | `/index-standards` | Reconstruir o índice de standards | Escaneia `agent-os/standards/` e regenera o `index.yml` alfabetizado |
 | `/inject-standards` | Trazer standards ao contexto | Lê o `index.yml`, sugere standards relevantes e injeta o conteúdo na conversa, skill ou planejamento |
@@ -53,14 +54,12 @@ Os nomes começam com `/` quando invocados no chat do OpenCode (por exemplo, `/p
 | `/harness-status` | Verificar readiness | Imprime status de git, PREVC, goal, handoff, contexto e segurança; aponta a próxima melhor ação |
 | `/harness-worktree-lifecycle` | Agentes paralelos com worktrees | Reporta segurança do ciclo de vida de worktrees (dirty, clean, stale) sem apagar arquivos |
 
-### Orca Graph Engineer
+### Qualidade e Refine
 
 | Comando | Quando usar | O que faz |
 |---|---|---|
-| `/orca-graph-plan` | Planejar waves | Plano de waves read-only a partir de `feature_list.json` (waves, chain depth, ciclos); não dispara nada |
-| `/orca-graph-run` | Disparar a wave atual | Cria tasks wave a wave, sobe workers Codex, supervisiona e para no gate de merge humano (exige `--confirm`) |
-| `/orca-graph-next` | Após você mergear | Verifica o merge real de cada blocker e avança para a próxima wave; não dispara workers |
-| `/orca-graph-status` | Acompanhar waves em voo | Mostra task-list, `wave-state.json` e triagem de PR/CI; sinaliza drift; read-only |
+| `/quality` | Antes de um commit (ou a qualquer momento) | Roda `harness-quality-gate.mjs --mode $ARGUMENTS` (padrão `local`; use `--mode full` antes de commit) e `harness-risk-router.mjs`; imprime a tabela de métricas e o tier com a razão. Exit 1 = corrija a métrica, nunca relaxe o threshold; exit 2 = blocker do harness, não falha de código. Métrica indisponível ou relatório ausente/desatualizado = gap nomeado, não pass — roteia para tier `full` |
+| `/refine` | Depois do Judge, ou para registrar nota do operador com `--note "<o que corrigi à mão>"` | Executa a skill global `harness-refine`: dispara o refiner read-only sobre a janela de trajetória, roteia cada proposta por blast radius e não escreve nada; com `--note`, registra uma findings record `operator_note` que sozinha limpa a barra de propose |
 
 ### Comandos de interface e investigação
 
@@ -95,6 +94,7 @@ Comandos locais definidos na pasta `command/`, focados em design de interface, i
 ```
 
 - Aceita aprovação explícita do operador em linguagem normal ou `/prevc run`; não exige goal ID nem `/goal confirm`.
+- Uma instrução do operador para executar um plano ou spec **nomeado** de ponta a ponta já é a autorização do run autônomo: sem `/prevc run` separado e sem aprovação por task; o run para uma única vez em `awaiting_confirmation` para o spec inteiro.
 - Automatiza Review → Execute → Validate → Judge dentro do escopo aprovado e dos orçamentos declarados (arquivos, permissões, verificação, retry, ferramentas, duração).
 - Em trabalho de baixo risco, permite um passe de reparo limitado para um pré-requisito de verificação recém-exposto (teste, lint, typecheck ou build dev-dependency ausente) e então roda a validação completa de novo.
 - Preserva os caminhos de risco low, medium, high e untrusted: medium+ exige evidência de contexto/segurança ou skip documentado; high/untrusted exige reconhecimento explícito de risco antes de executar.
@@ -190,14 +190,19 @@ Comandos locais definidos na pasta `command/`, focados em design de interface, i
 # Preparar trabalho significativo
 /prevc prepare <objetivo>
 
-# Aprovar o plano preparado
-/goal confirm
+# Aprovar o plano preparado (plano ad-hoc aprovado): aprovação explícita em
+# linguagem natural; para rodar o plano aprovado, use
+/prevc run
 
-# Executar somente o goal aprovado
-/prevc run <goal-id>
+# Execução autônoma: instrução para executar um plano/spec nomeado de ponta a
+# ponta já é a autorização — sem /prevc run separado, sem aprovação por task
 
 # Pausar ou encerrar com contexto durável
 /harness-clean-handoff
+
+# Qualidade e refine
+/quality              # quality gate medido + risk router (--mode full antes de commit)
+/refine               # fase Refine pós-Judge (ou --note "<o que corrigi à mão>")
 
 # Diagnósticos globais
 /harness-status

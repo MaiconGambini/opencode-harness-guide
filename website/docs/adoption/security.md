@@ -42,10 +42,15 @@ O `harness-permission-policy.ts` pede aprovação explícita para:
 A regra de fallback para comandos Bash mutantes é **ask** — o padrão é
 perguntar antes de executar.
 
+No v1.3, `refiner` e `rule-verifier` são read-only: não editam, não executam
+shell, não delegam e não acessam diretórios externos. Reviewers também não
+gravam findings; o scheduler valida e escreve. Mudanças em `opencode.jsonc`
+exigem restart antes de valer no processo do OpenCode.
+
 ## Logs e retenção
 
-O `harness-tool-activity.ts` preserva registros JSONL **redigidos** por no
-máximo **30 dias** e **5 MiB**. Logs ajudam no diagnóstico; eles não provam
+O `harness-tool-activity.ts` preserva registros JSONL **redigidos** conforme as
+chaves de retenção configuradas. Logs ajudam no diagnóstico; eles não provam
 que um objetivo foi concluído corretamente.
 
 ## Segredos

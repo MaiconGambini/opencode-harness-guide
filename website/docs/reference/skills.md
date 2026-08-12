@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Skills
 
-Skills são arquivos `SKILL.md` que o OpenCode carrega quando necessário. Cada skill resolve uma classe específica de problema no workflow. Ao todo o repositório traz 106 skills, organizadas abaixo por área.
+Skills são arquivos `SKILL.md` que o OpenCode carrega quando necessário. Cada skill resolve uma classe específica de problema no workflow. As skills do repositório estão organizadas abaixo por área; a lista acompanha o repositório e não tem contagem fixa (ela deriva dos diretórios reais em `skills/`).
 
 O OpenCode carrega uma skill de forma preguiçosa (lazy-loading), apenas quando a task combina com a descrição dela.
 
@@ -26,6 +26,7 @@ O OpenCode carrega uma skill de forma preguiçosa (lazy-loading), apenas quando 
 | `harness-runtime-feedback` | Capturar feedback de runtime durante o trabalho |
 | `harness-readable-workspace` | Sessão que não orienta: fresh-session test e mapeamento de gaps |
 | `harness-context-layer` | Decisões inconsistentes: audita ARCHITECTURE, PRODUCT, RELIABILITY |
+| `harness-refine` | Fase Refine depois do Judge: dispara o refiner read-only sobre a janela de trajetória, roteia propostas por blast radius e registra notas do operador |
 
 ## Harness — setup, portabilidade e stack
 
@@ -57,6 +58,9 @@ O OpenCode carrega uma skill de forma preguiçosa (lazy-loading), apenas quando 
 | `harness-context-budget` | Auditar carga de contexto e recomendar lazy-loading |
 | `harness-status` | Reportar readiness de git, PREVC, goal, handoff, contexto e segurança |
 | `harness-worktree-lifecycle` | Segurança do ciclo de vida de worktrees em agentes paralelos |
+| `harness-quality-gate` | Roda o quality gate medido e o risk router; exit 1 = corrigir a métrica (nunca relaxar o threshold), exit 2 = blocker do harness; métrica indisponível ou relatório ausente/desatualizado = gap nomeado, não pass |
+| `harness-project-calibration` | Derivar thresholds de qualidade e high-risk paths do próprio projeto a partir das medições e do histórico dele |
+| `harness-rule-enforce` | Promover uma regra em prosa aprovada pelo operador a regra aplicada (lint \| test \| gate_metric) como lane normal despachável |
 
 ## Planejamento e specs
 
@@ -68,11 +72,13 @@ O OpenCode carrega uma skill de forma preguiçosa (lazy-loading), apenas quando 
 | `research` | Investigar um tema ou domínio antes de decidir |
 | `grill-me` | Ser questionado sem dó sobre um plano ou design até haver entendimento comum |
 | `grill-with-docs` | Grilling apoiado na documentação existente |
+| `grilling` | Questionar sem dó o operador sobre um plano, decisão ou ideia até endurecer o pensamento (stress-test) |
 | `wayfinder` | Orientar-se em um codebase ou domínio desconhecido |
 | `domain-modeling` | Modelar o domínio antes de projetar a solução |
 | `codebase-design` | Projetar a estrutura do codebase |
 | `improve-codebase-architecture` | Melhorar a arquitetura de um codebase existente |
 | `prototype` | Construir um protótipo rápido para validar uma ideia |
+| `implement` | Implementar uma peça de trabalho a partir de uma spec ou conjunto de tickets |
 
 ## Frontend e UI
 
@@ -135,10 +141,12 @@ O OpenCode carrega uma skill de forma preguiçosa (lazy-loading), apenas quando 
 
 | Skill | Quando usar |
 |---|---|
+| `tdd` | Desenvolvimento orientado a testes: red-green-refactor e testes de integração |
 | `test-driven-development` | Escrever testes antes do código, em disciplina TDD |
 | `systematic-debugging` | Diante de qualquer bug, falha de teste ou comportamento inesperado, antes de propor fixes |
 | `verification-before-completion` | Antes de declarar trabalho concluído |
 | `reviewing-code` | Revisar PRs, commits ou diffs contra standards |
+| `code-review` | Revisar as mudanças desde um ponto fixo (commit, branch, tag ou merge-base) nos eixos Standards e Spec, em subagentes paralelos |
 | `requesting-code-review` | Preparar e solicitar code review |
 | `receiving-code-review` | Receber feedback de review com rigor técnico, sem concordância performática |
 

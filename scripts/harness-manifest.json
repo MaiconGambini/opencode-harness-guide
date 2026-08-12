@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "note": "Shared manifest read by scripts/export-opencode-harness.ps1 and scripts/install-opencode-harness.ps1. Single source of what travels: the include list, the public-subset exclusions, and the staged/post-install assertions. docs/harness/site-sync.md derives the guide-repo sync from this file. Keep this file in lockstep between the private source (~/.config/opencode/scripts) and the public guide repo (scripts/).",
+  "include": [
+    "opencode.jsonc",
+    "harnessopencode.md",
+    "agent",
+    "command",
+    "catalog",
+    "docs",
+    "skills",
+    "plugins",
+    "templates",
+    "scripts",
+    "tests",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json"
+  ],
+  "exclude": {
+    "skillFamilies": ["recon-", "redteam-", "hiagosh-", "chains-"],
+    "skillExact": ["auth-saml-sso-attack", "infra-docker-privesc", "obsidian", "setup-matt-pocock-skills"],
+    "paths": [
+      "docs/harness/quality",
+      "docs/harness/review",
+      "docs/superpowers",
+      "docs/governance/runtime-catalog.md",
+      "docs/governance/time-based-automation.md",
+      "docs/governance/2026-07-22-1910-global-opencode-rationalization"
+    ]
+  },
+  "routingCheck": {
+    "files": ["agent/*.md", "skills/*/SKILL.md"],
+    "patterns": ["recon-", "redteam-", "hiagosh-", "chains-", "auth-saml-sso-attack", "infra-docker-privesc", "obsidian", "setup-matt-pocock-skills"]
+  },
+  "assertions": {
+    "presence": [
+      { "path": "harnessopencode.md", "reason": "docs/harness/v1.3-context.md and the workflow routing pointer to its §9.5 would break in the exported package" },
+      { "path": "agent/code-reviewer.md", "reason": "the v1.3 typed-findings contract would not ship" },
+      { "path": "tests/harness-continual-harness.test.mjs", "reason": "the v1.3 test suite would not ship" },
+      { "path": "docs/harness", "reason": "the v1.3 procedure docs would not ship" }
+    ],
+    "contains": [
+      { "path": "agent/code-reviewer.md", "pattern": "Typed Findings", "reason": "the staged code-reviewer lacks the typed-findings contract; refusing to ship a silent partial install" }
+    ]
+  }
+}

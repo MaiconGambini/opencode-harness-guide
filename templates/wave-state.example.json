@@ -1,5 +1,5 @@
 {
-  "$comment": "EXAMPLE ONLY. Runtime artifact written by orca-graph-run at <project>/wave-state.json (gitignored). Not committed. tasks[].status is a CACHE — GitHub (gh pr view state=MERGED) is merge authority; Orca runtime worker_done is worker authority.",
+  "$comment": "EXAMPLE ONLY. Shape of the wave-state runtime artifact for the parked Orca orchestration flow (the orca-graph-* commands were removed 2026-08-12 FINAL-U; see docs/governance/orcagraphengineer.md). Runtime location: <project>/wave-state.json (gitignored). Not committed. tasks[].status is a CACHE — GitHub (gh pr view state=MERGED) is merge authority; Orca runtime worker_done is worker authority.",
   "schemaVersion": 1,
   "project": "<repoId>",
   "prBase": "main",

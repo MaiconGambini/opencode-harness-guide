@@ -1,6 +1,7 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import Translate, { translate } from '@docusaurus/Translate';
 
 function HomepageHeader() {
   return (
@@ -22,7 +23,7 @@ function HomepageHeader() {
           marginBottom: '0.5rem',
         }}
       >
-        Controlled Agent Workflow
+        <Translate id="homepage.eyebrow">Controlled Agent Workflow</Translate>
       </p>
       <h1
         style={{
@@ -33,7 +34,9 @@ function HomepageHeader() {
           lineHeight: 1.15,
         }}
       >
-        Trabalho de agentes que voce consegue retomar, verificar e auditar.
+        <Translate id="homepage.title">
+          Trabalho de agentes que voce consegue retomar, verificar e auditar.
+        </Translate>
       </h1>
       <p
         style={{
@@ -44,8 +47,10 @@ function HomepageHeader() {
           lineHeight: 1.6,
         }}
       >
-        Estado duravel, WIP=1, evidencia objetiva e handoff entre sessoes
-        para projetos OpenCode.
+        <Translate id="homepage.subtitle">
+          Estado duravel, WIP=1, evidencia objetiva e handoff entre sessoes
+          para projetos OpenCode.
+        </Translate>
       </p>
       <div
         style={{
@@ -60,14 +65,14 @@ function HomepageHeader() {
           href="/opencode-harness-guide/docs/getting-started/installation"
           style={{ padding: '0.6rem 1.4rem' }}
         >
-          Começar agora
+          <Translate id="homepage.cta.start">Começar agora</Translate>
         </a>
         <a
           className="button button--outline button--lg"
           href="/opencode-harness-guide/docs/concepts/prevc"
           style={{ padding: '0.6rem 1.4rem', borderColor: 'var(--border-color)' }}
         >
-          Entender PREVC
+          <Translate id="homepage.cta.prevc">Entender PREVC</Translate>
         </a>
       </div>
     </header>
@@ -113,13 +118,59 @@ function BenefitCard({
   );
 }
 
-export default function Home(): JSX.Element {
+export default function Home(): React.JSX.Element {
   const { siteConfig } = useDocusaurusContext();
+
+  const cards = [
+    {
+      step: translate({ id: 'homepage.card1.step', message: '01 / ESTADO DURAVEL' }),
+      title: translate({
+        id: 'homepage.card1.title',
+        message: 'Cada sessao sabe onde parou',
+      }),
+      description: translate({
+        id: 'homepage.card1.description',
+        message:
+          'Arquivos de progresso, handoff e feature state garantem que a proxima sessao continue sem redescobrir o projeto do zero.',
+      }),
+      accentColor: 'var(--ifm-color-primary)',
+    },
+    {
+      step: translate({ id: 'homepage.card2.step', message: '02 / EVIDENCIA' }),
+      title: translate({
+        id: 'homepage.card2.title',
+        message: 'Conclusao exige prova, nao confianca',
+      }),
+      description: translate({
+        id: 'homepage.card2.description',
+        message:
+          'Tres camadas de verificacao (estatica, runtime, sistema) antes de marcar qualquer tarefa como concluida.',
+      }),
+      accentColor: 'var(--color-accent-blue)',
+    },
+    {
+      step: translate({ id: 'homepage.card3.step', message: '03 / HANDOFF' }),
+      title: translate({
+        id: 'homepage.card3.title',
+        message: 'Encerre sem perder o contexto',
+      }),
+      description: translate({
+        id: 'homepage.card3.description',
+        message:
+          'Toda sessao produz um handoff limpo com o que foi feito, o que quebrou e a unica proxima acao.',
+      }),
+      accentColor: 'var(--color-accent-violet)',
+    },
+  ];
 
   return (
     <Layout
       title={siteConfig.title}
-      description="Documentacao do workflow Harness OpenCode: planeje, execute e verifique trabalho com agentes OpenCode em varias sessoes."
+      description={translate({
+        id: 'homepage.meta.description',
+        message:
+          'Documentacao do workflow Harness OpenCode: planeje, execute e verifique trabalho com agentes OpenCode em varias sessoes.',
+      })}
     >
       <HomepageHeader />
 
@@ -137,24 +188,15 @@ export default function Home(): JSX.Element {
             gap: '1.25rem',
           }}
         >
-          <BenefitCard
-            step="01 / ESTADO DURAVEL"
-            title="Cada sessao sabe onde parou"
-            description="Arquivos de progresso, handoff e feature state garantem que a proxima sessao continue sem redescobrir o projeto do zero."
-            accentColor="var(--ifm-color-primary)"
-          />
-          <BenefitCard
-            step="02 / EVIDENCIA"
-            title="Conclusao exige prova, nao confianca"
-            description="Tres camadas de verificacao (estatica, runtime, sistema) antes de marcar qualquer tarefa como concluida."
-            accentColor="var(--color-accent-blue)"
-          />
-          <BenefitCard
-            step="03 / HANDOFF"
-            title="Encerre sem perder o contexto"
-            description="Toda sessao produz um handoff limpo com o que foi feito, o que quebrou e a unica proxima acao."
-            accentColor="var(--color-accent-violet)"
-          />
+          {cards.map((card) => (
+            <BenefitCard
+              key={card.step}
+              step={card.step}
+              title={card.title}
+              description={card.description}
+              accentColor={card.accentColor}
+            />
+          ))}
         </div>
       </main>
     </Layout>

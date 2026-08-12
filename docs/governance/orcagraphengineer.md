@@ -5,9 +5,9 @@
 > `feature_list.json`/specs do harness como fonte de verdade e **decision gates + criação
 > de tasks wave-a-wave** como gate humano estrutural.
 
-**Status:** MVGE **implementado** (Fase 1+2). Escopo cortado ao núcleo; confiabilidade avançada em §Deferred (adicionar só sob failure mode observado — `harnessopencode.md` §4). Orquestração CLI verificada ao vivo (task/gate lifecycle) + plumbing de worktree/terminal verificado (create/echo/rm no repo real, limpo). Modelos: orquestrador `gpt-5.6-sol`/medium, worker `gpt-5.6-luna`/xhigh. Falta só a Fase 3 (e2e ao vivo com worker Codex real + seu merge).
-**Artefatos criados:** `scripts/orca-graph-dag.mjs` · `skills/orca-harness-spec-reader/` · `skills/orca-graph-engineer/` · `templates/wave-config.default.json` · `templates/wave-state.example.json` · edições em `templates/agent-os/specs/_template/tasks.md` e `skills/harness-feature-state/SKILL.md` · 4 comandos `orca-graph-*` no `opencode.jsonc`. Verificado: DAG numa fixture (waves/ciclo/profundidade), JSON válido, `npm run typecheck` verde.
-**Última atualização:** 2026-07-24
+**Status:** **Corrigido em 2026-08-12 (FINAL-U):** o fluxo está **estacionado (não implementado)**. As duas skills (`orca-harness-spec-reader`, `orca-graph-engineer`) **nunca foram criadas** — não existem na fonte canônica (`~/.config/opencode/skills/`) nem no espelho público (`skills/`). Os 4 comandos `orca-graph-*` que as referenciavam foram **removidos do `opencode.jsonc`** e o CI agora falha em qualquer `skill global <name>` que não resolva para `skills/<name>`. O que permanece: `scripts/orca-graph-dag.mjs` (utilitário read-only standalone, sem fio para skill/comando) e os templates `templates/wave-config.default.json` / `templates/wave-state.example.json`. As seções abaixo descrevem o **design** (registro histórico); nada disso está ativo no runtime. Reativar = criar as duas skills na fonte canônica primeiro, exportar, e só então recriar os comandos.
+**Artefatos criados:** `scripts/orca-graph-dag.mjs` · `templates/wave-config.default.json` · `templates/wave-state.example.json` · edições em `templates/agent-os/specs/_template/tasks.md` e `skills/harness-feature-state/SKILL.md`. ~~`skills/orca-harness-spec-reader/` · `skills/orca-graph-engineer/` · 4 comandos `orca-graph-*` no `opencode.jsonc`~~ — **nunca criados; comandos removidos (FINAL-U, 2026-08-12)**. Verificado na época: DAG numa fixture (waves/ciclo/profundidade), JSON válido, `npm run typecheck` verde.
+**Última atualização:** 2026-08-12 (correção FINAL-U)
 
 ---
 
@@ -21,7 +21,7 @@ O v4 tinha derivado disso para um spec de confiabilidade de sistemas distribuíd
 
 ## 0. Fundamentos do ambiente real (verificados)
 
-- Skills `orca-cli`/`orchestration` (em `C:\Users\maiki\.agents\skills\`) são **stubs**. Surface real version-matched: `orca skills get orca-cli` / `orca skills get orchestration`. **Nunca hardcodar flag de memória.**
+- Skills `orca-cli`/`orchestration` (em `$env:USERPROFILE\.agents\skills\`) são **stubs**. Surface real version-matched: `orca skills get orca-cli` / `orca skills get orchestration`. **Nunca hardcodar flag de memória.**
 - `orca`, `codex`, `gh`, `git` instalados; `orca status --json` → `ok:true`, runtime+graph `ready`.
 - Orquestração CLI **já disponível e verificada** (`orca orchestration task-list --json` → `ok:true`). Os toggles em Settings > Experimental são **opcionais** (visibilidade): **Agents View** + **Agent Dashboard** ajudam a acompanhar as waves; **Agent sleep** deve ficar **OFF** (pode dormir orquestrador/worker idle durante `check --wait`).
 - `npm run typecheck` (tsc) e `npm test` existem na raiz `.config/opencode` (verificado).
@@ -178,7 +178,9 @@ gh pr checks <num> --repo <owner/repo> --json name,state,link
 ### 5.1 `wave-state.json`
 Shape e regras em §3. Escrito por `run`, lido por `next`/`status`.
 
-### 5.2 Skill `skills/orca-harness-spec-reader/SKILL.md` (read-only) ✅ criado
+### 5.2 Skill `skills/orca-harness-spec-reader/SKILL.md` (read-only) ❌ NUNCA criada (FINAL-U)
+
+> **Correção FINAL-U (2026-08-12):** esta skill **não existe** em `skills/` na fonte canônica nem no espelho público — a marca "✅ criado" anterior era falsa. O design abaixo fica como registro do que ela faria se for criada um dia.
 Ponte specs→grafo. **Delega normalização a `harness-feature-state`**; adiciona grafo/waves, profundidade de cadeia, ciclos, e monta o "ticket-as-prompt". A matemática do grafo é determinística via **`scripts/orca-graph-dag.mjs`** (waves por longest-path, ciclos, `maxChainDepth`, `missingDeps`; exit 1 gateia ciclos/deps ausentes). A skill enriquece a saída do script com os campos do `tasks.md`.
 
 **Mapa de campos** (`feature_list.json` → saída; `.specs/features/<id>/tasks.md` → saída):
@@ -219,7 +221,9 @@ Regras: **reporta ciclos** em `cycles` (não trava; `run` aborta se não-vazio) 
 ```
 O `--command 'codex --model <codexModel> -c model_reasoning_effort="<reasoningEffort>"'` é montado daqui. Trocar worker pra `claude`/`grok` = uma linha.
 
-### 5.4 Skill `skills/orca-graph-engineer/SKILL.md` (o combinador)
+### 5.4 Skill `skills/orca-graph-engineer/SKILL.md` (o combinador) ❌ NUNCA criada (FINAL-U)
+
+> **Correção FINAL-U (2026-08-12):** idem §5.2 — esta skill **não existe**; os comandos que a invocavam foram removidos do `opencode.jsonc`. O combinador abaixo é o design registrado, não uma implementação.
 - Carrega surface via `orca skills get`; lê spec-reader + wave-state + wave-config.
 - **Aborta** se `cycles != []` (imprime o ciclo e manda corrigir no `feature_list.json`); **exige `--confirm`** (a aprovação da wave).
 - **Re-attach guard:** antes de criar qualquer task, reconecta a tasks da wave atual já em `dispatched`/`pr_open` no wave-state, em vez de recriar (idempotência de re-invoke pós-crash).
@@ -233,7 +237,9 @@ O `--command 'codex --model <codexModel> -c model_reasoning_effort="<reasoningEf
 
 ---
 
-## 6. Comandos (`opencode.jsonc`) — 4 chaves
+## 6. Comandos (`opencode.jsonc`) — REMOVIDOS (FINAL-U, 2026-08-12)
+
+> **Correção FINAL-U:** os 4 comandos `orca-graph-*` abaixo foram **removidos** do `opencode.jsonc` porque invocavam (`skill global orca-graph-engineer` / `orca-harness-spec-reader`) skills que não existem em lugar nenhum. O CI (`validate-harness.yml`) agora resolve cada `skill global <name>` de template de comando contra `skills/<name>` e falha se não existir — um comando que aponta para skill ausente não pode voltar sem a skill. A tabela fica como registro do design proposto.
 
 Uma chave por comando (`description` + `template`), como no resto do repo.
 
@@ -333,7 +339,7 @@ Enquanto `orca-graph-resume` está deferido, o guard de re-attach cobre o re-inv
 
 ## Referências
 - [@gkpacker](https://x.com/gkpacker/status/2080306086653894733) · [skill](https://x.com/gkpacker/status/2080312052128546865) · [Graph Engineering](https://x.com/gkpacker/status/2080311008871035015)
-- [Harness OpenCode — Guia](./2026-07-22-1910-global-opencode-rationalization/harnessopencode.md)
-- Orca skills (stubs): `C:\Users\maiki\.agents\skills\{orca-cli,orchestration}\SKILL.md` — surface real via `orca skills get <skill>`
+- [Harness OpenCode — Guia](../../harnessopencode.md)
+- Orca skills (stubs): `$env:USERPROFILE\.agents\skills\{orca-cli,orchestration}\SKILL.md` — surface real via `orca skills get <skill>`
 
 > **Princípio:** o orquestrador lê, planeja, dispara, supervisiona e para no gate — não escreve código, não mergeia, não auto-avança. Quem implementa é o worker (branch isolada). Quem mergeia e libera cada wave é você. Núcleo primeiro; confiabilidade quando um failure mode aparecer.

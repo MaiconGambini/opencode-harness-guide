@@ -42,10 +42,15 @@ security lives in the planning and approval phase, not in automatic blocks.
 The fallback rule for mutating Bash commands is **ask** — the default is to
 ask before executing.
 
+In v1.3, `refiner` and `rule-verifier` are read-only: they cannot edit, run
+shell, delegate, or access external directories. Reviewers do not write
+findings either; the scheduler validates and writes them. Changes to
+`opencode.jsonc` require a restart before they affect the OpenCode process.
+
 ## Logs and retention
 
-`harness-tool-activity.ts` keeps **redacted** JSONL records for at most **30
-days** and **5 MiB**. Logs help with diagnosis; they do not prove that an
+`harness-tool-activity.ts` keeps **redacted** JSONL records according to the
+configured retention keys. Logs help with diagnosis; they do not prove that an
 objective was completed correctly.
 
 ## Secrets
