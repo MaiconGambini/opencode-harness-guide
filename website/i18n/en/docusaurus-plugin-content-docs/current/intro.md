@@ -9,6 +9,27 @@ The OpenCode Harness turns OpenCode from an agent that "rediscovers everything
 each session" into an agent that keeps state, respects WIP=1, produces
 evidence, and hands off cleanly between sessions.
 
+## What's new in v1.4
+
+v1.4 adds a **recoverable-context and loop-detection** layer on top of v1.3's
+continual loop:
+
+- **Minimal durable state** — a `docs/harness/progress.md` that answers the
+  single next action, plus a **derived briefing** (`scripts/harness-briefing.mjs`)
+  stamped with a `sourceHash` that refuses stale context.
+- **Loop / slop detection** — the tool-activity plugin now records session,
+  outcome, and duration, and injects an **advisory reminder** when the same call
+  repeats with no progress (never blocks).
+- **Advisory wall-clock benchmark** — `scripts/harness-benchmark.mjs` measures
+  per-phase wall-clock to calibrate effort routing; duration is never a gate.
+- **Scheduler-only regression** — the heavy suite runs once over the reconciled
+  tree, not per lane; the cheap "a fix needs a test" rule still blocks per lane.
+
+> **Honest:** live acceptance of v1.3's continual loop (table C, C1–C16) —
+> injection reaching a lane, findings from a real run, liveness numbers — has
+> **not** been executed yet. v1.4's capabilities go live after an OpenCode
+> restart. See [Use Cases](./adoption/use-cases) for the new workflows.
+
 ## What you'll find
 
 | Section | What it covers |

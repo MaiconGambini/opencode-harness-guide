@@ -20,6 +20,9 @@ lacuna, não aprovação.
 | Alto risco ou segurança | Tier completo e revisão especializada |
 | Apenas documentação | Lane de docs e validação de links/fontes |
 | Refine e regra aprendida | Judge, Refine e confirmação separada |
+| Retomada de sessão / contexto recuperável | Briefing derivado com `sourceHash`; recusa stale |
+| Loop de ferramenta sem progresso | Lembrete advisory de repetição; não bloqueia |
+| Calibrar roteamento de esforço | Benchmark advisory de tempo; nunca gate |
 
 ## Tarefa simples em um arquivo
 
@@ -199,6 +202,72 @@ ativas são injetadas nas lanes compatíveis.
 **Erros comuns:** tratar proposta como aprovação; deixar o refiner editar o
 ledger; dar voto de Judge ao Refine; afirmar auto-ativação. Ela vem desabilitada
 em `learned_rules.auto_activate_prose_observe` até aceitação ao vivo e restart.
+
+## Retomada de sessão / contexto recuperável
+
+**Quando usar:** uma sessão nova, uma troca de agente ou logo após a compaction,
+quando reler todos os arquivos de estado é caro e o risco é injetar contexto
+desatualizado.
+
+**Prompt de exemplo:**
+
+```text
+/harness-session-start
+```
+
+**Comportamento esperado:** o `harness-session-start` roda
+`node scripts/harness-briefing.mjs`, que deriva um briefing pequeno e
+path-scoped do progresso, das decisões recentes e das regras ativas, carimbado
+com um `sourceHash` sobre os bytes de origem. Um briefing stale ou ausente falha
+fechado — é uma lacuna a nomear, nunca um passe. O checkout, os testes e o
+runtime sempre vencem o briefing; conflito vira finding, não fato.
+
+**Erros comuns:** confiar no histórico do chat em vez do estado durável; injetar
+um briefing sem revalidar contra o checkout; tratar ausência de `progress.md`
+como "nada pendente".
+
+## Loop de ferramenta sem progresso
+
+**Quando usar:** o agente repete a mesma chamada — mesma ferramenta, mesmos
+argumentos — sem um resultado novo entre elas. É o sinal mais claro de loop e
+slop.
+
+**Prompt de exemplo:** nenhum especial — o lembrete é automático durante a
+sessão.
+
+**Comportamento esperado:** o plugin de tool-activity canonicaliza cada
+`(ferramenta, argumentos)` já redigidos, conta repetições consecutivas por
+sessão e, ao cruzar o limite, injeta um lembrete advisory no resultado da
+ferramenta. Ele **nunca bloqueia** a chamada: o modelo interrompe a repetição
+relendo o resultado, mudando de abordagem ou concluindo. A assinatura recorrente
+vai para o digest de atividade, não direto para o rulebook.
+
+**Erros comuns:** tratar o lembrete como um bloqueio; repetir cegamente uma
+operação com efeito cujo resultado ficou desconhecido; transformar a primeira
+recorrência em regra global.
+
+## Calibrar roteamento de esforço
+
+**Quando usar:** você quer decidir o esforço do modelo por classe de tarefa com
+evidência de tempo, não por palpite — por exemplo, se `max` numa correção de um
+arquivo compra algo.
+
+**Prompt de exemplo:**
+
+```text
+node scripts/harness-benchmark.mjs summary
+```
+
+**Comportamento esperado:** o benchmark registra wall-clock por fase, chamadas,
+agentes e retries em `.opencode/state/benchmark.jsonl` e resume sob demanda.
+Duração é **advisory** — nunca um gate bloqueante. A regra de roteamento (recon
+em esforço baixo, fixer comum em intermediário, review/risco em máximo) é
+calibrada por essa evidência. O ajuste do campo `variant` por agente exige o
+enum válido do provider e só vale após restart do OpenCode.
+
+**Erros comuns:** transformar duração em gate; abrir o scheduler para uma tarefa
+de um arquivo; trocar `variant` no escuro (um valor inválido quebra o launch do
+agente).
 
 Veja [Continual Harness v1.3](../concepts/continual-harness-v1-3) para o contrato
 completo do loop.

@@ -20,6 +20,9 @@ approval.
 | High-risk or security | Full tier and specialist review |
 | Docs-only | Docs lane and source/link validation |
 | Refine and learned rule | Judge, Refine, separate confirmation |
+| Session resume / recoverable context | Derived briefing with `sourceHash`; refuses stale |
+| Tool loop with no progress | Advisory repeat reminder; never blocks |
+| Calibrate effort routing | Advisory wall-clock benchmark; never a gate |
 
 ## Simple one-file task
 
@@ -199,6 +202,70 @@ lanes on the next run.
 the ledger; giving Refine a Judge vote; claiming auto-activation. It ships off
 at `learned_rules.auto_activate_prose_observe` until live acceptance and a
 restart.
+
+## Session resume / recoverable context
+
+**When to use:** a fresh session, an agent handoff, or right after compaction,
+when re-reading every state file is costly and the risk is injecting stale
+context.
+
+**Example prompt:**
+
+```text
+/harness-session-start
+```
+
+**Expected behavior:** `harness-session-start` runs
+`node scripts/harness-briefing.mjs`, which derives a small, path-scoped briefing
+from progress, recent decisions, and active rules, stamped with a `sourceHash`
+over its source bytes. A stale or missing briefing fails closed — a gap to name,
+never a pass. The checkout, tests, and runtime always outrank the briefing; a
+conflict becomes a finding, not a fact.
+
+**Common mistakes:** trusting chat history over durable state; injecting a
+briefing without revalidating against the checkout; treating a missing
+`progress.md` as "nothing pending".
+
+## Tool loop with no progress
+
+**When to use:** the agent repeats the same call — same tool, same arguments —
+with no new result between them. It is the clearest loop-and-slop signal.
+
+**Example prompt:** none — the reminder is automatic during the session.
+
+**Expected behavior:** the tool-activity plugin canonicalizes each redacted
+`(tool, arguments)` pair, counts consecutive repeats per session, and, once the
+threshold is crossed, injects an advisory reminder into the tool result. It
+**never blocks** the call: the model breaks the loop by rereading the result,
+changing approach, or concluding. The recurring signature goes to the activity
+digest, not straight to the rulebook.
+
+**Common mistakes:** treating the reminder as a block; blindly repeating an
+effectful operation whose result became unknown; turning the first recurrence
+into a global rule.
+
+## Calibrate effort routing
+
+**When to use:** you want to choose model effort by task class from time
+evidence, not a guess — for example, whether `max` on a one-file fix buys
+anything.
+
+**Example prompt:**
+
+```text
+node scripts/harness-benchmark.mjs summary
+```
+
+**Expected behavior:** the benchmark records per-phase wall-clock, calls, agents,
+and retries in `.opencode/state/benchmark.jsonl` and summarizes on demand.
+Duration is **advisory** — never a blocking gate. The routing rule (recon at low
+effort, common fixer at medium, review/risk at max) is calibrated from this
+evidence. Tuning a per-agent `variant` needs the provider's valid enum and only
+takes effect after an OpenCode restart.
+
+**Common mistakes:** turning duration into a gate; opening the scheduler for a
+one-file task; changing `variant` blindly (an invalid value breaks the agent
+launch).
 
 See [Continual Harness v1.3](../concepts/continual-harness-v1-3) for the full
 loop contract.
