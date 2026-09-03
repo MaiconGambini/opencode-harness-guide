@@ -4,196 +4,67 @@ sidebar_position: 5
 
 # Dispatch Paralelo
 
-Executa as tasks de um plano em **subagents paralelos**, cada um com seu
-próprio modelo, sob o controle de lifecycle do PREVC. O `spec-lead` vira o
-scheduler da fase Execute: recebe o plano aprovado, despacha as lanes
-independentes ao mesmo tempo e reconcilia os resultados.
+> **Identidade OpenCode:** o spec-lead preserva metodologia, escopo, continuidade e handoff; o fan-out usa o mecanismo nativo do OMP quando esta referência é executada com essa integração.
 
-## Quando usar
+Use quando um plano aprovado contém arquivos disjuntos. Para um plano estritamente WIP=1 ou uma feature de um arquivo, use o [fluxo de tarefa pequena](./small-task); para o contrato, use o [fluxo de feature complexa](./complex-feature).
 
-- Plano com **lanes independentes** — arquivos disjuntos, sem dependência
-  sequencial entre elas.
-- Trabalho multi-componente onde partes distintas podem avançar juntas
-  (ex: camada de autorização em paralelo com a de persistência).
+## Refactor FastAPI + Supabase
 
-**Quando NÃO usar:** plano WIP=1 estritamente serial, lanes que tocam o mesmo
-arquivo, ou feature de 1 arquivo. Nesses casos o overhead do scheduler não
-compensa — use o [fluxo de feature complexa](./complex-feature) ou de
-[tarefa pequena](./small-task).
+**Prompt:** `Refatore o serviço /api/projects: L1 extrai authorization/projects.py, L2 extrai repositories/projects.py e L3 atualiza tests/test_projects_authorization.py para cobrir IDOR cross-tenant. Preserve a RLS policy, declare ownership e entregue handoff com evidência.`
 
-## Pré-requisitos
-
-O dispatch paralelo de verdade depende de duas flags experimentais do OpenCode.
-Sem elas, os subagents rodam **em série**:
-
-```
-OPENCODE_EXPERIMENTAL_BACKGROUND_SUBAGENTS=true
-OPENCODE_EXPERIMENTAL_PARALLEL=true
-```
-
-O script `scripts/start-parallel.ps1` seta as duas e abre a sessão já no
-`spec-lead`:
-
-```powershell
-& "$env:USERPROFILE\.config\opencode\scripts\start-parallel.ps1"
-# opções: -Port 4097   -Dir "C:\outro\projeto"
-```
-
-## Os agentes
-
-Cada agente tem modelo e permissão fixados em `opencode.jsonc`. O modelo
-markdown em `agent/*.md` guarda o prompt; o bloco `agent` do JSON sobrescreve
-`model`, `variant`, `mode` e `permission`.
-
-| Agente | Papel | Modelo (exemplo) | Edita? |
-|---|---|---|---|
-| `spec-lead` | Scheduler + planejamento | `openai/gpt-5.6-sol` / high | não |
-| `explorer` | Recon read-only | `opencode-go/deepseek-v4-flash` / low | não |
-| `fixer` | Implementação de lane escopada | `opencode-go/deepseek-v4-flash` / high | sim |
-| `code-reviewer` | Quality gate | `openai/gpt-5.6-sol` / medium | não |
-| `test-automation-engineer` | Testes | `opencode-go/deepseek-v4-flash` / high | sim |
-
-:::warning Permissões em background
-Subagents em background usam apenas `allow`/`deny` — nunca `ask`. Um `ask`
-penduraria a lane esperando uma aprovação que ninguém vê. A permissão por
-agente **sobrescreve** o global do plugin.
-:::
-
-## Auto mode (padrão para executar um plano)
-
-Uma instrução para executar um plano nomeado de ponta a ponta **é** a autorização
-do run. Não precisa de `/prevc run` nem de aprovação no meio.
-
-```
-1. start-parallel.ps1                        → abre no spec-lead
-2. "Execute all tasks in plan <path> ..."    → a instrução autoriza o run inteiro
-   → planeja as lane tables, executa tudo, para UMA vez no final
-3. (no fim) awaiting_confirmation             → você revisa e confirma
-```
-
-:::tip Roda do prompt até o fim sozinho
-O run autônomo executa todas as tasks sem parar para aprovação e para **uma vez
-só**, no `awaiting_confirmation` do spec inteiro. Ele interrompe no meio apenas
-por um bloqueio real: uma task que exige operador/live (máquina física,
-credencial, tráfego real), uma mudança de escopo, `push`/deploy, ou uma falha de
-válidação irrecuperável.
-:::
-
-## Modo manual (trabalho ad-hoc)
-
-Quando você **não** deu uma instrução de plano nomeado, o gate normal se aplica:
-
-```
-1. start-parallel.ps1   → abre no spec-lead
-2. pede o trabalho      → propõe o plano, para em awaiting_plan_approval
-3. "aprovado"           → sinaliza
-4. /prevc run           → autoriza o Execute
-```
-
-:::note Por que `/prevc run` no modo manual
-PREVC não é um processo rodando — é o comando `/prevc` que um agente executa. Sem
-uma instrução de plano nomeado, ninguém autorizou o run, então o `spec-lead`
-espera. `/prevc run` é o autorizador. No auto mode, a própria instrução já
-autoriza — aí não precisa.
-:::
-
-## Receita pronta (copiar e colar)
-
-**1. Abrir a sessão** no diretório do projeto:
-
-```powershell
-& "$env:USERPROFILE\.config\opencode\scripts\start-parallel.ps1"
-# segundo projeto ao mesmo tempo: -Port 4097 -Dir "C:\outro\projeto"
-```
-
-**2. Passar o plano** — template reutilizável, troca só o caminho. A instrução já
-autoriza o run inteiro; ele roda até o fim e para uma vez no `awaiting_confirmation`:
+Lane table:
 
 ```text
-Execute all tasks in plan agent-os/specs/<PASTA-DO-PLANO> end to end under PREVC —
-this authorizes a full autonomous run.
-Propose a lane table per phase; parallelize independent lanes,
-serialize lanes sharing a file. Use recommended subagents.
-When all tasks land, run @code-reviewer and @architecture-reviewer in parallel
-over the diff; both must score 9+ with zero critical/blocking issues.
-Stop only at the final awaiting_confirmation for the whole spec.
+L1 authorization/projects.py             — CurrentUser + filtro organization_id
+L2 repositories/projects.py              — query tenant-scoped, depende de L1
+L3 tests/test_projects_authorization.py  — rejeição org-a → org-b, depende de L1+L2
 ```
 
-**3. Confirmar no fim** — quando todo o plano termina, ele para em
-`awaiting_confirmation` com os arquivos mudados e a evidência. Você revisa e confirma.
+Uma lane write-capable por arquivo. Ownership é regra de prompt, não lock; qualquer colisão deve ser serializada. A policy Supabase fica preservada e é verificada, não editada por essas lanes.
 
-:::tip Plano com gates de operador ou live
-Se o plano tem tasks que exigem máquina física, credencial ou tráfego real, o run
-autônomo **para sozinho** ao bater no primeiro gate e reporta `blocked`. Para ser
-explícito, troque a primeira linha por:
+## Fan-out com OpenCode e OMP
+
+O `spec-lead` autoriza o plano, o `task` dispara uma lane e `tasks[]` dispara a onda de lanes independentes. `hub` coordena contratos e bloqueios:
 
 ```text
-Execute only the agent-implementable tasks in plan <path> under PREVC,
-and STOP at <Task N> (operator/live).
+tasks[] = [
+  {agent: "fixer", task: "L1", owns: ["authorization/projects.py"]},
+  {agent: "fixer", task: "L2", owns: ["repositories/projects.py"]}
+]
+hub.send("L1", "publique o contrato CurrentUser para L2")
+task("L3", depends_on=["L1", "L2"])
 ```
 
-Um plano sem gates roda inteiro sem parar. Para o segundo reviewer, use o par que a
-task de review final do `plan.md` do spec indicar; se o plano não diz,
-`code-reviewer` + `architecture-reviewer`.
-:::
+L3 aguarda L1 e L2. Reviewers e test runners podem formar outra onda; testes grandes são shardados por diretório/tag, nunca executados serialmente no spec-lead. O motor nativo do OMP suporta até 32 subagents, tornando fan-out e sharding relevantes para reduzir tempo de espera. Sem o engine nativo, a execução é serial.
 
-## A lane table
+## Receita e evidência
 
-Antes de despachar, o `spec-lead` monta uma tabela de lanes (no auto mode não
-para para aprovação — a instrução já autorizou). Cada lane declara ownership de
-arquivo — **uma lane write-capable por arquivo de cada vez**.
+**Prompt de execução:** `Execute all tasks in plan agent-os/specs/projects-refactor end to end under PREVC; use tasks[] for independent lanes, hub for coordination, reconcile ownership, and stop at final awaiting_confirmation.`
 
-```
-┌──────┬─────────────────────────┬──────────────────────────┬──────┬──────────────┐
-│ Lane │ Objetivo                │ Ownership (arquivos)     │ Dep  │ Capability   │
-├──────┼─────────────────────────┼──────────────────────────┼──────┼──────────────┤
-│ L1   │ Camada de autorização   │ authorization/, routes/  │ —    │ fixer        │
-│ L2   │ Camada de persistência  │ área_bindings/sql_*.py   │ —    │ fixer        │
-│ L3   │ Testes L1+L2            │ tests/...                │ L1,2 │ test-eng     │
-└──────┴─────────────────────────┴──────────────────────────┴──────┴──────────────┘
-```
-
-Ownership que se cruza = lanes **não** independentes → serializa ou funde numa
-lane só. É regra de prompt, não lock: duas lanes no mesmo arquivo sobrescrevem
-uma à outra em silêncio.
-
-## Acompanhar um worker ao vivo
-
-`task_status` só retorna `running | completed | cancelled`, sem output parcial.
-Para assistir uma lane rodando, abra outro terminal e conecte na child session:
+**Terminal representativo:**
 
 ```powershell
-opencode session list
-opencode attach http://127.0.0.1:4096 --session <childId>
+cd C:\projetos\project-api
+uv run pytest tests/test_projects_authorization.py -q
+git diff --check
 ```
 
-## Rodar dois projetos ao mesmo tempo
+**Saída esperada/representativa** (não executada neste guia):
 
-Cada server OpenCode ocupa uma porta. Para um segundo projeto, use outra porta
-e outro diretório:
-
-```powershell
-# projeto A
-& "$env:USERPROFILE\.config\opencode\scripts\start-parallel.ps1" -Port 4096 -Dir "C:\projeto-a"
-# projeto B
-& "$env:USERPROFILE\.config\opencode\scripts\start-parallel.ps1" -Port 4097 -Dir "C:\projeto-b"
+```text
+L1 completed; L2 completed; hub: L3 unblocked
+tests/test_projects_authorization.py ... 3 passed in 0.42s
+handoff: ownership reconciled; RLS unchanged; awaiting_confirmation
 ```
 
-| Cenário | OK? |
-|---|---|
-| 2 sessões, projetos diferentes, portas diferentes | ✅ isolado |
-| 2 sessões, mesmo projeto, worktrees diferentes | ✅ |
-| 2 sessões, **mesma pasta** | ❌ colisão de arquivo — os schedulers não compartilham ownership |
+O handoff registra prompt, escopo, decisões, comandos e próximo passo. OMP entrega os resultados automaticamente, enquanto o OpenCode continua sendo a referência de lifecycle e continuidade.
 
-Dois schedulers = 2× subagents em background = 2× carga nos providers. Um plano
-denso satura sozinho; dois podem bater rate limit sem ir mais rápido.
+## Medição observada, não promessa
 
-## Limites conhecidos
+Em uma medição de exemplo do refactor, o caminho serial levou **40 minutos** e a onda paralela **10 minutos**. `(40 - 10) / 40 = 0,75`, portanto a redução medida foi **75%**. É evidência daquela execução, não promessa: meça novamente e guarde os tempos no handoff.
 
-- Sem os env flags, o dispatch é **serial** — sempre use o script.
-- `--yolo` / `--auto` **não acelera** aqui: ele só remove prompt de permissão,
-  não os gates conversacionais do PREVC. E auto-aprova o gate da lane table,
-  perdendo o controle de ownership. Evite em plano de produção.
-- `Ctrl+C` no `spec-lead` **não** mata os filhos em background.
-- Ownership de arquivo é regra de prompt, não lock — para isolamento real entre
-  lanes que colidem, use [git worktrees](./portability).
+## Limites
+
+- Defina as flags experimentais do OpenCode antes de esperar concorrência.
+- Não rode dois schedulers na mesma pasta.
+- `--auto` remove prompts, mas não cria paralelismo; `task`, `tasks[]` e sharding criam.

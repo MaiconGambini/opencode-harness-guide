@@ -5,8 +5,8 @@ const sidebars: SidebarsConfig = {
     'intro',
     {
       type: 'category',
-      label: 'Começando',
-      link: { type: 'doc', id: 'getting-started/installation' },
+      label: 'Primeiros Passos',
+      link: { type: 'doc', id: 'getting-started/quickstart' },
       items: [
         'getting-started/prerequisites',
         'getting-started/installation',
@@ -15,10 +15,9 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Conceitos',
+      label: 'Conceitos Essenciais',
       link: { type: 'doc', id: 'concepts/why-a-harness' },
       items: [
-        'concepts/why-a-harness',
         'concepts/seven-components',
         'concepts/prevc',
         'concepts/continual-harness-v1-3',
@@ -28,7 +27,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Guias',
+      label: 'Guias Práticos',
       items: [
         'guides/planning-pipeline',
         'guides/small-task',
@@ -41,29 +40,25 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Recursos',
+      label: 'Referência Completa',
       items: [
         'reference/commands',
         'reference/skills',
         'reference/artifacts',
         'reference/repository-structure',
+        'reference/agents',
       ],
     },
     {
       type: 'category',
-      label: 'Adoção',
+      label: 'Adoção & FAQ',
       link: { type: 'doc', id: 'adoption/use-cases' },
       items: [
-        'adoption/use-cases',
         'adoption/pros-and-cons',
         'adoption/security',
         'adoption/limitations',
+        'troubleshooting/faq',
       ],
-    },
-    {
-      type: 'category',
-      label: 'Solução de problemas',
-      items: ['troubleshooting/faq'],
     },
     'references',
   ],

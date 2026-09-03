@@ -4,50 +4,66 @@ sidebar_position: 2
 
 # Feature Complexa
 
-Para tarefas multi-componente, frontend + backend, ou com ambiguidade
-significativa.
+> **Identidade OpenCode:** defina metodologia, continuidade, escopo e handoff antes e depois da execução; o exemplo usa FastAPI + Supabase para tornar os limites verificáveis.
 
-## Quando usar o pipeline completo
+Use o pipeline completo para uma feature multi-componente com autorização por tenant, migration e testes.
 
-- Prompt multi-componente (ex: frontend e backend).
-- Ambiguidade nos requisitos.
-- Mais de 3 arquivos esperados.
+## Prompt realista
 
-## Exemplo
+`Adicione GET /api/projects ao FastAPI. O usuário só lista projetos da própria organization_id. Crie a policy Supabase RLS, escreva testes IDOR que rejeitem acesso cross-tenant e deixe comandos de verificação no handoff. Não dependa de credenciais reais.`
 
-**Prompt:** `Busca full-text nos produtos com filtros por categoria e preco,
-no backend (FastAPI) e frontend (Vue).`
+## Sprint contract antes do Execute
 
-**Fluxo:**
+- **Scope In:** rota FastAPI, dependência de identidade, repository, migration/policy RLS, testes negativos e handoff.
+- **Scope Out:** convites, billing, deploy e índices de produção.
+- **AC:** token de `org-a` lista somente `org-a`; UUID de `org-b` retorna `404` ou `403` conforme o contrato; ausência de sessão retorna `401`; RLS aplica a mesma comparação no Supabase.
+- **Verification Plan:** pytest local para a rota, teste IDOR explícito e `supabase db diff --local`. Sem credenciais, outputs Supabase são esperados/representativos.
 
-1. `/harness-session-start`
+## Código e política RLS
 
-2. `/harness-wip-control`
-   - Decompoe em 6 subtasks (feat-020 a feat-025).
-   - Marca feat-020 como `in_progress`. Resto: `not_started`.
+```python
+@router.get("/api/projects")
+async def list_projects(user: CurrentUser, db: AsyncSession) -> list[Project]:
+    result = await db.execute(
+        select(Project).where(Project.organization_id == user.organization_id)
+    )
+    return list(result.scalars())
+```
 
-3. `/harness-role-separation`
-   - Planner define scope, AC e verification plan no sprint contract.
-   - Generator itera sobre as 6 subtasks.
-   - Evaluator aplica rubrica de 6 dimensões.
+```sql
+alter table public.projects enable row level security;
+create policy "tenant reads own projects" on public.projects
+for select using (
+  organization_id = (auth.jwt() ->> 'organization_id')::uuid
+);
+```
 
-4. PREVC itera: Review -> Execute -> Validate -> Judge.
+O teste negativo usa o token de `org-a`, tenta o UUID conhecido de `org-b` e afirma `404`/`403`; o caso feliz sozinho não prova autorização.
 
-5. Confirm depois que todas as subtasks passam.
+## Fluxo OpenCode
 
-6. Handoff registra 6 features `passing` com evidência, 12 arquivos tocados.
+1. `/harness-session-start` lê o estado e declara a task.
+2. `/harness-wip-control` decompõe rota, migration, testes e docs; uma subtask fica `in_progress`.
+3. `/harness-role-separation` faz planner, generator e evaluator explícitos no sprint contract.
+4. PREVC percorre Review → Execute → Validate → Judge; Confirm só ocorre com todas as subtasks `passing`.
+5. `session-handoff.md` registra arquivos, decisões, comandos, saída e próximo passo.
 
-**Tempo:** ~30-45 minutos. **Skills usados:** 7 (+ role-separation,
-evaluator-rubric, continuity).
+**Terminal (runnable em projeto local):**
 
-## O sprint contract
+```powershell
+cd C:\projetos\project-api
+uv run pytest tests/test_projects_authorization.py -q
+supabase db diff --local
+```
 
-Para features complexas, o sprint contract e preenchido ANTES do Execute:
+**Saída esperada/representativa** (não executada neste guia):
 
-- **Scope In** — o que será feito.
-- **Scope Out** — o que NÃO será feito (ex: ElasticSearch, autocomplete).
-- **AC** — critérios de aceite observáveis.
-- **Verification Plan** — comandos e condições de sucesso para cada check.
+```text
+tests/test_projects_authorization.py::test_org_a_sees_only_org_a PASSED
+tests/test_projects_authorization.py::test_org_a_cannot_read_org_b_idor PASSED
+tests/test_projects_authorization.py::test_missing_session_is_401 PASSED
+3 passed in 0.42s
+create policy "tenant reads own projects" on public.projects ...
+```
 
-Trabalho adjacente descoberto durante a execução vira uma próxima tarefa,
-não uma extensão silenciosa da tarefa ativa.
+O OpenCode mantém o manual de metodologia e continuidade: qualquer descoberta fora do Scope In vira próxima task, não extensão silenciosa. Veja o [fluxo de tarefa pequena](./small-task) quando o trabalho ficar em um arquivo.

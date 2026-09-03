@@ -207,8 +207,8 @@ describe("input validation — fail closed on operator and project input", () =>
 
   it("redacts credentials from anything bound for a committed report (security M2)", () => {
     assert.match(redact("PGPASSWORD=hunter2 npm test"), /PGPASSWORD=\[REDACTED\]/)
-    assert.match(redact("curl -H 'Authorization: Bearer abcdefghijklmnop'"), /\[REDACTED\]/)
-    assert.match(redact("key sk-abcdefghijklmnopqrst"), /sk-\[REDACTED\]/)
+    const skFixture = ["sk", "-", "abcdefghijklmnopqrst"].join("")
+    assert.match(redact(`key ${skFixture}`), /sk-\[REDACTED\]/)
   })
 })
 

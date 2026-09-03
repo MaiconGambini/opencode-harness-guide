@@ -4,123 +4,67 @@ sidebar_position: 3
 
 # PREVC
 
-PREVC é o controlador do ciclo de vida. Agents, skills e plugins fornecem
-capacidades limitadas; nenhum deles decide sozinho que o trabalho terminou.
+Uma entrega segura segue uma ordem natural: entender o pedido, executar o que foi combinado, conferir o resultado com provas e pedir o aceite final. PREVC é o nome curto para esses quatro movimentos: **Prepare, Execute, Validate, Confirm**. Pense no ciclo como uma entrega de engenharia sênior: contrato claro antes do código, implementação dentro do contrato, verificação reproduzível e decisão explícita sobre aceitar ou revisar.
 
-## Fases
+## O fluxo de quatro estágios
 
 ```text
-OPERADOR FAZ UMA SOLICITAÇÃO
-        |
-        v
-CONTEXT FEEDFORWARD
-        |-- lê regras, estado, handoff e standards relevantes
-        |-- descobre risco, stack e comando de verificação
-        v
-PLAN
-        |-- define objetivo, escopo, não-escopo e AC observáveis
-        |-- divide o trabalho em unidades WIP=1 quando necessário
-        v
-OPERATOR APPROVAL
-        |-- o operador revisa e confirma o plano
-        v
-REVIEW -> EXECUTE -> VALIDATE -> JUDGE
-        |-- cada fase permanece no escopo aprovado
-        |-- falha, ambiguidade ou escalação param o fluxo
-        v
-REFINE
-        |-- lê findings tipados e pode propor uma melhoria
-        |-- não escreve e não participa do veredito do Judge
-        v
-AWAITING CONFIRMATION
-        |-- o operador revisa a evidência e recebe o handoff
-        v
-HANDOFF
+PEDIDO
+  |
+  v
+PREPARE  ->  EXECUTE  ->  VALIDATE  ->  CONFIRM
+ contexto    mudança       provas       aceite + handoff
+ contrato    aprovada      observáveis
+                 ^              |
+                 +--- falha ----+
 ```
 
-## Como usar
+Aprovação do plano, revisão, Judge e Refine são controles dentro dos quatro estágios. Aprovação libera **Execute**; revisão e Judge reforçam **Validate**; a decisão do operador pertence a **Confirm**. Esses controles não devem esconder nem substituir os quatro nomes principais.
 
-Inicie o PREVC com a descrição da tarefa:
+### Prepare
+
+Leia contexto, regras, estado e handoff relevantes. Descubra o risco e o comando de verificação. Escreva objetivo, escopo, não-escopo, critérios de aceite, dependências e plano. Quando necessário, pare para aprovação explícita antes de editar.
+
+### Execute
+
+Altere somente o escopo aprovado. Divida trabalho independente em unidades com dono e dependências claras, sem misturar arquivos ou objetivos. WIP=1 mantém uma unidade ativa por vez.
+
+### Validate
+
+Verifique o comportamento observável e registre comandos, workspace, saída e código de saída. Use gates e revisão independente quando o risco pedir. Uma falha, ambiguidade ou prova ausente interrompe o fluxo e pede revisão, nunca uma conclusão automática.
+
+### Confirm
+
+O operador examina resultado, evidência e handoff. O aceite registra a conclusão; uma revisão retorna ao planejamento; um aborto registra o motivo. Sem decisão explícita e continuidade registrada, a entrega permanece em revisão.
+
+## OpenCode e Oh My Pi
+
+O **OpenCode** é a fonte desta metodologia e referência, e fornece continuidade entre sessões para preservar plano, estado e handoff. O **Oh My Pi** fornece o motor nativo de **32 subagentes**, fan-out paralelo e sharding. O caminho OMP é relevante quando há várias unidades independentes que podem ser executadas em paralelo; uma tarefa pequena, sequencial ou com dependências deve permanecer no fluxo normal do OpenCode.
+
+## Uso básico
+
+Inicie preparando o objetivo:
 
 ```text
-/prevc Adicionar endpoint de health check
+/prevc prepare Adicionar endpoint de health check
 ```
 
-- Prepara o plano (objetivo, escopo, não-escopo e AC).
-- Para em `awaiting_plan_approval` aguardando sua confirmação.
-
-Depois que você aprovar, execute:
+Depois da aprovação do plano, execute:
 
 ```text
-/prevc run
-```
-
-- Executa dentro do escopo aprovado.
-- Valida o resultado e entrega o handoff.
-
-## PREVC e `/goal`
-
-`/prevc` organiza o lifecycle. `/goal` armazena o objetivo, o plano aprovado
-e a evidência. Trabalham juntos, com responsabilidades diferentes.
-
-```text
-/prevc prepare <objetivo>
-        v
-goal: awaiting_plan_approval
-        v
-/goal confirm
-        v
 /prevc run <goal-id>
-        v
-PREVC: Review -> Execute -> Validate -> Judge
-        v
-workflow-only awaiting_confirmation
 ```
 
-| Ação | Resultado |
-|---|---|
-| `/prevc prepare <objetivo>` | Descobre contexto, classifica risco e prepara o plano. |
-| `/goal confirm` | Registra aprovação explícita do plano e libera a execução. |
-| `/prevc run <goal-id>` | Executa somente o escopo aprovado, com budgets e gates. |
-| `/goal revise <motivo>` | Pede revisão; o motivo não pode ser vazio. |
-| `/goal submit-revision <resumo>` | Envia plano revisado para nova aprovação. |
-| `/goal abort <motivo>` | Aborta o objetivo com motivo durável. |
+O plano aprovado, as provas e o handoff permitem retomar o trabalho em uma nova sessão sem reconstruir decisões pela memória da conversa.
 
-## Estados persistidos do goal
-
-O armazenamento atual persiste somente:
-
-- `awaiting_plan_approval`
-- `revision_requested`
-- `active`
-- `aborted`
-
-`awaiting_confirmation` é uma etiqueta de workflow do PREVC, **não** um estado
-final persistido. Ela existe para impedir que uma revisão de Judge seja
-confundida com uma conclusão durável.
-
-## Por que não há auto-conclusão
-
-Uma mensagem do agente dizendo que rodou um comando **não** é um recibo
-confiável do runtime. Os campos de evidência guardam comando, workspace, exit
-code e verifier, mas permanecem informativos.
-
-Enquanto não houver recibos confiáveis de execução, nenhuma transição
-automática para conclusão final será habilitada. Esse limite é intencional: o
-sistema prefere parar em revisão a registrar uma conclusão que não consegue
-provar.
-
-## Regras do PREVC
+## Regras essenciais
 
 - WIP=1 sempre.
-- Conclusão exige evidência real.
-- Não tocar arquivos fora do escopo.
-- Trabalho adjacente vira `not_started`.
-- Se a verificação falhar, a feature é marcada como `blocked`.
-- Se o Judge não for Accept, não confirma.
-- Refine não altera o resultado do Judge nem aprova regras.
+- Não toque arquivos fora do escopo.
+- Registre trabalho adjacente como `not_started`.
+- Exija evidência atual e reproduzível.
+- Não confirme sem revisão do operador e handoff.
 
 ## Próximo passo
 
-Veja [Continual Harness v1.3](./continual-harness-v1-3) para entender findings,
-Refine e injeção de regras, ou [WIP=1](./wip-one) para a disciplina de execução.
+Veja [WIP=1](./wip-one) para foco de execução ou [Evidência e Handoff](./evidence-and-handoff) para a escala de provas.

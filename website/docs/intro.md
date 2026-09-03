@@ -3,76 +3,42 @@ sidebar_position: 1
 slug: intro
 ---
 
-# Introdução
+# Introdução ao Harness OpenCode
 
-O Harness OpenCode transforma o OpenCode de um agente que "redescobre tudo
-a cada sessão" em um agente que mantém estado, respeita WIP=1, produz
-evidência e faz handoff limpo entre sessões.
+Sem orientação, um agente de IA pode transformar uma correção pontual em uma avalanche de arquivos: altera diversos arquivos sem planejamento, quebra o build, afirma que executou testes que nunca rodaram e perde todo o contexto quando a sessão termina. A próxima sessão começa com amnésia, sem saber o que mudou, o que ficou aberto ou como verificar o resultado.
 
-## Novidades na v1.4
+O **Harness OpenCode** é o **manual de referência e metodologia** para transformar o OpenCode em um sistema de engenharia rigoroso e confiável. Ele define estado durável em arquivo, limites de trabalho, verificação baseada em evidências e handoffs para continuidade entre sessões.
 
-A v1.4 adiciona uma camada de **contexto recuperável e detecção de loop** sobre
-o loop contínuo da v1.3:
+## Comparativo direto
 
-- **Estado durável mínimo** — um `docs/harness/progress.md` que responde à única
-  próxima ação, mais um **briefing derivado** (`scripts/harness-briefing.mjs`)
-  carimbado com `sourceHash` que recusa contexto stale.
-- **Detecção de loop / slop** — o plugin de tool-activity agora registra sessão,
-  outcome e duração e injeta um **lembrete advisory** quando a mesma chamada se
-  repete sem progresso (nunca bloqueia).
-- **Benchmark de tempo advisory** — `scripts/harness-benchmark.mjs` mede
-  wall-clock por fase para calibrar o roteamento de esforço; duração nunca é
-  gate.
-- **Regressão só no scheduler** — a suíte pesada roda uma vez sobre a árvore
-  reconciliada, não por lane; a regra barata "uma correção precisa de teste"
-  continua bloqueando por lane.
+| Preocupação | Unassisted AI chat | Harness-guided engineering |
+|---|---|---|
+| Alterações fora de escopo | O agente pode editar muitos arquivos sem planejamento ou aviso | O plano declara o escopo, as fronteiras e a unidade ativa |
+| Build quebrado | A mudança pode ser aceita sem uma checagem reproduzível | Gates de validação medidos verificam o resultado |
+| Testes alegados | O modelo pode afirmar que testou sem ter executado o comando | Evidência de comando e resultado sustenta a conclusão |
+| Contexto entre sessões | O histórico do chat desaparece e a sessão recomeça do zero | Estado durável, WIP=1 e handoff preservam a continuidade |
+| Decisão de aceite | “Pronto” vira uma opinião do próprio agente | Judge independente compara a entrega com o contrato |
 
-> **Honesto:** a aceitação ao vivo do loop contínuo da v1.3 (tabela C, C1–C16) —
-> injeção chegando na lane, findings de uma execução real, números de liveness —
-> ainda **não** foi executada. As capacidades da v1.4 ficam vivas após um restart
-> do OpenCode. Veja [Casos de Uso](./adoption/use-cases) para os fluxos novos.
+## O ciclo de vida PREVC
 
-## O que você vai encontrar
+O método organiza trabalhos significativos em fronteiras explícitas:
 
-| Seção | O que cobre |
-|---|---|
-| **[Começando](./getting-started/installation)** | Instalação passo a passo e primeira sessão. |
-| **[Conceitos](./concepts/why-a-harness)** | PREVC, WIP=1, evidências, os sete componentes e os limites de automação. |
-| **[Guias](./guides/small-task)** | Fluxo completo para tarefas pequenas e complexas. |
-| **[Referência](./reference/commands)** | Todos os comandos, skills e artefatos. |
-| **[Adoção](./adoption/use-cases)** | Casos de uso, prós e contras, segurança e limitações. |
-| **[FAQ](./troubleshooting/faq)** | Problemas comuns e soluções. |
-
-## Pré-requisitos
-
-- Windows com PowerShell 5.1+
-- OpenCode instalado
-- Node.js 20+
-- Git
-
-## Instalação rápida
-
-> **Instalação limpa:** se `~/.config/opencode` já existe com arquivos seus, renomeie a pasta para `opencode-backup` **antes** de clonar — não há merge automático. O Passo 1 do [guia completo de instalação](./getting-started/installation) mostra o comando exato.
-
-Clone o repositório na configuração do OpenCode e instale as dependências:
-
-```powershell
-git clone https://github.com/MaiconGambini/opencode-harness-guide.git "$env:USERPROFILE\.config\opencode"
-cd "$env:USERPROFILE\.config\opencode"
-npm install
+```text
+prepare → plan → execute → validate → judge → refine → confirm
 ```
 
-O que acontece:
+- prepare — reúne contexto, regras, restrições e risco.
+- plan — define objetivo, arquivos sob responsabilidade e critérios de aceite.
+- execute — aplica apenas o trabalho aprovado.
+- validate — executa os comandos de verificação definidos.
+- judge — avalia o resultado contra o contrato inicial.
+- refine — registra melhorias sem substituir a decisão humana.
+- confirm — o operador confirma a entrega.
 
-- O repositório é clonado direto em `~/.config/opencode`, onde o OpenCode lê a configuração.
-- `npm install` baixa as dependências dos plugins e scripts.
-- Os arquivos ficam disponíveis para o OpenCode na próxima inicialização.
+## Navegue pela referência
 
-[Guia completo de instalação &rarr;](./getting-started/installation)
-
-## O princípio
-
-O Harness não tenta substituir o operador. Ele torna claro o que foi
-solicitado, o que foi aprovado, o que foi executado, o que foi verificado e
-qual é a próxima ação segura. Todo o resto desta documentação é detalhe desse
-princípio.
+1. **[Primeiros passos](./getting-started/installation)** — instale e inicie a primeira sessão.
+2. **[Conceitos essenciais](./concepts/why-a-harness)** — entenda PREVC, WIP=1 e evidências.
+3. **[Guias práticos](./guides/small-task)** — aplique a metodologia em tarefas reais.
+4. **[Referência completa](./reference/commands)** — consulte comandos, agentes e arquivos.
+5. **[Adoção e FAQ](./adoption/use-cases)** — avalie casos de uso, segurança e limitações.
