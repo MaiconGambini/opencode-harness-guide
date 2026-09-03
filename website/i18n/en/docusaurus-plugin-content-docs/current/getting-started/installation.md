@@ -2,11 +2,14 @@
 sidebar_position: 2
 ---
 
-# Installation
+# Runtime installation
 
-OpenCode Harness is distributed as a public Git repository. You clone it
-into `~/.config/opencode` and the files are immediately available to
-OpenCode.
+OpenCode Harness is distributed as a public Git repository. This guide installs
+the runtime in `~/.config/opencode`; installing the documentation site is a
+separate process described in the [repository README](https://github.com/MaiconGambini/opencode-harness-guide#readme).
+
+Clone the tree into the OpenCode configuration and restart the process after
+installation.
 
 ## Step 1: Back up the current configuration (if any)
 
@@ -17,8 +20,9 @@ rename the folder before cloning:
 Rename-Item -LiteralPath "$env:USERPROFILE\.config\opencode" -NewName "opencode-backup"
 ```
 
-Version 1 does not automatically merge into an existing configuration. Use the
-backup as a reference and copy over whatever you want afterward.
+The current installation does not automatically merge into an existing
+configuration. Use the backup as a reference and copy over whatever you want
+afterward.
 
 ## Step 2: Clone the repository
 
@@ -26,11 +30,11 @@ backup as a reference and copy over whatever you want afterward.
 git clone https://github.com/MaiconGambini/opencode-harness-guide.git "$env:USERPROFILE\.config\opencode"
 ```
 
-## Step 3: Install Node dependencies
+## Step 3: Install runtime dependencies
 
 ```powershell
 Set-Location "$env:USERPROFILE\.config\opencode"
-npm install
+npm ci
 ```
 
 ## Step 4: Verify the installation
@@ -40,7 +44,8 @@ npm run typecheck
 npm test
 ```
 
-If both commands return without errors, the harness is ready to use.
+If both commands return without errors, close and reopen OpenCode. The runtime
+loads the configuration only at startup.
 
 ## Resulting structure
 
@@ -60,7 +65,7 @@ OpenCode reads directly.
 
 | Problem | Action |
 |---|---|
-| `npm install` fails | Check that Node.js 20+ is installed (`node --version`). |
+| `npm ci` fails | Check that Node.js 20+ is installed (`node --version`). |
 | `npm run typecheck` fails | TypeScript may be out of date. Run `npm ci` and try again. |
 | OpenCode does not load the commands | Close and reopen OpenCode. The configuration is loaded only at startup. |
 

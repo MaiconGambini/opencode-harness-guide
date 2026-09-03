@@ -4,11 +4,13 @@ sidebar_position: 1
 
 # Commands
 
-Global commands available in OpenCode after installing the harness. Each command runs a global skill or a diagnostic script. This reference lists every command by family and then walks through the step-by-step usage of the main commands.
+Global commands available in OpenCode after installing the harness. Each command
+runs a global skill or diagnostic script. This reference separates the shared
+contract from commands specific to the OpenCode adapter.
 
 Names start with `/` when invoked in the OpenCode chat (for example, `/prevc`).
 
-## Overview by family
+## Commands shared by the PREVC contract
 
 ### Session
 
@@ -30,9 +32,14 @@ Names start with `/` when invoked in the OpenCode chat (for example, `/prevc`).
 
 | Command | When to use | What it does |
 |---|---|---|
-| `/prevc` | Any significant work | Controls the full lifecycle: Plan, Review, Execute, Validate, Judge, Confirm, and Handoff |
-| `/plan` | Plan significant work (the spec-lead default pipeline) | Size-gated pipeline: `/wayfinder` for large efforts, `/grill-with-docs` in AUTO, and `/to-tickets` to decompose into tickets; ends at `awaiting_plan_approval`; replaces the slow `/shape-spec` path |
-| `/goal` | Track a long-term objective | Command registered by the goal plugin (30-day retention); objective memory separate from PREVC |
+| `/prevc` | Any significant work | Controls the lifecycle grouped into Prepare, Execute, Validate, and Confirm |
+
+## Commands specific to OpenCode
+
+| Command | When to use | What it does |
+|---|---|---|
+| `/plan` | Plan significant work in this distribution | OpenCode's size-gated pipeline; ends at `awaiting_plan_approval` |
+| `/goal` | Track a long-term objective | Optional OpenCode plugin; keeps objective memory separate from PREVC |
 
 ### Agent OS
 
@@ -42,7 +49,7 @@ Names start with `/` when invoked in the OpenCode chat (for example, `/prevc`).
 | `/shape-spec` | Manual escape hatch for heavy specs (the default pipeline is `/plan`) | Models a lean spec in planning mode; does not implement until approved |
 | `/discover-standards` | Document code patterns | Discovers existing patterns and creates standards in `agent-os/standards/` |
 | `/index-standards` | Rebuild the standards index | Scans `agent-os/standards/` and regenerates the alphabetized `index.yml` |
-| `/inject-standards` | Bring standards into context | Reads `index.yml`, suggests relevant standards, and injects the content into the conversation, skill, or planning |
+| `/inject-standards` | Bring standards into context | Reads `index.yml`, suggests relevant standards, and injects content into the conversation, skill, or plan |
 
 ### Security and diagnostics
 
@@ -58,23 +65,24 @@ Names start with `/` when invoked in the OpenCode chat (for example, `/prevc`).
 
 | Command | When to use | What it does |
 |---|---|---|
-| `/quality` | Before a commit (or any time) | Runs `harness-quality-gate.mjs --mode $ARGUMENTS` (default `local`; use `--mode full` before a commit) and `harness-risk-router.mjs`; prints the metric table and the tier with its reason. Exit 1 = fix the metric, never relax the threshold; exit 2 = harness blocker, not a code failure. An unavailable metric or a missing/stale report is a named gap, never a pass — it routes to tier `full` |
-| `/refine` | After Judge, or to record an operator note with `--note "<what I fixed by hand>"` | Runs the global `harness-refine` skill: dispatches the read-only refiner over the trajectory window, routes each proposal by blast radius, and writes nothing; with `--note`, records an `operator_note` findings record that alone clears the propose bar |
+| `/quality` | Before a commit (or any time) | Runs the measured quality gate and risk router; unavailable metrics or missing/stale reports are named gaps, never passes |
+| `/refine` | After Judge, or to record an operator note | Runs the read-only refiner and routes proposals by blast radius; it writes nothing |
 
 ### Interface and investigation commands
 
-Local commands defined in the `command/` folder, focused on interface design, investigation, and PRs.
+Local commands in `command/`, focused on interface design, investigation, and
+PRs in the OpenCode adapter.
 
 | Command | When to use | What it does |
 |---|---|---|
-| `/init` | Build UI with craft | Builds an interface (dashboards, apps, tools) following the `interface-design` skill; reads `SKILL.md` before any code |
-| `/audit` | Check code against the design system | Checks for spacing, depth, color, and pattern violations against `.interface-design/system.md` |
-| `/critique` | Review the craft of the build | Critiques the build as a design lead and rebuilds what fell into a generic pattern |
-| `/extract` | Create system.md from code | Extracts design patterns from existing code (tsx, jsx, vue, svelte) and generates a `system.md` |
-| `/status` | View design system state | Shows the direction, tokens, and patterns of the current design system |
-| `/investigate` | Discovery before planning | Asks 3 to 5 focused questions and analyzes the code before planning or implementing |
-| `/investigate-batch` | Batch discovery | Asks up to 5 questions at once (via AskUserQuestion) and then analyzes the code |
-| `/trim` | Shrink a PR description | Reduces the current PR description by 70% while preserving the essentials |
+| `/init` | Build UI with craft | Builds an interface following the `interface-design` skill |
+| `/audit` | Check code against the design system | Checks design-system violations |
+| `/critique` | Review build craft | Reviews the build as a design lead |
+| `/extract` | Create system.md from code | Extracts design patterns into `system.md` |
+| `/status` | View design system state | Shows direction, tokens, and patterns |
+| `/investigate` | Discovery before planning | Asks focused questions and analyzes the code |
+| `/investigate-batch` | Batch discovery | Asks up to five questions, then analyzes the code |
+| `/trim` | Shrink a PR description | Reduces the current PR description while preserving essentials |
 
 ## Step-by-step for the main commands
 

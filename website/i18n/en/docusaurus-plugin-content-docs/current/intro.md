@@ -5,39 +5,82 @@ slug: intro
 
 # Introduction
 
-The OpenCode Harness turns OpenCode from an agent that "rediscovers everything
-each session" into an agent that keeps state, respects WIP=1, produces
-evidence, and hands off cleanly between sessions.
+Building with AI agents in real projects often produces four universal pains:
 
-## What's new in v1.4
+1. **Runaway edits across multiple files:** the agent touches files beyond the
+   request, introducing accidental refactors and diffs that are hard to review.
+2. **Broken builds:** the assistant reports success too early, leaving compile,
+   type, or packaging errors behind.
+3. **Test hallucination:** the model claims that "all tests passed" without
+   running a terminal command.
+4. **Context loss between sessions:** decisions, blockers, and work state vanish
+   when the session closes.
 
-v1.4 adds a **recoverable-context and loop-detection** layer on top of v1.3's
-continual loop:
+The OpenCode Harness structures these problems as a rigorous, measurable
+engineering process for interaction between the developer and the agent.
+### Comparison: Traditional chat vs harness engineering
 
-- **Minimal durable state** — a `docs/harness/progress.md` that answers the
-  single next action, plus a **derived briefing** (`scripts/harness-briefing.mjs`)
-  stamped with a `sourceHash` that refuses stale context.
-- **Loop / slop detection** — the tool-activity plugin now records session,
-  outcome, and duration, and injects an **advisory reminder** when the same call
-  repeats with no progress (never blocks).
-- **Advisory wall-clock benchmark** — `scripts/harness-benchmark.mjs` measures
-  per-phase wall-clock to calibrate effort routing; duration is never a gate.
-- **Scheduler-only regression** — the heavy suite runs once over the reconciled
-  tree, not per lane; the cheap "a fix needs a test" rule still blocks per lane.
+| Unassisted AI chat | Engineering with a harness |
+|---|---|
+| **Runaway edits:** changes spread across unrelated files. | **Bounded scope:** each lane declares file ownership. |
+| **Broken build:** success is declared without verification. | **Required verification:** completion waits for objective checks. |
+| **Test hallucination:** results are asserted without a command. | **Real evidence:** terminal output and evidence rungs are required. |
+| **Context loss:** each session starts from zero. | **Durable continuity:** state, blockers, and handoff survive on disk. |
 
-> **Honest:** live acceptance of v1.3's continual loop (table C, C1–C16) —
-> injection reaching a lane, findings from a real run, liveness numbers — has
-> **not** been executed yet. v1.4's capabilities go live after an OpenCode
-> restart. See [Use Cases](./adoption/use-cases) for the new workflows.
+### Contract and runtime positioning
+
+PREVC is the shared lifecycle contract. It groups seven stages into four
+operational phases:
+
+- **Prepare** = `prepare` + `plan`: discovers context, risk, and scope.
+- **Execute** = `execute`: implements only the approved plan.
+- **Validate** = `validate` + `judge`: collects evidence and performs an independent evaluation.
+- **Confirm** = `refine` + `confirm`: presents improvements and waits for the operator's decision.
+
+OpenCode is this tree's methodological adapter: it provides multi-session
+continuity, durable state, plugins, and skills. Oh My Pi has a native
+parallel-dispatch engine and its own coordination. The contract is shared;
+installation, runtime-specific commands, and implementation details are not.
+
+### Documentation authority and version status
+
+`website/docs/` is the canonical source for this tree. [Continual Harness
+v1.3](./concepts/continual-harness-v1-3) preserves the continual-contract
+baseline. The increments described below as v1.4 are changes in this tree under
+acceptance, not a formal release. Configured capabilities should be presented as
+active only when corresponding acceptance evidence exists.
+
+## Documented increments in the v1.4 series
+
+The current tree adds a layer of **recoverable context, durable state, and
+measured quality** to the baseline continual loop:
+
+- **Minimal durable state** — when present in a project,
+  `docs/harness/progress.md` records the next action, blockers, and relevant
+  decisions.
+- **Session resume** — the `harness-session-start` skill rereads instructions,
+  progress and feature state, handoff, startup, and quality posture.
+- **Quality reports** — `scripts/harness-quality-gate.mjs` writes reports to
+  `docs/harness/quality/`; the `harness-quality-gate` and
+  `harness-quality-snapshot` skills guide reading, gating, and snapshotting
+  those reports.
+
+These mechanisms structure continuity and evidence; they do not replace
+operator acceptance or claim that quality is automatic.
+
+> **Acceptance status:** live acceptance of the v1.3 baseline, including
+> injection reaching a lane, findings from a real run, and liveness numbers, has
+> not been executed. Capabilities in this series become available after an
+> OpenCode restart. See [Use Cases](./adoption/use-cases) for the documented flows.
 
 ## What you'll find
 
 | Section | What it covers |
 |---|---|
 | **[Getting Started](./getting-started/installation)** | Step-by-step installation and first session. |
-| **[Concepts](./concepts/why-a-harness)** | PREVC, WIP=1, evidence, the seven components, and the limits of automation. |
-| **[Guides](./guides/small-task)** | End-to-end flow for small and complex tasks. |
-| **[Reference](./reference/commands)** | All commands, skills, and artifacts. |
+| **[Concepts](./concepts/why-a-harness)** | PREVC, WIP=1, evidence, the seven components, and automation limits. |
+| **[Guides](./guides/small-task)** | Complete flows for small and complex tasks. |
+| **[Reference](./reference/commands)** | Commands, skills, and artifacts. |
 | **[Adoption](./adoption/use-cases)** | Use cases, pros and cons, security, and limitations. |
 | **[FAQ](./troubleshooting/faq)** | Common problems and solutions. |
 
@@ -50,21 +93,25 @@ continual loop:
 
 ## Quick install
 
-> **Clean install:** if `~/.config/opencode` already exists with your own files, rename the folder to `opencode-backup` **before** cloning — there is no automatic merge. Step 1 of the [full installation guide](./getting-started/installation) shows the exact command.
+> **Clean install:** if `~/.config/opencode` already exists with your own files,
+> rename it to `opencode-backup` **before** cloning — there is no automatic
+> merge. Step 1 of the [full installation guide](./getting-started/installation)
+> shows the exact command.
 
-Clone the repository into the OpenCode configuration and install the dependencies:
+Clone the repository into the OpenCode runtime configuration and install the
+dependencies pinned by the lockfile:
 
 ```powershell
 git clone https://github.com/MaiconGambini/opencode-harness-guide.git "$env:USERPROFILE\.config\opencode"
 cd "$env:USERPROFILE\.config\opencode"
-npm install
+npm ci
 ```
 
 What happens:
 
-- The repository is cloned straight into `~/.config/opencode`, where OpenCode reads its configuration.
-- `npm install` downloads the dependencies for the plugins and scripts.
-- The files become available to OpenCode on its next startup.
+- The repository is cloned into `~/.config/opencode`, where OpenCode reads its configuration.
+- `npm ci` installs the runtime dependencies exactly from the lockfile.
+- Close and reopen OpenCode so it loads the configuration on its next startup.
 
 [Full installation guide &rarr;](./getting-started/installation)
 

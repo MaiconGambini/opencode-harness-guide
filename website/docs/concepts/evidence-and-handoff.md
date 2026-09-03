@@ -6,21 +6,27 @@ sidebar_position: 5
 
 Dizer "funcionou" é uma afirmação, não uma conclusão. Evidência confiável sobe em degraus, da declaração inicial até a verificação do sistema rodando. O handoff registra esses degraus para que uma nova sessão continue sem depender da memória da conversa.
 
-## Os cinco degraus da evidência
+## A escada de evidências (Evidence Rungs 1–5)
 
-A ordem é explícita e cumulativa:
+Para eliminar a ambiguidade sobre o que constitui "prova", o harness classifica a evidência em cinco degraus cumulativos de rigor crescente:
 
-1. **Rung 1 — Assertion (afirmação):** o agente diz que concluiu ou prevê um resultado. A prova esperada é somente a declaração. É um ponto de partida, não uma validação.
-2. **Rung 2 — Artifact (artefato):** diff, arquivos alterados ou estado persistido mostram a mudança. A prova esperada lista caminhos e conteúdo revisável. Isso prova alteração, não funcionamento.
-3. **Rung 3 — Command output (saída de comando):** um comando foi realmente executado. A prova esperada registra comando, diretório, saída e código de saída, incluindo falhas. Isso permite repetir a checagem.
-4. **Rung 4 — Acceptance (aceite observável):** os critérios de aceite são conferidos um a um e ligados a resultados observados, com gate ou revisão de acordo com o risco. A prova esperada é o mapa critério → resultado, sem esconder itens bloqueados.
-5. **Rung 5 — Live running verification (verificação ao vivo):** o sistema real é iniciado e o caminho alterado é exercitado. A prova esperada registra inicialização, ação ou requisição, resposta, logs relevantes e código de saída. É a evidência mais forte.
+1. **Rung 1 — Assertion (afirmação):** o agente diz que concluiu ou prevê um resultado. É um ponto de partida, não uma validação, e nunca basta para fechar uma tarefa.
+2. **Rung 2 — Artifact (artefato):** diff, arquivos alterados ou estado persistido mostram a mudança. Isso prova alteração, não funcionamento.
+3. **Rung 3 — Command output (saída de comando):** um comando foi realmente executado e registra diretório, saída e código de saída. Ferramentas estáticas determinísticas podem provar integridade estrutural, tipos e schema; não provam o fluxo ao vivo.
+4. **Rung 4 — Acceptance (aceite observável):** critérios de aceite são conferidos um a um e ligados a resultados observados, com testes ou gate de acordo com o risco.
+5. **Rung 5 — Live running verification (verificação ao vivo):** o sistema real é iniciado, o caminho alterado é exercitado e inicialização, resposta, logs relevantes e código de saída são registrados.
 
 Não trate um degrau menor como se fosse um maior. Um diff não prova comportamento, e uma saída de teste não prova que o fluxo ao vivo foi executado.
 
-## Envelope filho da lane
+## Camadas de verificação
 
-Cada lane retorna ao pai um envelope curto com exatamente quatro chaves:
+Antes de declarar uma feature como concluída, três camadas estruturadas são verificadas:
+
+1. **Static (Rung 3)** — typecheck, linters e validações de schema passam.
+2. **Runtime (Rungs 4–5)** — critérios de aceite são observáveis, comandos foram rodados e a saída real foi registrada.
+3. **System** — o comando de verificação unificado do projeto sai com código 0, e o estado em disco reflete a conclusão.
+
+## Exemplo de evidência
 
 ```json
 {
@@ -50,11 +56,14 @@ Decisions: decisões e limites a preservar
 Next best step: uma única próxima ação
 ```
 
-Se o trabalho não terminou, registre `blocked`, a causa exata e a ação que pode destravar. Um handoff claro preserva contexto, mas não converte uma afirmação em evidência.
+Se o trabalho não terminou, o handoff ainda é feito — a feature vai para
+`blocked` com a causa exata e o `Next Best Step` diz exatamente o que fazer.
 
-## OpenCode e Oh My Pi
+## OpenCode vs Oh My Pi na coleta de evidências
 
-O **OpenCode** fornece a metodologia, a referência dos degraus e a continuidade entre sessões para preservar estado, decisões e handoffs. O **Oh My Pi** fornece o motor nativo de **32 subagentes**, fan-out paralelo e sharding. O caminho OMP é relevante quando a coleta de evidência pode ser dividida em unidades independentes; cada lane deve devolver provas separadas para posterior reconciliação.
+- **OpenCode como referência metodológica:** o OpenCode organiza a política de evidências, a escala de rungs, as transições PREVC e a continuidade entre sessões.
+- **Oh My Pi como motor nativo:** o Oh My Pi fornece ferramentas nativas para despacho paralelo, processos supervisionados e coleta de resultados quando esse runtime for usado.
+- **Quando usar o caminho OMP:** quando a validação exigir múltiplas unidades independentes, serviços interdependentes ou testes ponta a ponta; cada lane ainda deve devolver provas separadas para reconciliação.
 
 ## Próximo passo
 

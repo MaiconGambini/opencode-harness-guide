@@ -23,8 +23,8 @@ apenas na inicialização.
 
 ### "Posso instalar em cima da minha configuração atual?"
 
-Não na versão 1. Faca backup da sua pasta `~/.config/opencode` antes de
-clonar. Depois, copie manualmente o que quiser manter.
+Não na configuração atual. Faça backup da sua pasta `~/.config/opencode` antes
+de clonar. Depois, copie manualmente o que quiser manter.
 
 ## Uso
 
@@ -35,8 +35,8 @@ paralelo abandonado e mantém o foco.
 
 ### "Preciso do sprint contract para toda tarefa?"
 
-Não. Tarefas simples (1-3 arquivos, escopo obvio) usam o modo rápido.
-O sprint contract e para features complexas ou ambíguas.
+Não. Tarefas simples (1–3 arquivos, escopo óbvio) usam o modo rápido. O sprint
+contract é para features complexas ou ambíguas.
 
 ### "O que acontece se eu pular o handoff?"
 
@@ -64,6 +64,6 @@ mensagem de erro — o Docusaurus indica o arquivo e o link com problema.
 ### "Perdi o estado da sessão"
 
 Se o handoff não foi feito, veja se os arquivos `STATE.md` e
-`session-handoff.md` tem informação suficiente. Se não, você precisara
-reconstruir o contexto manualmente — o harness não tem recuperação
-automática de sessões sem handoff.
+`session-handoff.md` têm informação suficiente. Se não, você precisará
+reconstruir o contexto manualmente — o harness não tem recuperação automática
+de sessões sem handoff.

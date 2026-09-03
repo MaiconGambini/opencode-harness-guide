@@ -22,7 +22,7 @@ A maioria dos agents é advisory e planning-only: eles clarificam fronteiras, tr
 
 | Agent | Quando usar |
 |---|---|
-| `requirements-interrogator` | Requisitos vagos, ambíguos ou incompletos: entrevista o usuário sem dó sobre cada ramo da árvore de decisão, explora o código quando as respostas estão nele e devolve requisitos claros e acionáveis |
+| `requirements-interrogator` | Requisitos vagos, ambíguos ou incompletos: entrevista o usuário com rigor sobre cada ramo da árvore de decisão, explora o código quando as respostas estão nele e devolve requisitos claros e acionáveis |
 | `spec-lead` | Clarificar requisitos, definir escopo e critérios de aceitação, modelar ownership e riscos, e preparar um plano revisável para o PREVC (que segue como único controlador do ciclo de vida) |
 | `plan-architect` | Planejamento de implementação para escopo Medium+: cria planos com tasks pequenas (2-5 min), caminhos de arquivo exatos, código completo em cada passo, zero placeholders e disciplina TDD |
 

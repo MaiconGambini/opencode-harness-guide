@@ -4,7 +4,8 @@ sidebar_position: 4
 
 # Limitations
 
-What the OpenCode Harness does not do in the current version.
+What the OpenCode Harness does not do in the current configuration — and what
+is an explicit gap, not a capability.
 
 ## It is not a SaaS product
 
@@ -13,8 +14,8 @@ API, authentication or dashboard.
 
 ## It does not merge into existing configuration
 
-Version 1 supports only a clean install (clone into an empty folder or after
-a backup). There is no merge script that preserves your current
+The current installation supports only the clean path (clone into an empty
+folder or after a backup). There is no merge script that preserves your current
 configuration while adding the harness.
 
 ## It is not a package manager
@@ -24,9 +25,9 @@ Updates are done via `git pull`.
 
 ## It does not document all skills
 
-The site documents the harness workflow. Specialized skills (frontend,
-backend, offensive security) that coexist in the repository do not have their
-own chapters in the documentation.
+The site documents the harness flow. Specialized skills (frontend, backend, and
+security) that coexist in the repository do not have their own documentation
+chapters.
 
 ## It is not fully cross-platform
 

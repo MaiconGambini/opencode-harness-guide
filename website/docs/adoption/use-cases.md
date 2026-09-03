@@ -20,9 +20,9 @@ lacuna, não aprovação.
 | Alto risco ou segurança | Tier completo e revisão especializada |
 | Apenas documentação | Lane de docs e validação de links/fontes |
 | Refine e regra aprendida | Judge, Refine e confirmação separada |
-| Retomada de sessão / contexto recuperável | Briefing derivado com `sourceHash`; recusa stale |
-| Loop de ferramenta sem progresso | Lembrete advisory de repetição; não bloqueia |
-| Calibrar roteamento de esforço | Benchmark advisory de tempo; nunca gate |
+| Retomada de sessão / contexto recuperável | Estado durável e postura de qualidade da skill de sessão |
+| Loop de ferramenta sem progresso | Logs de atividade redigidos; sem bloqueio automático |
+| Calibrar roteamento de esforço | Proposta da skill `harness-benchmark`; sem script incluído |
 
 ## Tarefa simples em um arquivo
 
@@ -38,8 +38,8 @@ esse arquivo e rode o teste da área e o gate local.
 
 **Comportamento esperado:** PREVC cria uma unidade WIP=1, confirma o escopo,
 executa a verificação descoberta e o gate local. O scheduler só escala a
-revisão se o risk router ou uma lacuna exigir. v1.3 não cria trabalho de Refine
-sem finding tipado recorrente.
+revisão se o risk router ou uma lacuna exigir. O Refine só é acionado quando
+há finding tipado recorrente.
 
 **Erros comuns:** abrir uma spec grande; tocar arquivos adjacentes; chamar um
 gate verde de prova quando métricas relevantes estão indisponíveis.
@@ -215,36 +215,31 @@ desatualizado.
 /harness-session-start
 ```
 
-**Comportamento esperado:** o `harness-session-start` roda
-`node scripts/harness-briefing.mjs`, que deriva um briefing pequeno e
-path-scoped do progresso, das decisões recentes e das regras ativas, carimbado
-com um `sourceHash` sobre os bytes de origem. Um briefing stale ou ausente falha
-fechado — é uma lacuna a nomear, nunca um passe. O checkout, os testes e o
-runtime sempre vencem o briefing; conflito vira finding, não fato.
+**Comportamento esperado:** `harness-session-start` relê as instruções raiz,
+localiza o estado de progresso e de feature, lê `docs/harness/session-handoff.md`
+quando presente, descobre o startup seguro e lê `agent-os/quality-thresholds.json`
+e o relatório mais recente em `docs/harness/quality/*.json`. Estado ou relatório
+ausente, stale ou ilegível é uma lacuna a nomear; a skill não gera briefing
+executável nem transforma silêncio em passe.
 
-**Erros comuns:** confiar no histórico do chat em vez do estado durável; injetar
-um briefing sem revalidar contra o checkout; tratar ausência de `progress.md`
-como "nada pendente".
+**Erros comuns:** confiar no histórico do chat em vez do estado durável; ignorar
+a postura de qualidade; tratar a ausência de `progress.md` como "nada pendente".
 
 ## Loop de ferramenta sem progresso
 
-**Quando usar:** o agente repete a mesma chamada — mesma ferramenta, mesmos
-argumentos — sem um resultado novo entre elas. É o sinal mais claro de loop e
-slop.
+**Quando usar:** você precisa investigar chamadas e resultados de ferramentas
+durante uma sessão sem expor segredos nos registros. O log é observacional; não
+é um detector de loop nem um mecanismo de bloqueio.
+**Prompt de exemplo:** nenhum especial — o plugin registra atividade durante a
+sessão, mas não há lembrete automático de loop implementado.
 
-**Prompt de exemplo:** nenhum especial — o lembrete é automático durante a
-sessão.
+**Comportamento esperado:** o plugin de tool-activity redige e grava cada
+chamada e seu resultado em `.opencode/state/tool-activity.jsonl`, com retenção
+limitada. Os logs ajudam no diagnóstico; não provam conclusão nem bloqueiam a
+chamada.
 
-**Comportamento esperado:** o plugin de tool-activity canonicaliza cada
-`(ferramenta, argumentos)` já redigidos, conta repetições consecutivas por
-sessão e, ao cruzar o limite, injeta um lembrete advisory no resultado da
-ferramenta. Ele **nunca bloqueia** a chamada: o modelo interrompe a repetição
-relendo o resultado, mudando de abordagem ou concluindo. A assinatura recorrente
-vai para o digest de atividade, não direto para o rulebook.
-
-**Erros comuns:** tratar o lembrete como um bloqueio; repetir cegamente uma
-operação com efeito cujo resultado ficou desconhecido; transformar a primeira
-recorrência em regra global.
+**Erros comuns:** tratar log como gate; repetir cegamente uma operação cujo
+resultado ficou desconhecido; inferir progresso apenas porque existe um registro.
 
 ## Calibrar roteamento de esforço
 
@@ -252,22 +247,18 @@ recorrência em regra global.
 evidência de tempo, não por palpite — por exemplo, se `max` numa correção de um
 arquivo compra algo.
 
-**Prompt de exemplo:**
+**Prompt de exemplo:** não há comando de benchmark implementado neste
+repositório. Use a skill `harness-benchmark` apenas para propor um benchmark
+específico do projeto, com caminho crítico, métrica, limiar e comando.
 
-```text
-node scripts/harness-benchmark.mjs summary
-```
+**Comportamento esperado:** a skill produz uma proposta documental e exige
+aprovação antes de criar scripts. Este repositório não inclui implementação de
+benchmark nem grava um arquivo de estado de benchmark. Duração pode ser definida
+como advisory em uma proposta, mas não é um gate implementado por esta
+documentação.
 
-**Comportamento esperado:** o benchmark registra wall-clock por fase, chamadas,
-agentes e retries em `.opencode/state/benchmark.jsonl` e resume sob demanda.
-Duração é **advisory** — nunca um gate bloqueante. A regra de roteamento (recon
-em esforço baixo, fixer comum em intermediário, review/risco em máximo) é
-calibrada por essa evidência. O ajuste do campo `variant` por agente exige o
-enum válido do provider e só vale após restart do OpenCode.
+**Erros comuns:** tratar uma proposta como implementação; transformar duração
+em gate sem aprovação; escolher `variant` no escuro.
 
-**Erros comuns:** transformar duração em gate; abrir o scheduler para uma tarefa
-de um arquivo; trocar `variant` no escuro (um valor inválido quebra o launch do
-agente).
-
-Veja [Continual Harness v1.3](../concepts/continual-harness-v1-3) para o contrato
-completo do loop.
+Veja [Harness Contínuo (baseline v1.3)](../concepts/continual-harness-v1-3) para
+o contrato completo do loop.

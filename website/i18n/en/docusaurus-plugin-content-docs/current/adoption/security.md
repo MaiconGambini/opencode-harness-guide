@@ -6,7 +6,7 @@ sidebar_position: 3
 
 Security boundaries of the OpenCode Harness. It is important to understand
 both what the harness protects and what it deliberately does not protect —
-security lives in the planning and approval phase, not in automatic blocks.
+security depends on planning, approval, and combined automatic controls.
 
 ## What the harness protects
 
@@ -42,9 +42,9 @@ security lives in the planning and approval phase, not in automatic blocks.
 The fallback rule for mutating Bash commands is **ask** — the default is to
 ask before executing.
 
-In v1.3, `refiner` and `rule-verifier` are read-only: they cannot edit, run
-shell, delegate, or access external directories. Reviewers do not write
-findings either; the scheduler validates and writes them. Changes to
+In the current configuration, `refiner` and `rule-verifier` are read-only: they
+cannot edit, run shell, delegate, or access external directories. Reviewers do
+not write findings either; the scheduler validates and writes them. Changes to
 `opencode.jsonc` require a restart before they affect the OpenCode process.
 
 ## Logs and retention

@@ -70,9 +70,9 @@ O OpenCode carrega uma skill de forma preguiçosa (lazy-loading), apenas quando 
 | `to-spec` | Transformar uma ideia ou nota em uma spec |
 | `to-tickets` | Quebrar uma spec em tickets acionáveis |
 | `research` | Investigar um tema ou domínio antes de decidir |
-| `grill-me` | Ser questionado sem dó sobre um plano ou design até haver entendimento comum |
-| `grill-with-docs` | Grilling apoiado na documentação existente |
-| `grilling` | Questionar sem dó o operador sobre um plano, decisão ou ideia até endurecer o pensamento (stress-test) |
+| `grill-me` | Ser questionado com rigor sobre um plano ou design até haver entendimento comum |
+| `grill-with-docs` | Fazer perguntas apoiadas na documentação existente |
+| `grilling` | Questionar com rigor o operador sobre um plano, decisão ou ideia até endurecer o pensamento (stress-test) |
 | `wayfinder` | Orientar-se em um codebase ou domínio desconhecido |
 | `domain-modeling` | Modelar o domínio antes de projetar a solução |
 | `codebase-design` | Projetar a estrutura do codebase |

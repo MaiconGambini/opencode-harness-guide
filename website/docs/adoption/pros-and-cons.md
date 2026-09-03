@@ -55,7 +55,7 @@ ficar desatualizado, a próxima sessão começa com informação errada.
 
 ### Não substitui boa engenharia
 
-O harness garante rastreabilidade, não qualidade de código. Um código ruim
+O harness estrutura a rastreabilidade, não a qualidade de código. Um código ruim
 com evidências bonitas continua sendo código ruim.
 
 ### Curva inicial

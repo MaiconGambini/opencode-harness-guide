@@ -21,11 +21,11 @@ includes `opencode.jsonc`, skills, plugins, templates, scripts and
 ```powershell
 & ".\install-opencode-harness.ps1" -SourceRoot "." -TargetRoot "$env:USERPROFILE\.config\opencode"
 Set-Location "$env:USERPROFILE\.config\opencode"
-npm install
+npm ci
 ```
 
 The script installs the Node dependencies on the target machine. Platform
-binaries (tsx) require a local `npm install`; copying `node_modules`
+binaries (tsx) require a local installation; copying `node_modules`
 between different systems does not work.
 
 ## Via Git (recommended)
@@ -35,7 +35,7 @@ The simplest and most reliable way is to clone the public repository:
 ```powershell
 git clone https://github.com/MaiconGambini/opencode-harness-guide.git "$env:USERPROFILE\.config\opencode"
 cd "$env:USERPROFILE\.config\opencode"
-npm install
+npm ci
 ```
 
 This ensures you always have the latest version and that the dependencies

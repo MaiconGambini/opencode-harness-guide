@@ -2,12 +2,12 @@
 sidebar_position: 4
 ---
 
-# Continual Harness v1.3
+# Harness contínuo (baseline v1.3)
 
-v1.3 transforma feedback de revisão em um sinal estruturado que pode orientar
-execuções futuras. Ele não promete que o agente "aprende sozinho": o loop é
-local ao projeto, medido pelos sinais configurados e limitado por permissões e
-confirmação humana.
+O baseline v1.3 transforma feedback de revisão em um sinal estruturado que pode
+orientar execuções futuras. Ele não promete que o agente “aprende sozinho”: o
+loop é local ao projeto, medido pelos sinais configurados e limitado por
+permissões e confirmação humana.
 
 ## Loop de comportamento
 
@@ -27,8 +27,8 @@ ticket e risco
 
 O gate mede o artefato, não a reputação do agente. Métricas e políticas são
 declaradas em `agent-os/quality-thresholds.json`; controles do ciclo aprendido
-ficam em `quality-thresholds.json#learned_rules`. Valor ausente, relatório stale
-ou roster ausente são lacunas fail-closed.
+ficam em `quality-thresholds.json#learned_rules`. Valor ausente, relatório
+obsoleto ou roster ausente são lacunas fail-closed.
 
 ## Findings tipados
 
@@ -53,9 +53,9 @@ problemas. Adherence é um piso baseado no que foi detectado, não uma taxa real
 do projeto. Os alvos permitidos e os níveis de enforcement são validados; uma
 regra em prosa não se torna bloqueante por acidente.
 
-Durante Planning, o scheduler cruza regras ativas com o ownership de cada lane
-e cola somente as relevantes no prompt, dentro de uma cerca de dados não
-confiáveis. A injeção fecha o loop: uma regra só influencia comportamento se
+Durante o planejamento, o scheduler cruza regras ativas com a posse de cada lane
+e injeta somente as relevantes no prompt, dentro de uma cerca de dados não
+confiáveis. A injeção fecha o loop: uma regra só influencia o comportamento se
 chega à capacidade que fará a mudança.
 
 ## Refine
@@ -79,12 +79,12 @@ faz parte do hash de fonte do gate.
 
 ## Permissões
 
-`opencode.jsonc` declara permissões específicas por agent, e
-`harness-permission-policy.ts` reforça o roster read-only. Reviewers retornam
-resultados ao scheduler; `refiner` e `rule-verifier` não possuem caminhos de
-escrita. Essas políticas reduzem blast radius, mas não são sandbox de sistema
-operacional. Alterações de configuração exigem restart para valer no processo
-do OpenCode.
+`opencode.jsonc` declara permissões específicas por agente, e
+`harness-permission-policy.ts` reforça o roster somente leitura. Revisores
+retornam resultados ao scheduler; `refiner` e `rule-verifier` não possuem
+caminhos de escrita. Essas políticas reduzem o blast radius, mas não são uma
+sandbox de sistema operacional. Alterações de configuração exigem reinício para
+valer no processo do OpenCode.
 
 ## O que está live
 

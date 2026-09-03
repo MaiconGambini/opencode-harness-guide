@@ -4,18 +4,21 @@ sidebar_position: 1
 
 # Comandos
 
-Comandos globais disponíveis no OpenCode após a instalação do harness. Cada comando executa uma skill global ou um script de diagnóstico. Esta referência lista todos os comandos por família e, em seguida, detalha o passo a passo dos comandos principais.
+Comandos globais disponíveis no OpenCode após a instalação do harness. Cada
+comando executa uma skill global ou um script de diagnóstico. Esta referência
+separa o contrato comum dos comandos específicos do adaptador OpenCode.
 
-Os nomes começam com `/` quando invocados no chat do OpenCode (por exemplo, `/prevc`).
+Os nomes começam com `/` quando invocados no chat do OpenCode (por exemplo,
+`/prevc`).
 
-## Visão geral por família
+## Comandos compartilhados pelo contrato PREVC
 
 ### Sessão
 
 | Comando | Quando usar | O que faz |
 |---|---|---|
 | `/harness-session-start` | No início de toda sessão | Descobre instruções raiz, estado de progresso, feature state e caminho de startup; roda o baseline se seguro; declara a task ativa |
-| `/harness-clean-handoff` | No fim de toda sessão | Coleta evidência, blockers, notas de progresso, handoff e git status; devolve um relatório de handoff |
+| `/harness-clean-handoff` | No fim de toda sessão | Coleta evidência, bloqueadores, notas de progresso, handoff e git status; devolve um relatório de handoff |
 
 ### Projeto
 
@@ -30,12 +33,16 @@ Os nomes começam com `/` quando invocados no chat do OpenCode (por exemplo, `/p
 
 | Comando | Quando usar | O que faz |
 |---|---|---|
-| `/prevc` | Qualquer trabalho significativo | Controla o ciclo de vida completo: Plan, Review, Execute, Validate, Judge, Confirm e Handoff |
-| `/plan` | Planejar trabalho significativo (pipeline padrão do spec-lead) | Pipeline size-gated: `/wayfinder` para esforços grandes, `/grill-with-docs` em AUTO e `/to-tickets` para decompor em tickets; termina em `awaiting_plan_approval`; substitui o caminho lento do `/shape-spec` |
-| `/goal` | Rastrear objetivo de longo prazo | Comando registrado pelo plugin de goal (retenção de 30 dias); memória de objetivo separada do PREVC |
+| `/prevc` | Qualquer trabalho significativo | Controla o ciclo de vida agrupado em Prepare, Execute, Validate e Confirm |
+
+## Comandos específicos do OpenCode
+
+| Comando | Quando usar | O que faz |
+|---|---|---|
+| `/plan` | Planejar trabalho significativo nesta distribuição | Pipeline size-gated do OpenCode; termina em `awaiting_plan_approval` |
+| `/goal` | Rastrear objetivo de longo prazo | Plugin opcional do OpenCode; mantém memória do objetivo separada do PREVC |
 
 ### Agent OS
-
 | Comando | Quando usar | O que faz |
 |---|---|---|
 | `/plan-product` | Iniciar documentação de produto | Cria a documentação base do produto em `agent-os/product/` |
@@ -58,12 +65,13 @@ Os nomes começam com `/` quando invocados no chat do OpenCode (por exemplo, `/p
 
 | Comando | Quando usar | O que faz |
 |---|---|---|
-| `/quality` | Antes de um commit (ou a qualquer momento) | Roda `harness-quality-gate.mjs --mode $ARGUMENTS` (padrão `local`; use `--mode full` antes de commit) e `harness-risk-router.mjs`; imprime a tabela de métricas e o tier com a razão. Exit 1 = corrija a métrica, nunca relaxe o threshold; exit 2 = blocker do harness, não falha de código. Métrica indisponível ou relatório ausente/desatualizado = gap nomeado, não pass — roteia para tier `full` |
-| `/refine` | Depois do Judge, ou para registrar nota do operador com `--note "<o que corrigi à mão>"` | Executa a skill global `harness-refine`: dispara o refiner read-only sobre a janela de trajetória, roteia cada proposta por blast radius e não escreve nada; com `--note`, registra uma findings record `operator_note` que sozinha limpa a barra de propose |
+| `/quality` | Antes de um commit (ou a qualquer momento) | Roda `harness-quality-gate.mjs --mode $ARGUMENTS` (padrão `local`; use `--mode full` antes de commit) e `harness-risk-router.mjs`; imprime a tabela de métricas e o tier com a razão. Exit 1 = corrija a métrica, nunca relaxe o threshold; exit 2 = bloqueador do harness, não falha de código. Métrica indisponível ou relatório ausente/desatualizado = lacuna nomeada, não pass — roteia para tier `full` |
+| `/refine` | Depois do Judge, ou para registrar nota do operador com `--note "<o que corrigi à mão>"` | Executa a skill global `harness-refine`: dispara o refiner somente leitura sobre a janela de trajetória, roteia cada proposta por blast radius e não escreve nada; com `--note`, registra um finding `operator_note` que sozinho limpa a barra de propose |
 
 ### Comandos de interface e investigação
 
-Comandos locais definidos na pasta `command/`, focados em design de interface, investigação e PR.
+Comandos locais definidos na pasta `command/`, focados em design de interface,
+investigação e PR no adaptador OpenCode.
 
 | Comando | Quando usar | O que faz |
 |---|---|---|
@@ -80,14 +88,18 @@ Comandos locais definidos na pasta `command/`, focados em design de interface, i
 
 ### 1. Trabalhar em algo significativo — `/prevc`
 
-```
+```text
 /prevc prepare <objetivo>
 ```
 
-- Executa a skill global `prevc-workflow`, o único controlador do ciclo de vida para trabalho significativo.
-- `prepare <objetivo>` faz descoberta, classifica o risco e cria um plano, parando em `awaiting_plan_approval` na conversa.
-- Nunca invoca `/goal` nem as ferramentas de goal; os rótulos do ciclo de vida ficam na conversa e nos arquivos de harness existentes.
-- Roteia operações rotineiras de baixo risco (session-start, checagens de status, instalação explícita de dependência, formatação, reparos de teste estreitos) por um fast path com verificação objetiva, sem a cerimônia do PREVC.
+- Executa a skill global `prevc-workflow`, o único controlador do ciclo de vida
+  para trabalho significativo.
+- `prepare <objetivo>` faz descoberta, classifica o risco e cria um plano,
+  parando em `awaiting_plan_approval` na conversa.
+- Nunca invoca `/goal`; os rótulos do ciclo de vida ficam na conversa e nos
+  arquivos de harness existentes.
+- Operações rotineiras de baixo risco passam por um fast path com verificação
+  objetiva, sem a cerimônia do PREVC.
 
 ```
 /prevc run

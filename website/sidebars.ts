@@ -3,11 +3,13 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   tutorialSidebar: [
     'intro',
+    'portfolio',
     {
       type: 'category',
       label: 'Primeiros Passos',
       link: { type: 'doc', id: 'getting-started/quickstart' },
       items: [
+        'getting-started/quickstart',
         'getting-started/prerequisites',
         'getting-started/installation',
         'getting-started/first-session',

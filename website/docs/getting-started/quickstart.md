@@ -1,44 +1,53 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 ---
 
-# Início rápido
+# Início Rápido (Zero-to-Hero em 5 minutos)
 
-Este caminho leva de um projeto limpo ao primeiro objetivo no Harness OpenCode.
-O OpenCode é a referência de metodologia: o PREVC separa planejamento,
-aprovação, execução e validação, enquanto o estado e o handoff preservam a
-continuidade entre sessões. Para a instalação completa, consulte
-[Instalação](./installation).
+Este guia leva de um projeto limpo ao primeiro objetivo no Harness OpenCode em
+três passos. O OpenCode é a referência metodológica: PREVC separa planejamento,
+aprovação, execução e validação, enquanto estado e handoff preservam a
+continuidade entre sessões.
 
-1. **Instale o harness de referência.** Em uma configuração limpa, execute o
-   comando suportado para clonar o repositório:
+## Passo 1: Clonar e instalar o harness
 
-   ```powershell
-   git clone https://github.com/MaiconGambini/opencode-harness-guide.git "$env:USERPROFILE\.config\opencode"
-   ```
+Clone o repositório público na pasta de configuração do runtime OpenCode
+(`~/.config/opencode`) e instale as dependências fixadas pelo lockfile:
 
-   Se a execução usar o motor OMP, depois de obter a árvore OMP execute o
-   mesmo bloco copy-pasteável documentado na instalação do OMP:
+```powershell
+git clone https://github.com/MaiconGambini/opencode-harness-guide.git "$env:USERPROFILE\.config\opencode"
+Set-Location "$env:USERPROFILE\.config\opencode"
+npm ci
+```
 
-   ```powershell
-   $target = Join-Path $env:USERPROFILE ".omp\agent"
-   New-Item -ItemType Directory -Force $target | Out-Null
-   Copy-Item -Path ".\omp\agent\*" -Destination $target -Recurse -Force
-   ```
+Feche e reabra o OpenCode para carregar os comandos globais e plugins. Se a
+execução usar o motor OMP, obtenha a árvore OMP separadamente e siga a
+instalação documentada para esse runtime; não trate os dois diretórios de
+configuração como uma única instalação.
 
-   Depois, siga os passos de dependências e verificação de [Instalação](./installation)
-   antes de iniciar o OpenCode.
+## Passo 2: Iniciar a primeira tarefa com o ciclo PREVC
 
-2. **Prepare um objetivo no projeto.** Dentro do OpenCode, execute exatamente:
+No terminal do OpenCode, dentro da pasta do projeto, execute:
 
-   ```text
-   /prevc prepare "Criar rota POST /auth/login com JWT"
-   ```
+```text
+/prevc prepare "Criar rota POST /auth/login com JWT"
+```
 
-3. **Observe o ciclo antes de executar.** O PREVC apresenta o plano, o escopo e
-   os critérios de aceite para aprovação explícita. Após a aprovação, ele
-   executa somente o escopo aprovado, roda os testes e gates de validação e
-   entrega prova verificável do resultado. O Judge compara a entrega com o
-   contrato inicial, e o handoff registra estado, evidências, blockers e a
-   próxima ação para que outra sessão possa continuar. Consulte
-   [Primeira Sessão](./first-session) para o fluxo operacional completo.
+O harness classifica o risco, descobre o contexto técnico e inicia a transição
+controlada de fases. O plano aguarda aprovação explícita antes da execução.
+
+## Passo 3: Observar o ciclo completo
+
+O PREVC é o contrato comum entre OpenCode e Oh My Pi. Ele agrupa sete etapas em
+quatro fases:
+
+1. **Prepare** = `prepare` + `plan`: descobre contexto, risco e escopo.
+2. **Execute** = `execute`: implementa o plano aprovado sob WIP=1.
+3. **Validate** = `validate` + `judge`: coleta evidência e avalia o resultado.
+4. **Confirm** = `refine` + `confirm`: apresenta melhorias e aguarda o operador.
+
+No OpenCode, estado durável, plugins e continuidade entre sessões implementam o
+contrato. O Oh My Pi oferece despacho paralelo nativo.
+
+Para a instalação completa, consulte [Instalação](./installation) e, para o
+fluxo operacional, [Primeira Sessão](./first-session).

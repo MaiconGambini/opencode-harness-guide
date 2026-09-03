@@ -4,52 +4,63 @@ sidebar_position: 3
 
 # PREVC
 
-PREVC is the lifecycle controller. Agents, skills, and plugins provide
-bounded capabilities; none of them decides on its own that the work is done.
+PREVC is the shared lifecycle contract for the harness. It groups seven stages
+into four phases: Prepare (`prepare` + `plan`), Execute (`execute`), Validate
+(`validate` + `judge`), and Confirm (`refine` + `confirm`). No agent changes code
+without an approved plan, and no task is complete without real evidence.
 
-## Phases
+## The senior-engineering delivery analogy
+
+Think of PREVC as an engineering flow used before sending code to production:
+
+1. **Prepare:** the agent inspects the repository, measures risk, and proposes a plan.
+2. **Execute:** with the plan approved, it implements under WIP=1 and file ownership.
+3. **Validate:** it runs checks and receives an independent Judge evaluation.
+4. **Confirm:** it presents Refine to the operator, who decides whether the work can finish.
+
+## Lifecycle flow
 
 ```text
-OPERATOR MAKES A REQUEST
-        |
-        v
-CONTEXT FEEDFORWARD
-        |-- reads relevant rules, state, handoff, and standards
-        |-- discovers risk, stack, and the verification command
-        v
-PLAN
-        |-- defines objective, scope, non-scope, and observable AC
-        |-- splits the work into WIP=1 units when needed
-        v
-OPERATOR APPROVAL
-        |-- the operator reviews and confirms the plan
-        v
-REVIEW -> EXECUTE -> VALIDATE -> JUDGE
-        |-- each phase stays within the approved scope
-        |-- failure, ambiguity, or escalation stops the flow
-        v
-REFINE
-        |-- reads typed findings and may propose an improvement
-        |-- does not write or participate in the Judge verdict
-        v
-AWAITING CONFIRMATION
-        |-- the operator reviews the evidence and receives the handoff
-        v
-HANDOFF
+┌─────────────────┐
+│     PREPARE     │  → prepare + plan: context, risk, and plan
+└────────┬────────┘
+         │ [Operator approval required]
+         ▼
+┌─────────────────┐
+│     EXECUTE     │  → execute: implementation within approved scope
+└────────┬────────┘
+         │ [Code produced]
+         ▼
+┌─────────────────┐
+│    VALIDATE     │  → validate + judge: gates, tests, and independent evaluation
+└────────┬────────┘
+         │ [Evidence and improvement proposal]
+         ▼
+┌─────────────────┐
+│     CONFIRM     │  → refine + confirm: final operator decision
+└─────────────────┘
 ```
 
-## How to use
+## OpenCode and Oh My Pi: contract and adapters
+
+- **PREVC:** shared contract for phases, evidence, WIP=1, and human confirmation.
+- **OpenCode:** this tree's methodological adapter, with multi-session
+  continuity, durable state, plugins, and skills.
+- **Oh My Pi:** native parallel-dispatch engine and its own coordination. The
+  contract stays the same; runtime mechanisms vary.
+
+## How to use in OpenCode
 
 Start PREVC with the task description:
 
 ```text
-/prevc Add a health check endpoint
+/prevc prepare Add a health check endpoint
 ```
 
-- Prepares the plan (objective, scope, non-scope, and AC).
+- Discovers context, classifies risk, and prepares the plan.
 - Stops at `awaiting_plan_approval`, waiting for your confirmation.
 
-Once you approve, run:
+After approval, run:
 
 ```text
 /prevc run
@@ -58,57 +69,34 @@ Once you approve, run:
 - Executes within the approved scope.
 - Validates the result and delivers the handoff.
 
-## PREVC and `/goal`
+## OpenCode-specific command: `/goal`
 
-`/prevc` orchestrates the lifecycle. `/goal` stores the objective, the
-approved plan, and the evidence. They work together, with different
-responsibilities.
+`/goal` is an optional plugin for tracking long-term objectives. It is not
+required by PREVC, does not replace its durable phase, and is not invoked by
+`/prevc`.
+
+Use it only when you need objective, plan, and evidence separate from the
+lifecycle:
 
 ```text
-/prevc prepare <objective>
-        v
-goal: awaiting_plan_approval
-        v
 /goal confirm
-        v
-/prevc run <goal-id>
-        v
-PREVC: Review -> Execute -> Validate -> Judge
-        v
-workflow-only awaiting_confirmation
+/goal revise <reason>
+/goal submit-revision <summary>
+/goal abort <reason>
 ```
 
-| Action | Result |
-|---|---|
-| `/prevc prepare <objective>` | Discovers context, classifies risk, and prepares the plan. |
-| `/goal confirm` | Records explicit plan approval and releases execution. |
-| `/prevc run <goal-id>` | Executes only the approved scope, with budgets and gates. |
-| `/goal revise <reason>` | Requests a revision; the reason cannot be empty. |
-| `/goal submit-revision <summary>` | Submits a revised plan for new approval. |
-| `/goal abort <reason>` | Aborts the objective with a durable reason. |
-
-## Persisted goal states
-
-The current storage persists only:
-
-- `awaiting_plan_approval`
-- `revision_requested`
-- `active`
-- `aborted`
-
-`awaiting_confirmation` is a PREVC workflow label, **not** a persisted final
-state. It exists to prevent a Judge review from being mistaken for a durable
-completion.
+`/prevc run` does not require a `goal-id`. The PREVC lifecycle remains controlled
+by its own phases and by explicit operator confirmation.
 
 ## Why there is no auto-completion
 
-An agent message saying it ran a command is **not** a reliable receipt from
-the runtime. The evidence fields store command, workspace, exit code, and
-verifier, but they remain informational.
+An agent message saying it ran a command is **not** a reliable runtime receipt.
+Evidence fields store the command, workspace, exit code, and verifier, but remain
+informational.
 
-As long as there are no reliable execution receipts, no automatic transition
-to final completion will be enabled. This limit is intentional: the system
-prefers to stop at review rather than record a completion it cannot prove.
+Until reliable execution receipts exist, no automatic transition to final
+completion is enabled. This limit is intentional: the system prefers to stop at
+review rather than record a completion it cannot prove.
 
 ## PREVC rules
 
@@ -116,11 +104,11 @@ prefers to stop at review rather than record a completion it cannot prove.
 - Completion requires real evidence.
 - Do not touch files outside the scope.
 - Adjacent work becomes `not_started`.
-- If verification fails, the feature is marked `blocked`.
-- If the Judge is not Accept, it does not confirm.
+- If verification fails, the feature remains `blocked` with an explicit cause.
+- If the Judge does not return `accept`, do not confirm.
 - Refine does not alter the Judge result or approve rules.
 
 ## Next step
 
-See [Continual Harness v1.3](./continual-harness-v1-3) for findings, Refine, and
-rule injection, or [WIP=1](./wip-one) for execution discipline.
+See [Continual Harness (v1.3 baseline)](./continual-harness-v1-3) for findings,
+Refine, and rule injection, or [WIP=1](./wip-one) for execution discipline.

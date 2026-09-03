@@ -8,7 +8,7 @@ Arquivos que o harness lê e escreve durante o ciclo de vida.
 
 ## Estado
 
-| Arquivo | Caminho | Proposito |
+| Arquivo | Caminho | Propósito |
 |---|---|---|
 | `AGENTS.md` | raiz | Regras do projeto, entry points |
 | `feature_list.json` | raiz | Fonte da verdade de WIP=1 |
@@ -28,7 +28,7 @@ Cada feature no `feature_list.json` usa os campos abaixo:
 |---|---|
 | `id` | Identificador único |
 | `priority` | Ordem de execução |
-| `área` | Área do projeto |
+| `area` | Área do projeto |
 | `title` | Nome curto |
 | `user_visible_behavior` | O que o usuário/agente vê quando funciona |
 | `dependencies` | IDs de features que devem ser concluídas antes |

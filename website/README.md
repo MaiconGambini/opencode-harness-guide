@@ -1,43 +1,50 @@
-# Website
+# Site de documentação do Harness OpenCode
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+Este diretório contém o site público bilíngue do Harness OpenCode, gerado com
+Docusaurus. O conteúdo padrão em `docs/` é pt-BR; a versão em inglês fica em
+`i18n/en/`.
 
-## Installation
+## Desenvolvimento local
 
-```bash
-npm install
+Na raiz do repositório, instale somente as dependências do site:
+
+```powershell
+npm ci --prefix website
+npm --prefix website start
 ```
 
-**Note**: feel free to use the package manager of your choice.
+Abra `http://localhost:3000/opencode-harness-guide/`. Alterações em
+`website/docs/` e `website/src/` aparecem durante o desenvolvimento.
 
-## Local Development
+## Verificação
 
-```bash
-npm run start
+```powershell
+npm run build --prefix website
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+O build detecta links internos quebrados e problemas de geração do site. A
+verificação do runtime OpenCode fica na raiz do repositório:
 
-## Build
-
-```bash
-npm run build
+```powershell
+npm run typecheck
+npm test
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+## Instalação do runtime
 
-## Deployment
+Instalar as dependências do site não instala o harness. Para instalar o runtime
+OpenCode, siga o [README da raiz](../README.md) e o
+[guia de instalação](docs/getting-started/installation.md). A instalação do
+runtime usa `~/.config/opencode`; a do site usa o prefixo `website`.
 
-Using SSH:
+## Publicação
 
-```bash
-USE_SSH=true npm run deploy
+```powershell
+npm run build --prefix website
 ```
 
-Not using SSH:
+Para publicar no GitHub Pages, use o workflow configurado no repositório ou:
 
-```bash
-GIT_USER=<Your GitHub username> npm run deploy
+```powershell
+GIT_USER=<seu-usuario-do-github> npm run deploy --prefix website
 ```
-
-If you are using GitHub Pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.

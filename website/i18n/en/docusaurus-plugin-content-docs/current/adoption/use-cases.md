@@ -20,9 +20,9 @@ approval.
 | High-risk or security | Full tier and specialist review |
 | Docs-only | Docs lane and source/link validation |
 | Refine and learned rule | Judge, Refine, separate confirmation |
-| Session resume / recoverable context | Derived briefing with `sourceHash`; refuses stale |
-| Tool loop with no progress | Advisory repeat reminder; never blocks |
-| Calibrate effort routing | Advisory wall-clock benchmark; never a gate |
+| Session resume / recoverable context | Durable state and session-skill quality posture |
+| Tool loop with no progress | Redacted activity logs; no automatic blocking |
+| Calibrate effort routing | `harness-benchmark` skill proposal; no script included |
 
 ## Simple one-file task
 
@@ -215,34 +215,33 @@ context.
 /harness-session-start
 ```
 
-**Expected behavior:** `harness-session-start` runs
-`node scripts/harness-briefing.mjs`, which derives a small, path-scoped briefing
-from progress, recent decisions, and active rules, stamped with a `sourceHash`
-over its source bytes. A stale or missing briefing fails closed — a gap to name,
-never a pass. The checkout, tests, and runtime always outrank the briefing; a
-conflict becomes a finding, not a fact.
+**Expected behavior:** `harness-session-start` rereads root instructions,
+locates progress and feature state, reads `docs/harness/session-handoff.md` when
+present, discovers a safe startup command, and reads
+`agent-os/quality-thresholds.json` plus the latest report in
+`docs/harness/quality/*.json`. Missing, stale, or unreadable state or reports is
+a gap to name; the skill does not generate an executable briefing or turn
+silence into a pass.
 
-**Common mistakes:** trusting chat history over durable state; injecting a
-briefing without revalidating against the checkout; treating a missing
-`progress.md` as "nothing pending".
+**Common mistakes:** trusting chat history over durable state; ignoring quality
+posture; treating a missing `progress.md` as "nothing pending".
 
 ## Tool loop with no progress
 
-**When to use:** the agent repeats the same call — same tool, same arguments —
-with no new result between them. It is the clearest loop-and-slop signal.
+**When to use:** you need to inspect tool calls and results during a session
+without exposing secrets in the records. The log is observational; it is not a
+loop detector or a blocking mechanism.
 
-**Example prompt:** none — the reminder is automatic during the session.
+**Example prompt:** none — the plugin records activity during the session, but
+there is no automatic loop reminder implemented.
 
-**Expected behavior:** the tool-activity plugin canonicalizes each redacted
-`(tool, arguments)` pair, counts consecutive repeats per session, and, once the
-threshold is crossed, injects an advisory reminder into the tool result. It
-**never blocks** the call: the model breaks the loop by rereading the result,
-changing approach, or concluding. The recurring signature goes to the activity
-digest, not straight to the rulebook.
+**Expected behavior:** the tool-activity plugin redacts and records each call
+and its result in `.opencode/state/tool-activity.jsonl`, with bounded retention.
+The logs help with diagnosis; they do not prove completion or block the call.
 
-**Common mistakes:** treating the reminder as a block; blindly repeating an
-effectful operation whose result became unknown; turning the first recurrence
-into a global rule.
+**Common mistakes:** treating a log as a gate; blindly repeating an effectful
+operation whose result became unknown; inferring progress merely because a
+record exists.
 
 ## Calibrate effort routing
 
@@ -250,22 +249,17 @@ into a global rule.
 evidence, not a guess — for example, whether `max` on a one-file fix buys
 anything.
 
-**Example prompt:**
+**Example prompt:** no benchmark command is implemented in this repository. Use
+the `harness-benchmark` skill only to propose a project-specific benchmark with
+a critical path, metric, threshold, and command.
 
-```text
-node scripts/harness-benchmark.mjs summary
-```
+**Expected behavior:** the skill produces a documentation proposal and requires
+approval before creating scripts. This repository includes no benchmark
+implementation and writes no benchmark state file. Duration may be marked
+advisory in a proposal, but it is not a gate implemented by this documentation.
 
-**Expected behavior:** the benchmark records per-phase wall-clock, calls, agents,
-and retries in `.opencode/state/benchmark.jsonl` and summarizes on demand.
-Duration is **advisory** — never a blocking gate. The routing rule (recon at low
-effort, common fixer at medium, review/risk at max) is calibrated from this
-evidence. Tuning a per-agent `variant` needs the provider's valid enum and only
-takes effect after an OpenCode restart.
-
-**Common mistakes:** turning duration into a gate; opening the scheduler for a
-one-file task; changing `variant` blindly (an invalid value breaks the agent
-launch).
+**Common mistakes:** treating a proposal as implementation; turning duration
+into a gate without approval; choosing `variant` blindly.
 
 See [Continual Harness v1.3](../concepts/continual-harness-v1-3) for the full
 loop contract.

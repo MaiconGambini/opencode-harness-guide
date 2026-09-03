@@ -12,6 +12,7 @@ node_modules/
 **/.opencode/state/
 .opencode/
 .superpowers/
+.maestri/
 
 # Local credentials and machine-specific overrides.
 .env
@@ -20,6 +21,11 @@ node_modules/
 *.local.json
 *.local.jsonc
 *.secret
+*.pem
+*.key
+*.p12
+*.pfx
+docs/harness/traces/
 
 # Docusaurus documentation site (website/) build artifacts.
 website/build/

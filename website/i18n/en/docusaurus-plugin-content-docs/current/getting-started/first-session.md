@@ -2,9 +2,10 @@
 sidebar_position: 3
 ---
 
-# First Session
+# First session
 
-This guide shows how to use the harness in a project for the first time.
+This guide shows how to use the OpenCode runtime with the harness for the first
+time.
 
 ## 1. Audit the project
 
@@ -17,9 +18,8 @@ Inside OpenCode, run:
 This command inspects the project without modifying anything. It looks for:
 
 - Project instructions (AGENTS.md, CLAUDE.md).
-- Progress state.
-- Feature list.
-- Verification commands.
+- Progress and feature state.
+- Verification and startup commands.
 - Skills, plugins, and security.
 
 The result is a gap report — what exists, what is missing, and what would
@@ -57,11 +57,12 @@ Active task: feat-001 — Health endpoint. AC: curl /health returns 200.
 For meaningful work:
 
 ```text
-/prevc Adicionar endpoint de health check
+/prevc prepare Add a health check endpoint
 ```
 
-PREVC manages the lifecycle: it plans, reviews, executes, validates, judges, and
-confirms. Each phase stays within the approved scope.
+PREVC groups seven stages into four phases: Prepare (`prepare` + `plan`),
+Execute (`execute`), Validate (`validate` + `judge`), and Confirm (`refine` +
+`confirm`). Each phase stays within the approved scope.
 
 ## 5. End the session
 

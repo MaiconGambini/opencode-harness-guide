@@ -2,11 +2,14 @@
 sidebar_position: 2
 ---
 
-# Instalação
+# Instalação do runtime
 
-O Harness OpenCode é distribuído como um repositório Git público. Você clona
-em `~/.config/opencode` e os arquivos ficam disponíveis imediatamente para
-o OpenCode.
+O Harness OpenCode é distribuído como um repositório Git público. Este guia
+instala o runtime em `~/.config/opencode`; instalar o site de documentação é
+um processo separado descrito no [README do repositório](https://github.com/MaiconGambini/opencode-harness-guide#readme).
+
+Você clona a árvore na configuração do OpenCode e reinicia o processo após a
+instalação.
 
 ## Passo 1: Fazer backup da configuração atual (se existir)
 
@@ -17,8 +20,8 @@ renomeie a pasta antes de clonar:
 Rename-Item -LiteralPath "$env:USERPROFILE\.config\opencode" -NewName "opencode-backup"
 ```
 
-A versão 1 não faz merge automático em uma configuração existente. Use o
-backup como referência e copie o que quiser depois.
+A instalação atual não faz merge automático em uma configuração existente. Use
+o backup como referência e copie o que quiser depois.
 
 ## Passo 2: Clonar o repositório
 
@@ -26,11 +29,11 @@ backup como referência e copie o que quiser depois.
 git clone https://github.com/MaiconGambini/opencode-harness-guide.git "$env:USERPROFILE\.config\opencode"
 ```
 
-## Passo 3: Instalar dependências Node
+## Passo 3: Instalar dependências do runtime
 
 ```powershell
 Set-Location "$env:USERPROFILE\.config\opencode"
-npm install
+npm ci
 ```
 
 ## Passo 4: Verificar a instalação
@@ -40,7 +43,8 @@ npm run typecheck
 npm test
 ```
 
-Se ambos os comandos retornarem sem erros, o harness está pronto para uso.
+Se ambos os comandos retornarem sem erros, feche e reabra o OpenCode. O runtime
+carrega a configuração apenas na inicialização.
 
 ## Estrutura resultante
 
@@ -60,7 +64,7 @@ OpenCode lê diretamente.
 
 | Problema | Ação |
 |---|---|
-| `npm install` falha | Verifique se o Node.js 20+ está instalado (`node --version`). |
+| `npm ci` falha | Verifique se o Node.js 20+ está instalado (`node --version`). |
 | `npm run typecheck` falha | O TypeScript pode estar desatualizado. Rode `npm ci` e tente novamente. |
 | OpenCode não carrega os comandos | Feche e reabra o OpenCode. A configuração é carregada apenas na inicialização. |
 

@@ -5,8 +5,8 @@ sidebar_position: 3
 # Segurança
 
 Limites de segurança do Harness OpenCode. É importante entender tanto o que o
-harness protege quanto o que ele deliberadamente não protege — a segurança
-mora na fase de planejamento e aprovação, não em bloqueios automáticos.
+harness protege quanto o que ele deliberadamente não protege. A segurança
+depende de planejamento, aprovação e controles automáticos combinados.
 
 ## O que o harness protege
 
@@ -42,10 +42,10 @@ O `harness-permission-policy.ts` pede aprovação explícita para:
 A regra de fallback para comandos Bash mutantes é **ask** — o padrão é
 perguntar antes de executar.
 
-No v1.3, `refiner` e `rule-verifier` são read-only: não editam, não executam
-shell, não delegam e não acessam diretórios externos. Reviewers também não
-gravam findings; o scheduler valida e escreve. Mudanças em `opencode.jsonc`
-exigem restart antes de valer no processo do OpenCode.
+Na configuração atual, `refiner` e `rule-verifier` são somente leitura: não
+editam, não executam shell, não delegam e não acessam diretórios externos.
+Revisores também não gravam findings; o scheduler valida e escreve. Alterações
+em `opencode.jsonc` exigem reinício antes de valer no processo do OpenCode.
 
 ## Logs e retenção
 
