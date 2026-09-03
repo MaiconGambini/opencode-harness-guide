@@ -131,6 +131,14 @@ by the spec; if it does not specify one, use `code-reviewer` and
 `architecture-reviewer`.
 :::
 
+## Fan-out with OpenCode and Oh My Pi
+
+The `spec-lead` authorizes the plan, `task` dispatches a lane, and `tasks[]`
+dispatches a wave of independent lanes. Use `hub` for coordination and
+blockers; reconcile ownership before running the full gate. OpenCode supplies
+the methodological and continuity contract, while Oh My Pi supplies native
+parallel dispatch when this reference is executed there.
+
 ## The lane table
 
 Before dispatching, `spec-lead` builds a lane table. Each lane declares file

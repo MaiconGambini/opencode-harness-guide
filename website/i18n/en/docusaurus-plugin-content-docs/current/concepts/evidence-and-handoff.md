@@ -70,3 +70,7 @@ with the exact cause, and **Next Best Step** says exactly what to do.
   event traces.
 - **When to use the OMP path:** when validation requires multiple local services,
   real end-to-end tests, or telemetry collection without manual intervention.
+
+## Next step
+
+See [PREVC](./prevc) for the delivery lifecycle or [WIP=1](./wip-one) for execution focus.

@@ -69,6 +69,8 @@ aceitação do operador nem afirmam que a qualidade seja automática.
 > executada. As capacidades desta série só ficam disponíveis após reiniciar o
 > OpenCode. Veja [Casos de Uso](./adoption/use-cases) para os fluxos descritos.
 
+## O que você encontrará
+
 O método organiza trabalhos significativos em fronteiras explícitas:
 
 | Seção | O que cobre |

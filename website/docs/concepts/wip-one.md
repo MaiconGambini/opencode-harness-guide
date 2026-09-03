@@ -42,10 +42,6 @@ o contrato, atualize-o e obtenha aprovação antes de prosseguir.
 
 O **OpenCode** fornece a metodologia, a referência e a continuidade entre sessões. O **Oh My Pi** fornece o motor nativo de **32 subagentes**, fan-out paralelo e sharding. O caminho OMP é relevante para várias unidades independentes, com donos e dependências sem sobreposição; uma tarefa sequencial continua em uma única lane. Cada lane ainda tem WIP=1 e não compartilha um contexto de trabalho sem contrato explícito.
 
-## Próximo passo
-
-Não expanda o escopo silenciosamente. Se o escopo crescer, pare, atualize o
-sprint contract e peça aprovação.
 
 ## OpenCode e Oh My Pi no WIP=1
 

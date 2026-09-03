@@ -43,6 +43,13 @@ Before any significant change, the harness answers:
 5. Who decides whether the result can be accepted?
 6. What does a next session need to read in order to continue?
 
+## The OpenCode identity
+
+The OpenCode Harness is a methodological reference. It organizes the PREVC
+cycle, durable state, evidence, and handoffs so teams can resume work across
+sessions without relying on chat memory. Use this documentation to define the
+process and criteria before choosing how to execute each lane.
+
 ## How this is implemented in OpenCode
 
 - **Shared contract:** PREVC defines phases, WIP=1, evidence, and human

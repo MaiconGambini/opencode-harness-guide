@@ -18,7 +18,15 @@ Think of PREVC as an engineering flow used before sending code to production:
 3. **Validate:** it runs checks and receives an independent Judge evaluation.
 4. **Confirm:** it presents Refine to the operator, who decides whether the work can finish.
 
+## The four-stage flow
+
+Plan approval, review, Judge, and Refine are controls within the four phases.
+Approval releases **Execute**; review and Judge reinforce **Validate**; the
+operator's decision belongs to **Confirm**.
+
+
 ## Lifecycle flow
+
 
 ```text
 ┌─────────────────┐
@@ -49,9 +57,26 @@ Think of PREVC as an engineering flow used before sending code to production:
 - **Oh My Pi:** native parallel-dispatch engine and its own coordination. The
   contract stays the same; runtime mechanisms vary.
 
+## OpenCode and Oh My Pi
+
+OpenCode is the source and methodological reference for this contract. It
+provides durable state and multi-session continuity; Oh My Pi provides the native
+parallel-dispatch engine when independent lanes need to run together.
+
+
+## Basic usage
+
+The shortest OpenCode path is `/prevc prepare <objective>` followed by
+`/prevc run` after plan approval. The phase sections below explain the evidence
+and ownership expected at each step.
+
 ## How to use in OpenCode
 
-Start PREVC with the task description:
+### Prepare
+
+Start by reading the relevant context, rules, state, and handoff. Classify risk,
+identify the verification command, and write the objective, scope, non-scope,
+acceptance criteria, dependencies, and plan.
 
 ```text
 /prevc prepare Add a health check endpoint
@@ -60,14 +85,29 @@ Start PREVC with the task description:
 - Discovers context, classifies risk, and prepares the plan.
 - Stops at `awaiting_plan_approval`, waiting for your confirmation.
 
-After approval, run:
+### Execute
+
+After approval, change only the approved scope. Keep ownership and dependencies
+explicit, and preserve WIP=1 for each active unit.
 
 ```text
 /prevc run
 ```
 
 - Executes within the approved scope.
-- Validates the result and delivers the handoff.
+- Delivers the handoff after validation.
+
+### Validate
+
+Run the defined checks and record commands, workspace, output, and exit code.
+Use independent gates when the risk requires them; missing or ambiguous evidence
+stops the flow rather than closing it automatically.
+
+### Confirm
+
+The operator reviews the result, evidence, and handoff. Acceptance records
+completion; revision returns to planning; abort records the reason.
+
 
 ## OpenCode-specific command: `/goal`
 

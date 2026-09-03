@@ -8,8 +8,6 @@ sidebar_position: 1
 
 > **Estado PREVC:** Fast path simplificado — até 3 arquivos, escopo determinístico, sem cerimônia pesada de spec.
 
-Este guia demonstra o fluxo rápido para tarefas pontuais de engenharia (como bugfixes cirúrgicos de 2 minutos), mantendo a integridade de evidências e continuidade de estado sem a sobrecarga de um planejamento cerimonial completo.
-
 Este guia demonstra o fluxo rápido para tarefas pontuais de engenharia, como
 bugfixes cirúrgicos de poucos minutos, mantendo a integridade de evidências e
 continuidade de estado sem a sobrecarga de um planejamento completo.

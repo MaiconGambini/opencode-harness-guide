@@ -11,6 +11,14 @@ This guide demonstrates the fast path for focused engineering tasks, such as a
 two-minute surgical bug fix, while preserving evidence and durable continuity
 without the overhead of a full planning ceremony.
 
+## Two-minute example
+
+**Prompt:** `Fix GET /api/health in app/main.py: return {"status":"ok"} with HTTP 200 and verify the local contract.`
+
+The one-file scope does not need a scheduler or subagents. After the fix, record
+the prompt, file, command, and observed output in `session-handoff.md`. If a
+second decision or file appears, return to the [complex feature flow](./complex-feature).
+
 ## Why does fast mode skip the PREVC ceremony?
 
 The full PREVC cycle mitigates architectural risk and coordinates complex
